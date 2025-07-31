@@ -48,7 +48,7 @@ export default function NavBar({ navLinks }: { navLinks: NavLinkType[] }) {
         </ul>
       </div>
       <div className="navbar-end">
-        <Link href={"/visit"} className="btn">
+        <Link href={"/visit"} className="btn btn-soft btn-info">
           Disponibilités
         </Link>
       </div>

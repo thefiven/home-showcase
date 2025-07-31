@@ -1,1 +1,5 @@
-export default function Visit() {}
+import Calendar from "@/components/calendar/calendar";
+
+export default function Visit() {
+  return <Calendar />;
+}
