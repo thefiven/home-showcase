@@ -21,12 +21,18 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends wget \
     && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=development
+COPY --from=deps /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 COPY apps/cms apps/cms
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/cms/node_modules ./apps/cms/node_modules
 WORKDIR /app/apps/cms
 EXPOSE 1337
-CMD ["pnpm", "run", "develop"]
+# `pnpm install` explicite : le volume nommé node_modules (persistance du
+# hot-reload) est vide à sa création et repeuplé depuis l'image ; le check
+# implicite que `pnpm run` déclenche alors sur un volume tout juste peuplé
+# échoue à valider les build scripts déjà autorisés (pnpm-workspace.yaml).
+# Un `install` explicite en amont est idempotent et évite ce faux négatif.
+CMD ["sh", "-c", "pnpm install && pnpm run develop"]
 
 FROM deps AS build
 ENV NODE_ENV=production
@@ -36,6 +42,7 @@ RUN pnpm run build
 
 FROM base AS production
 ENV NODE_ENV=production
+COPY --from=build /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/apps/cms ./apps/cms
 WORKDIR /app/apps/cms
