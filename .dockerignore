@@ -1,0 +1,26 @@
+# dependencies (réinstallées dans l'image)
+**/node_modules
+
+# vcs / editeur
+**/.git
+**/.vscode
+**/.DS_Store
+
+# secrets locaux — jamais dans une image, injectés à l'exécution
+**/.env
+**/.env.*
+
+# next.js (apps/web) — régénéré par le build
+apps/web/.next
+apps/web/out
+apps/web/next-env.d.ts
+apps/web/*.tsbuildinfo
+
+# strapi (apps/cms) — régénéré par le build/dev
+apps/cms/.strapi
+apps/cms/.cache
+apps/cms/dist
+apps/cms/build
+apps/cms/.tmp
+apps/cms/*.tsbuildinfo
+apps/cms/types/generated
