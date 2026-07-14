@@ -6,3 +6,5 @@ apps/cms/dist
 apps/cms/build
 apps/cms/.strapi
 apps/cms/.cache
+apps/cms/types/generated
+apps/cms/public/uploads
