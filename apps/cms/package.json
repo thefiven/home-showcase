@@ -1,0 +1,47 @@
+{
+  "name": "cms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Strapi application",
+  "scripts": {
+    "build": "strapi build",
+    "console": "strapi console",
+    "deploy": "strapi deploy",
+    "dev": "strapi develop",
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "strapi": "strapi",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "upgrade": "npx @strapi/upgrade latest",
+    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+  },
+  "dependencies": {
+    "@strapi/plugin-cloud": "5.50.1",
+    "@strapi/plugin-users-permissions": "5.50.1",
+    "@strapi/strapi": "5.50.1",
+    "better-sqlite3": "12.8.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^9.39.5",
+    "typescript": "^5",
+    "typescript-eslint": "^8.63.0",
+    "vitest": "^4.1.10"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "strapi": {
+    "uuid": "0150ba2a-7f1d-4207-adbd-30a5008681aa",
+    "installId": "43a4a62521cf2946034d9e578f801b2631d7a0f20b7b3803c3a3a505cbb40b8f"
+  }
+}
