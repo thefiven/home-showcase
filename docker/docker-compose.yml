@@ -23,6 +23,10 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: "1337"
+      # Fixés ici (pas dans docker/.env) : c'est la topologie du réseau Docker
+      # (service "postgres") qui l'impose, pas une valeur que l'utilisateur
+      # doit pouvoir surcharger. Ces deux clés prennent le pas sur toute
+      # valeur du même nom présente dans env_file ci-dessus.
       DATABASE_CLIENT: postgres
       DATABASE_HOST: postgres
     depends_on:
@@ -30,18 +34,23 @@ services:
         condition: service_healthy
     ports:
       - "1337:1337"
+    volumes:
+      - ../apps/cms:/app/apps/cms
+      - cms_node_modules:/app/apps/cms/node_modules
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:1337/_health"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 30
+      start_period: 60s
 
   web:
     build:
       context: ..
       dockerfile: docker/web.Dockerfile
       target: dev
+      args:
+        NEXT_PUBLIC_STRAPI_URL: ${NEXT_PUBLIC_STRAPI_URL}
     restart: unless-stopped
     env_file: ./.env
     environment:
@@ -51,6 +60,11 @@ services:
         condition: service_healthy
     ports:
       - "3000:3000"
+    volumes:
+      - ../apps/web:/app/apps/web
+      - web_node_modules:/app/apps/web/node_modules
 
 volumes:
   postgres_data:
+  cms_node_modules:
+  web_node_modules:

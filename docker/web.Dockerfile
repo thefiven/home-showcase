@@ -17,6 +17,10 @@ EXPOSE 3000
 CMD ["pnpm", "run", "dev"]
 
 FROM deps AS build
+# NEXT_PUBLIC_* est inliné dans le bundle client par `next build` — doit donc
+# être fourni comme build arg (pas seulement comme env de conteneur au runtime).
+ARG NEXT_PUBLIC_STRAPI_URL
+ENV NEXT_PUBLIC_STRAPI_URL=$NEXT_PUBLIC_STRAPI_URL
 ENV NODE_ENV=production
 COPY apps/web apps/web
 WORKDIR /app/apps/web

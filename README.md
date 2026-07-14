@@ -19,4 +19,10 @@ pnpm docker:down  # arrête les services (les données Postgres sont conservées
 - Next.js : http://localhost:3000
 - Strapi (admin) : http://localhost:1337/admin
 
+`apps/web` et `apps/cms` sont montés dans leurs conteneurs respectifs : les
+modifications de code sont prises en compte à chaud (hot-reload Next.js /
+Strapi), sans reconstruire l'image. Un rebuild (`pnpm docker:up`, qui relance
+toujours `--build`) n'est nécessaire qu'après un changement de dépendances
+(`package.json`) ou de Dockerfile.
+
 Voir `docker/docker-compose.yml` pour le détail des services.

@@ -40,7 +40,7 @@ Pas de contrainte de délai : projet développé au rythme normal, sans deadline
 |---|---|
 | Frontend | Next.js (TypeScript), rendu SSR/SSG pour le SEO |
 | CMS | Strapi, self-hosted (plutôt qu'un SaaS type Sanity, pour rester cohérent avec la cible d'hébergement) |
-| Base de données | PostgreSQL (utilisée par Strapi), démarrée via `docker/docker-compose.yml` (issue #2). `apps/cms` peut aussi tourner sur SQLite en local hors Docker (issue #1, fallback pratique sans lancer les conteneurs) |
+| Base de données | PostgreSQL (utilisée par Strapi) — cible et environnement de référence, démarré via `docker/docker-compose.yml` (issue #2). `apps/cms` peut aussi tourner sur SQLite en local hors Docker (issue #1, fallback pratique sans lancer les conteneurs, mais non garanti à parité avec Postgres) |
 | Conteneurisation | Docker dès le départ : `docker/docker-compose.yml` (Postgres + Strapi + Next.js) et Dockerfiles multi-stage (`dev`/`production`) par app — voir README.md |
 | Hébergement cible | Homelab **k3s** (Kubernetes), pas encore en place — le repo doit rester "portable" (pas de dépendance à un PaaS propriétaire) mais les manifests k3s/Helm sont une phase ultérieure |
 | Structure de repo | Monorepo : `apps/web` (Next.js) + `apps/cms` (Strapi), gestion via workspaces `pnpm` |
