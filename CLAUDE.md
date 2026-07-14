@@ -10,7 +10,7 @@ Vitrine web multi-logements type Airbnb (complément à Airbnb, pas un remplacem
 
 - **Frontend** : Next.js (TypeScript), SSR/SSG. Multilingue FR/EN dès le MVP.
 - **CMS** : Strapi, self-hosted. Sert aussi de backend pour les demandes de réservation et la disponibilité (pas de base/backend séparé côté web).
-- **Base de données** : PostgreSQL (utilisée par Strapi).
+- **Base de données** : PostgreSQL (utilisée par Strapi) — cible finale. Le SQLite actuel dans `apps/cms` (issue #1) est temporaire, en attendant l'environnement Docker de l'issue #2.
 - **Gestionnaire de paquets** : `pnpm` (workspaces pour le monorepo).
 - **Conteneurisation** : Docker + docker-compose pour le développement local (Next.js, Strapi, Postgres).
 - **Hébergement cible** : homelab k3s (à venir) — éviter toute dépendance à un PaaS propriétaire non portable. Les manifests Helm/k3s seront ajoutés dans une phase dédiée ultérieure, pas au démarrage.
