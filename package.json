@@ -11,7 +11,9 @@
     "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "docker:up": "docker compose -f docker/docker-compose.yml --env-file docker/.env up --build",
+    "docker:down": "docker compose -f docker/docker-compose.yml --env-file docker/.env down"
   },
   "devDependencies": {
     "prettier": "^3.4.2"
