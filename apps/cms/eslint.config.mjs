@@ -16,9 +16,12 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    // Strapi's generated config files use a `({ env }) => ({...})` signature
+    // for every config module even when `env` isn't needed by that module.
+    // Scoped to config/ only so a real unused-argument bug in src/ (e.g. an
+    // unused ctx/event in a controller or lifecycle hook) still gets caught.
+    files: ["config/**/*.ts"],
     rules: {
-      // Strapi's generated config files use a `({ env }) => ({...})` signature
-      // for every config module even when `env` isn't needed by that module.
       "@typescript-eslint/no-unused-vars": ["error", { args: "none" }],
     },
   },

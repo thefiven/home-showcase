@@ -36,8 +36,12 @@
 
     // Do not include admin files in the server compilation
     "src/admin/",
+    // Vitest loads this itself via esbuild, independent of this tsconfig;
+    // it also imports ../../vitest.shared, which sits outside rootDir.
+    "vitest.config.ts",
     // Do not include test files
     "**/*.test.*",
+    "**/*.spec.*",
     // Do not include plugins in the server compilation
     "src/plugins/**"
   ]
