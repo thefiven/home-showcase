@@ -38,6 +38,7 @@ Modèle de contenu Strapi (`apps/cms`) : `Property`, `Availability` (alimenté p
 - Prioriser la logique métier critique : calcul/fusion de disponibilité, parsing et synchronisation iCal, workflow de statut des demandes de réservation (`pending`/`accepted`/`refused`), endpoints API Strapi.
 - Pas de tests E2E pour l'instant (à introduire avec Playwright une fois le MVP stabilisé) — ne pas ajouter cette dépendance sans validation préalable.
 - Ne pas tester ce qui relève du framework lui-même (rendu Next.js par défaut, admin Strapi standard) — se concentrer sur le code métier propre au projet.
+- Vitest est configuré dans `apps/web` et `apps/cms` (`pnpm run test` à la racine, `--passWithNoTests` tant qu'aucune logique métier n'existe) : c'est la fondation posée dès le monorepo (issue #1), à remplir au fil des issues qui introduisent de la vraie logique (ex. sync iCal, workflow de réservation).
 
 ## Workflow Git
 
