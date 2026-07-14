@@ -5,11 +5,6 @@
     "icon": "check"
   },
   "options": {},
-  "pluginOptions": {
-    "i18n": {
-      "localized": true
-    }
-  },
   "attributes": {
     "label": {
       "type": "string",
