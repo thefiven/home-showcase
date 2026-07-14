@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_shared_amenities",
+  "info": {
+    "displayName": "Amenity",
+    "icon": "check"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "icon": {
+      "type": "string"
+    }
+  }
+}

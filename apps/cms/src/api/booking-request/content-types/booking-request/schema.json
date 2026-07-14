@@ -1,0 +1,57 @@
+{
+  "kind": "collectionType",
+  "collectionName": "booking_requests",
+  "info": {
+    "singularName": "booking-request",
+    "pluralName": "booking-requests",
+    "displayName": "Booking Request",
+    "description": "Demande de réservation soumise par un visiteur, à valider par la propriétaire."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "property": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::property.property",
+      "inversedBy": "bookingRequests"
+    },
+    "startDate": {
+      "type": "date",
+      "required": true
+    },
+    "endDate": {
+      "type": "date",
+      "required": true
+    },
+    "guestName": {
+      "type": "string",
+      "required": true
+    },
+    "guestEmail": {
+      "type": "email",
+      "required": true
+    },
+    "guestPhone": {
+      "type": "string"
+    },
+    "numberOfGuests": {
+      "type": "integer"
+    },
+    "message": {
+      "type": "text"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "accepted", "refused"],
+      "default": "pending",
+      "required": true
+    }
+  }
+}
