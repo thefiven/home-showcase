@@ -24,3 +24,7 @@ apps/cms/build
 apps/cms/.tmp
 apps/cms/*.tsbuildinfo
 apps/cms/types/generated
+
+# uploads locaux (fallback SQLite hors Docker) — jamais dans une image,
+# même règle que .gitignore : ne jamais embarquer de vrais médias uploadés
+apps/cms/public/uploads/*
