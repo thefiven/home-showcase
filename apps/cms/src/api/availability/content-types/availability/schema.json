@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "availabilities",
+  "info": {
+    "singularName": "availability",
+    "pluralName": "availabilities",
+    "displayName": "Availability",
+    "description": "Plage de dates bloquée pour un logement, alimentée par la synchronisation iCal Airbnb."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "property": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::property.property",
+      "inversedBy": "availabilities"
+    },
+    "startDate": {
+      "type": "date",
+      "required": true
+    },
+    "endDate": {
+      "type": "date",
+      "required": true
+    },
+    "source": {
+      "type": "enumeration",
+      "enum": ["airbnb", "manual"],
+      "default": "airbnb",
+      "required": true
+    },
+    "externalUid": {
+      "type": "string",
+      "description": "UID de l'événement iCal, utilisé pour un upsert idempotent lors de la synchronisation."
+    },
+    "summary": {
+      "type": "string"
+    }
+  }
+}

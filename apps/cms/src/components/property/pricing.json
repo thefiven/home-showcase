@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_property_pricings",
+  "info": {
+    "displayName": "Pricing",
+    "icon": "money"
+  },
+  "options": {},
+  "attributes": {
+    "basePricePerNight": {
+      "type": "decimal",
+      "required": true
+    },
+    "cleaningFee": {
+      "type": "decimal"
+    },
+    "currency": {
+      "type": "enumeration",
+      "enum": ["EUR", "USD", "GBP"],
+      "default": "EUR",
+      "required": true
+    }
+  }
+}
