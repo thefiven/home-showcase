@@ -1,0 +1,133 @@
+import type { Property, StrapiCollectionResponse } from "./types";
+
+/** Locale par défaut tant que le routing i18n (issue #5) n'existe pas. */
+export const DEFAULT_LOCALE = "fr";
+
+/** Durée de revalidation ISR (secondes) : SSG rafraîchi périodiquement. */
+export const REVALIDATE_SECONDS = 60;
+
+interface StrapiEnv {
+  NEXT_PUBLIC_STRAPI_URL?: string;
+  STRAPI_INTERNAL_URL?: string;
+}
+
+function currentEnv(): StrapiEnv {
+  return process.env as StrapiEnv;
+}
+
+function stripTrailingSlash(url: string): string {
+  return url.replace(/\/+$/, "");
+}
+
+/**
+ * URL de base utilisée pour les appels serveur (SSR/ISR) : priorité à
+ * `STRAPI_INTERNAL_URL` (résolue par le conteneur `web` sur le réseau Docker,
+ * ex. `http://cms:1337`), avec repli sur `NEXT_PUBLIC_STRAPI_URL`.
+ */
+export function resolveServerBaseUrl(env: StrapiEnv = currentEnv()): string {
+  const url = env.STRAPI_INTERNAL_URL || env.NEXT_PUBLIC_STRAPI_URL;
+  if (!url) {
+    throw new Error(
+      "STRAPI_INTERNAL_URL ou NEXT_PUBLIC_STRAPI_URL doit être défini pour joindre Strapi.",
+    );
+  }
+  return stripTrailingSlash(url);
+}
+
+/**
+ * URL de base résolvable par le navigateur, utilisée pour préfixer les
+ * chemins de médias renvoyés par Strapi (relatifs à son propre hôte).
+ */
+export function resolvePublicBaseUrl(env: StrapiEnv = currentEnv()): string {
+  const url = env.NEXT_PUBLIC_STRAPI_URL;
+  if (!url) {
+    throw new Error("NEXT_PUBLIC_STRAPI_URL doit être défini pour construire les URLs de médias.");
+  }
+  return stripTrailingSlash(url);
+}
+
+/** Préfixe une URL de média Strapi (relative) avec l'URL publique. Idempotent sur les URLs déjà absolues. */
+export function mediaUrl(path: string | undefined | null, env: StrapiEnv = currentEnv()): string | null {
+  if (!path) return null;
+  if (/^https?:\/\//.test(path)) return path;
+  return `${resolvePublicBaseUrl(env)}${path}`;
+}
+
+/** `GET /api/properties` — liste, avec populate des relations/composants nécessaires à l'affichage. */
+export function buildPropertiesListUrl(locale: string = DEFAULT_LOCALE, env: StrapiEnv = currentEnv()): string {
+  const params = new URLSearchParams();
+  params.set("locale", locale);
+  params.set("populate[photos]", "true");
+  params.set("populate[location]", "true");
+  params.set("populate[pricing]", "true");
+  params.set("populate[amenities]", "true");
+  return `${resolveServerBaseUrl(env)}/api/properties?${params.toString()}`;
+}
+
+/** `GET /api/properties?filters[slug][$eq]=...` — détail par slug (non localisé, partagé entre langues). */
+export function buildPropertyBySlugUrl(
+  slug: string,
+  locale: string = DEFAULT_LOCALE,
+  env: StrapiEnv = currentEnv(),
+): string {
+  const params = new URLSearchParams();
+  params.set("filters[slug][$eq]", slug);
+  params.set("locale", locale);
+  params.set("populate", "*");
+  return `${resolveServerBaseUrl(env)}/api/properties?${params.toString()}`;
+}
+
+/** URL minimale (slug seul) pour `generateStaticParams`. */
+export function buildSlugsUrl(env: StrapiEnv = currentEnv()): string {
+  const params = new URLSearchParams();
+  params.set("fields[0]", "slug");
+  params.set("locale", DEFAULT_LOCALE);
+  params.set("pagination[pageSize]", "100");
+  return `${resolveServerBaseUrl(env)}/api/properties?${params.toString()}`;
+}
+
+async function fetchJson<T>(url: string): Promise<T> {
+  const response = await fetch(url, { next: { revalidate: REVALIDATE_SECONDS } });
+  if (!response.ok) {
+    throw new Error(`Requête Strapi échouée (${response.status}) : ${url}`);
+  }
+  return (await response.json()) as T;
+}
+
+/** Logements publiés pour la page liste. Retourne `[]` si Strapi est injoignable. */
+export async function getProperties(locale: string = DEFAULT_LOCALE): Promise<Property[]> {
+  try {
+    const json = await fetchJson<StrapiCollectionResponse<Property>>(buildPropertiesListUrl(locale));
+    return json.data;
+  } catch (error) {
+    console.error("[strapi] getProperties a échoué :", error);
+    return [];
+  }
+}
+
+/** Logement par slug pour la page détail. Retourne `null` si absent ou si Strapi est injoignable. */
+export async function getPropertyBySlug(
+  slug: string,
+  locale: string = DEFAULT_LOCALE,
+): Promise<Property | null> {
+  try {
+    const json = await fetchJson<StrapiCollectionResponse<Property>>(
+      buildPropertyBySlugUrl(slug, locale),
+    );
+    return json.data[0] ?? null;
+  } catch (error) {
+    console.error(`[strapi] getPropertyBySlug("${slug}") a échoué :`, error);
+    return null;
+  }
+}
+
+/** Slugs publiés, pour `generateStaticParams`. Retourne `[]` si Strapi est injoignable. */
+export async function getAllSlugs(): Promise<string[]> {
+  try {
+    const json = await fetchJson<StrapiCollectionResponse<Pick<Property, "slug">>>(buildSlugsUrl());
+    return json.data.map((property) => property.slug);
+  } catch (error) {
+    console.error("[strapi] getAllSlugs a échoué :", error);
+    return [];
+  }
+}
