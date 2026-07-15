@@ -1,0 +1,13 @@
+# Config : https://lefthook.dev/configuration/
+#
+# Hooks rapides à chaque commit (le repo est encore petit, la suite
+# complète tourne en ~1s ; à passer sur des jobs scopés aux fichiers
+# modifiés si ça devient lent).
+pre-commit:
+  jobs:
+    - name: format
+      run: pnpm run format:check
+    - name: lint
+      run: pnpm run lint
+    - name: test
+      run: pnpm run test
