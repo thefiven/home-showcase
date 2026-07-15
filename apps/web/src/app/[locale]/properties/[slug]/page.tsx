@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllSlugs, getPropertyBySlug } from "@/lib/strapi/client";
+import { getAllSlugs, getAvailabilitiesForProperty, getPropertyBySlug } from "@/lib/strapi/client";
 import { PropertyGallery } from "@/components/PropertyGallery";
 import { PropertyDescription } from "@/components/PropertyDescription";
 import { PricingSummary } from "@/components/PricingSummary";
 import { AmenitiesList } from "@/components/AmenitiesList";
+import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
+import { getDictionary } from "@/i18n/dictionaries";
 import { resolveLocale } from "@/i18n/config";
 import styles from "./page.module.css";
 
@@ -33,11 +35,15 @@ export async function generateMetadata({ params }: PropertyPageProps): Promise<M
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
   const { locale: rawLocale, slug } = await params;
-  const property = await getPropertyBySlug(slug, resolveLocale(rawLocale));
+  const locale = resolveLocale(rawLocale);
+  const property = await getPropertyBySlug(slug, locale);
 
   if (!property) {
     notFound();
   }
+
+  const dictionary = getDictionary(locale);
+  const availabilities = await getAvailabilitiesForProperty(property.documentId);
 
   const { location } = property;
 
@@ -57,6 +63,8 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
       </div>
 
       <PricingSummary pricing={property.pricing} />
+
+      <AvailabilityCalendar availabilities={availabilities} locale={locale} dictionary={dictionary} />
 
       <PropertyDescription content={property.description} />
 
