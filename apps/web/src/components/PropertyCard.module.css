@@ -1,0 +1,50 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent);
+  transition: box-shadow 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+.imageWrapper img {
+  object-fit: cover;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+}
+
+.name {
+  font-size: 1.125rem;
+}
+
+.city {
+  font-size: 0.875rem;
+  opacity: 0.7;
+}
+
+.excerpt {
+  font-size: 0.9375rem;
+  opacity: 0.85;
+}
