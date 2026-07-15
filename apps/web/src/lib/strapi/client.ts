@@ -1,7 +1,8 @@
+import { defaultLocale } from "@/i18n/config";
 import type { Property, StrapiCollectionResponse } from "./types";
 
-/** Locale par défaut tant que le routing i18n (issue #5) n'existe pas. */
-export const DEFAULT_LOCALE = "fr";
+/** Locale de repli utilisée quand une traduction demandée n'existe pas encore côté Strapi. */
+export const DEFAULT_LOCALE = defaultLocale;
 
 /** Durée de revalidation ISR (secondes) : SSG rafraîchi périodiquement. */
 export const REVALIDATE_SECONDS = 60;
@@ -94,18 +95,32 @@ async function fetchJson<T>(url: string): Promise<T> {
   return (await response.json()) as T;
 }
 
-/** Logements publiés pour la page liste. Retourne `[]` si Strapi est injoignable. */
+/**
+ * Logements publiés pour la page liste. Si `locale` n'a aucune entrée traduite,
+ * replie sur `DEFAULT_LOCALE` plutôt que d'afficher une liste vide (SPEC.md §2 :
+ * fallback de traduction). Retourne `[]` si Strapi est injoignable.
+ */
 export async function getProperties(locale: string = DEFAULT_LOCALE): Promise<Property[]> {
   try {
     const json = await fetchJson<StrapiCollectionResponse<Property>>(buildPropertiesListUrl(locale));
-    return json.data;
+    if (json.data.length > 0 || locale === DEFAULT_LOCALE) {
+      return json.data;
+    }
+    const fallback = await fetchJson<StrapiCollectionResponse<Property>>(
+      buildPropertiesListUrl(DEFAULT_LOCALE),
+    );
+    return fallback.data;
   } catch (error) {
     console.error("[strapi] getProperties a échoué :", error);
     return [];
   }
 }
 
-/** Logement par slug pour la page détail. Retourne `null` si absent ou si Strapi est injoignable. */
+/**
+ * Logement par slug pour la page détail. Si aucune traduction n'existe pour
+ * `locale`, replie sur `DEFAULT_LOCALE` (fallback de traduction, SPEC.md §2).
+ * Retourne `null` si absent même en repli, ou si Strapi est injoignable.
+ */
 export async function getPropertyBySlug(
   slug: string,
   locale: string = DEFAULT_LOCALE,
@@ -114,7 +129,14 @@ export async function getPropertyBySlug(
     const json = await fetchJson<StrapiCollectionResponse<Property>>(
       buildPropertyBySlugUrl(slug, locale),
     );
-    return json.data[0] ?? null;
+    const property = json.data[0] ?? null;
+    if (property || locale === DEFAULT_LOCALE) {
+      return property;
+    }
+    const fallback = await fetchJson<StrapiCollectionResponse<Property>>(
+      buildPropertyBySlugUrl(slug, DEFAULT_LOCALE),
+    );
+    return fallback.data[0] ?? null;
   } catch (error) {
     console.error(`[strapi] getPropertyBySlug("${slug}") a échoué :`, error);
     return null;
