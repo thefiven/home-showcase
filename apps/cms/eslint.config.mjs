@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
+import prettier from "eslint-config-prettier";
 
 export default tseslint.config(
   {
@@ -15,6 +16,7 @@ export default tseslint.config(
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  prettier,
   {
     // Strapi's generated config files use a `({ env }) => ({...})` signature
     // for every config module even when `env` isn't needed by that module.

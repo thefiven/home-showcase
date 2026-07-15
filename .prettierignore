@@ -8,3 +8,5 @@ apps/cms/.strapi
 apps/cms/.cache
 apps/cms/types/generated
 apps/cms/public/uploads
+# Rewritten by the Strapi CLI on every update check — not hand-authored.
+apps/cms/.strapi-updater.json

@@ -2,6 +2,6 @@
  * property service
  */
 
-import { factories } from '@strapi/strapi';
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreService('api::property.property');
+export default factories.createCoreService("api::property.property");

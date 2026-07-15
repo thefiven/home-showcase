@@ -36,19 +36,19 @@ Pas de contrainte de délai : projet développé au rythme normal, sans deadline
 
 ## 3. Décisions techniques
 
-| Sujet | Décision |
-|---|---|
-| Frontend | Next.js (TypeScript), rendu SSR/SSG pour le SEO |
-| CMS | Strapi, self-hosted (plutôt qu'un SaaS type Sanity, pour rester cohérent avec la cible d'hébergement) |
-| Base de données | PostgreSQL (utilisée par Strapi) — cible et environnement de référence, démarré via `docker/docker-compose.yml` (issue #2). `apps/cms` peut aussi tourner sur SQLite en local hors Docker (issue #1, fallback pratique sans lancer les conteneurs, mais non garanti à parité avec Postgres) |
-| Conteneurisation | Docker dès le départ : `docker/docker-compose.yml` (Postgres + Strapi + Next.js) et Dockerfiles multi-stage (`dev`/`production`) par app — voir README.md |
-| Hébergement cible | Homelab **k3s** (Kubernetes), pas encore en place — le repo doit rester "portable" (pas de dépendance à un PaaS propriétaire) mais les manifests k3s/Helm sont une phase ultérieure |
-| Structure de repo | Monorepo : `apps/web` (Next.js) + `apps/cms` (Strapi), gestion via workspaces `pnpm` |
-| Demandes de réservation & sync iCal | Gérées **dans Strapi** : content-type `booking-request` (statut pending/accepted/refused) + content-type `availability` alimenté par un job cron Strapi qui importe les iCal Airbnb. Next.js consomme l'API Strapi (pas de base de données ni de backend séparé côté web) |
-| Notification email | Service à trancher avant l'implémentation de la feature notifications (candidat par défaut : Resend ; alternative : SMTP self-hosté, plus cohérent avec la logique homelab mais plus de maintenance) — **point ouvert**, voir §5 |
-| Notification WhatsApp | Hors périmètre MVP, prévu en v2 |
-| Stratégie de tests | Tests unitaires + intégration ciblés (Vitest) sur la logique métier critique (calcul de disponibilité, workflow de réservation, parsing iCal) et sur les endpoints API. Pas de E2E pour l'instant |
-| Workflow Git | Solo mais rigoureux : branches par feature, commits gitmoji, PR systématique sur GitHub avant merge sur `main` (via l'intégration MCP GitHub), voir `CLAUDE.md` |
+| Sujet                               | Décision                                                                                                                                                                                                                                                                                    |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend                            | Next.js (TypeScript), rendu SSR/SSG pour le SEO                                                                                                                                                                                                                                             |
+| CMS                                 | Strapi, self-hosted (plutôt qu'un SaaS type Sanity, pour rester cohérent avec la cible d'hébergement)                                                                                                                                                                                       |
+| Base de données                     | PostgreSQL (utilisée par Strapi) — cible et environnement de référence, démarré via `docker/docker-compose.yml` (issue #2). `apps/cms` peut aussi tourner sur SQLite en local hors Docker (issue #1, fallback pratique sans lancer les conteneurs, mais non garanti à parité avec Postgres) |
+| Conteneurisation                    | Docker dès le départ : `docker/docker-compose.yml` (Postgres + Strapi + Next.js) et Dockerfiles multi-stage (`dev`/`production`) par app — voir README.md                                                                                                                                   |
+| Hébergement cible                   | Homelab **k3s** (Kubernetes), pas encore en place — le repo doit rester "portable" (pas de dépendance à un PaaS propriétaire) mais les manifests k3s/Helm sont une phase ultérieure                                                                                                         |
+| Structure de repo                   | Monorepo : `apps/web` (Next.js) + `apps/cms` (Strapi), gestion via workspaces `pnpm`                                                                                                                                                                                                        |
+| Demandes de réservation & sync iCal | Gérées **dans Strapi** : content-type `booking-request` (statut pending/accepted/refused) + content-type `availability` alimenté par un job cron Strapi qui importe les iCal Airbnb. Next.js consomme l'API Strapi (pas de base de données ni de backend séparé côté web)                   |
+| Notification email                  | Service à trancher avant l'implémentation de la feature notifications (candidat par défaut : Resend ; alternative : SMTP self-hosté, plus cohérent avec la logique homelab mais plus de maintenance) — **point ouvert**, voir §5                                                            |
+| Notification WhatsApp               | Hors périmètre MVP, prévu en v2                                                                                                                                                                                                                                                             |
+| Stratégie de tests                  | Tests unitaires + intégration ciblés (Vitest) sur la logique métier critique (calcul de disponibilité, workflow de réservation, parsing iCal) et sur les endpoints API. Pas de E2E pour l'instant                                                                                           |
+| Workflow Git                        | Solo mais rigoureux : branches par feature, commits gitmoji, PR systématique sur GitHub avant merge sur `main` (via l'intégration MCP GitHub), voir `CLAUDE.md`                                                                                                                             |
 
 ## 4. Modèle de contenu (Strapi) — vue d'ensemble
 

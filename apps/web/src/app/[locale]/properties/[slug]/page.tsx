@@ -64,7 +64,11 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
       <PricingSummary pricing={property.pricing} />
 
-      <AvailabilityCalendar availabilities={availabilities} locale={locale} dictionary={dictionary} />
+      <AvailabilityCalendar
+        availabilities={availabilities}
+        locale={locale}
+        dictionary={dictionary}
+      />
 
       <PropertyDescription content={property.description} />
 

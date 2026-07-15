@@ -54,23 +54,23 @@ Projet solo mais avec un historique propre et une PR systématique avant merge s
 
 Chaque commit commence par un gitmoji correspondant à sa nature. Convention déjà initiée sur ce repo (`🎉` pour le commit initial). Emojis à utiliser :
 
-| Emoji | Usage |
-|---|---|
-| 🎉 | Commit initial / lancement du projet |
-| ✨ | Nouvelle fonctionnalité |
-| 🐛 | Correction de bug |
-| ♻️ | Refactoring (sans changement de comportement) |
-| 💄 | Style / UI / CSS |
-| ✅ | Ajout ou correction de tests |
-| 📝 | Documentation |
-| 🔧 | Configuration (outils, env, CI) |
-| ⚡️ | Amélioration de performance |
-| 📦 | Dépendances / build |
-| 👷 | CI/CD |
-| 🚧 | Travail en cours, commit intermédiaire (à éviter sur `main`) |
-| ⏪ | Revert |
-| 🔒 | Sécurité |
-| 🌐 | Internationalisation (FR/EN) |
+| Emoji | Usage                                                        |
+| ----- | ------------------------------------------------------------ |
+| 🎉    | Commit initial / lancement du projet                         |
+| ✨    | Nouvelle fonctionnalité                                      |
+| 🐛    | Correction de bug                                            |
+| ♻️    | Refactoring (sans changement de comportement)                |
+| 💄    | Style / UI / CSS                                             |
+| ✅    | Ajout ou correction de tests                                 |
+| 📝    | Documentation                                                |
+| 🔧    | Configuration (outils, env, CI)                              |
+| ⚡️    | Amélioration de performance                                  |
+| 📦    | Dépendances / build                                          |
+| 👷    | CI/CD                                                        |
+| 🚧    | Travail en cours, commit intermédiaire (à éviter sur `main`) |
+| ⏪    | Revert                                                       |
+| 🔒    | Sécurité                                                     |
+| 🌐    | Internationalisation (FR/EN)                                 |
 
 Format : `<gitmoji> <résumé court à l'impératif>` (ex. `✨ Ajoute le formulaire de demande de réservation`).
 

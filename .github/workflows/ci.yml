@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run format:check
+
+      - run: pnpm run lint
+
+      - run: pnpm run test
+
+      - name: Build
+        run: pnpm run build
+        env:
+          # apps/cms (Strapi) needs these to boot even for a build — no real
+          # secrets here, sqlite fallback, matches apps/cms/.env.example.
+          APP_KEYS: "ci-key-1,ci-key-2"
+          API_TOKEN_SALT: "ci-salt"
+          ADMIN_JWT_SECRET: "ci-secret"
+          TRANSFER_TOKEN_SALT: "ci-salt"
+          JWT_SECRET: "ci-secret"
+          ENCRYPTION_KEY: "ci-key"
+          DATABASE_CLIENT: "sqlite"
+          DATABASE_FILENAME: ".tmp/ci-data.db"
+          # apps/web builds without a live Strapi backend: fetches fail
+          # gracefully (caught, logged), pages just render with no data.
+          NEXT_PUBLIC_STRAPI_URL: "http://localhost:1337"
+          STRAPI_INTERNAL_URL: "http://localhost:1337"

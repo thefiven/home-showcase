@@ -12,10 +12,12 @@
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "docker:up": "docker compose -f docker/docker-compose.yml --env-file docker/.env up --build",
     "docker:down": "docker compose -f docker/docker-compose.yml --env-file docker/.env down"
   },
   "devDependencies": {
+    "lefthook": "^2.1.10",
     "prettier": "^3.4.2"
   }
 }

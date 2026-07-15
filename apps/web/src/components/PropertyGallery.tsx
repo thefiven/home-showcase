@@ -6,7 +6,11 @@ import styles from "./PropertyGallery.module.css";
 export function PropertyGallery({ photos, alt }: { photos?: StrapiMedia[] | null; alt: string }) {
   if (!photos || photos.length === 0) {
     return (
-      <div className={styles.placeholder} role="img" aria-label={`Aucune photo disponible pour ${alt}`} />
+      <div
+        className={styles.placeholder}
+        role="img"
+        aria-label={`Aucune photo disponible pour ${alt}`}
+      />
     );
   }
 

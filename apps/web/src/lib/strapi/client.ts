@@ -48,14 +48,20 @@ export function resolvePublicBaseUrl(env: StrapiEnv = currentEnv()): string {
 }
 
 /** Préfixe une URL de média Strapi (relative) avec l'URL publique. Idempotent sur les URLs déjà absolues. */
-export function mediaUrl(path: string | undefined | null, env: StrapiEnv = currentEnv()): string | null {
+export function mediaUrl(
+  path: string | undefined | null,
+  env: StrapiEnv = currentEnv(),
+): string | null {
   if (!path) return null;
   if (/^https?:\/\//.test(path)) return path;
   return `${resolvePublicBaseUrl(env)}${path}`;
 }
 
 /** `GET /api/properties` — liste, avec populate des relations/composants nécessaires à l'affichage. */
-export function buildPropertiesListUrl(locale: string = DEFAULT_LOCALE, env: StrapiEnv = currentEnv()): string {
+export function buildPropertiesListUrl(
+  locale: string = DEFAULT_LOCALE,
+  env: StrapiEnv = currentEnv(),
+): string {
   const params = new URLSearchParams();
   params.set("locale", locale);
   params.set("populate[photos]", "true");
@@ -119,7 +125,9 @@ async function fetchJson<T>(url: string): Promise<T> {
  */
 export async function getProperties(locale: string = DEFAULT_LOCALE): Promise<Property[]> {
   try {
-    const json = await fetchJson<StrapiCollectionResponse<Property>>(buildPropertiesListUrl(locale));
+    const json = await fetchJson<StrapiCollectionResponse<Property>>(
+      buildPropertiesListUrl(locale),
+    );
     if (json.data.length > 0 || locale === DEFAULT_LOCALE) {
       return json.data;
     }
@@ -166,14 +174,19 @@ export async function getPropertyBySlug(
  * pour refléter une nouvelle synchronisation iCal sans redéploiement.
  * Retourne `[]` si Strapi est injoignable.
  */
-export async function getAvailabilitiesForProperty(propertyDocumentId: string): Promise<Availability[]> {
+export async function getAvailabilitiesForProperty(
+  propertyDocumentId: string,
+): Promise<Availability[]> {
   try {
     const json = await fetchJson<StrapiCollectionResponse<Availability>>(
       buildAvailabilitiesForPropertyUrl(propertyDocumentId),
     );
     return json.data;
   } catch (error) {
-    console.error(`[strapi] getAvailabilitiesForProperty("${propertyDocumentId}") a échoué :`, error);
+    console.error(
+      `[strapi] getAvailabilitiesForProperty("${propertyDocumentId}") a échoué :`,
+      error,
+    );
     return [];
   }
 }

@@ -2,6 +2,6 @@
  * booking-request service
  */
 
-import { factories } from '@strapi/strapi';
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreService('api::booking-request.booking-request');
+export default factories.createCoreService("api::booking-request.booking-request");

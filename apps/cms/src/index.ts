@@ -1,5 +1,5 @@
-import type { Core } from '@strapi/strapi';
-import { ensureLocales, ensurePublicReadPermissions } from './bootstrap';
+import type { Core } from "@strapi/strapi";
+import { ensureLocales, ensurePublicReadPermissions } from "./bootstrap";
 
 export default {
   /**
