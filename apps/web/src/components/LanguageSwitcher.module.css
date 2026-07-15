@@ -1,0 +1,18 @@
+.switcher {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.switcher a {
+  opacity: 0.6;
+}
+
+.switcher a:hover {
+  opacity: 1;
+}
+
+.active {
+  opacity: 1;
+  font-weight: 700;
+  text-decoration: underline;
+}
