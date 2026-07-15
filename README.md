@@ -44,11 +44,10 @@ relance les mêmes étapes + le build sur chaque pull request vers `main`.
 
 ### Branch protection sur `main`
 
-Le repo est privé sur un plan GitHub gratuit, qui ne permet pas de
-configurer la branch protection tant que le repo n'est pas passé en public
-(ou le compte en Pro). Une fois l'un des deux en place, configurer sur
-`main` :
+Le repo est public, ce qui permet la branch protection sans plan payant.
+Configurée sur `main` :
 
-- Pull request obligatoire avant merge (au moins 1 review si applicable).
+- Pull request obligatoire avant merge (0 approbation requise — projet solo).
 - Statut CI (`ci`) requis et à jour avant merge.
-- Pas de push direct sur `main` (y compris pour les admins, si souhaité).
+- Pas de push direct sur `main`, y compris pour les admins.
+- Pas de force-push, pas de suppression de la branche.
