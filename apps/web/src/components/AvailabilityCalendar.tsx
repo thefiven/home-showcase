@@ -66,7 +66,9 @@ function MonthGrid({
   dictionary: Dictionary;
 }) {
   const weeks = buildMonthWeeks(monthStart, startOfWeek);
-  const monthLabel = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(monthStart);
+  const monthLabel = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(
+    monthStart,
+  );
   const weekdayFormatter = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
   const weekdayLabels = weeks[0].map((_, index) => {
     const isoWeekday = ((startOfWeek - 1 + index) % 7) + 1;
@@ -89,15 +91,20 @@ function MonthGrid({
         {weeks.flatMap((week, weekIndex) =>
           week.map((date, dayIndex) => {
             if (!date) {
-              return <span key={`${weekIndex}-${dayIndex}`} className={styles.empty} aria-hidden="true" />;
+              return (
+                <span
+                  key={`${weekIndex}-${dayIndex}`}
+                  className={styles.empty}
+                  aria-hidden="true"
+                />
+              );
             }
             const iso = toIsoDate(date);
             const blocked = blockedDates.has(iso);
             const formattedDate = dateFormatter.format(date);
-            const label = (blocked ? dictionary.calendar.blockedLabel : dictionary.calendar.availableLabel).replace(
-              "{date}",
-              formattedDate,
-            );
+            const label = (
+              blocked ? dictionary.calendar.blockedLabel : dictionary.calendar.availableLabel
+            ).replace("{date}", formattedDate);
             return (
               <span
                 key={iso}
@@ -119,7 +126,11 @@ function MonthGrid({
  * dates bloquées de façon visuellement distincte, à partir des plages
  * `Availability` récupérées côté Strapi (SPEC.md §2).
  */
-export function AvailabilityCalendar({ availabilities, locale, dictionary }: AvailabilityCalendarProps) {
+export function AvailabilityCalendar({
+  availabilities,
+  locale,
+  dictionary,
+}: AvailabilityCalendarProps) {
   const now = new Date();
   const currentMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const nextMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));

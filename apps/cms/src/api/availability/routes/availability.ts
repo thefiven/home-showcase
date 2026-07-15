@@ -2,6 +2,6 @@
  * availability router
  */
 
-import { factories } from '@strapi/strapi';
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreRouter('api::availability.availability');
+export default factories.createCoreRouter("api::availability.availability");

@@ -20,7 +20,10 @@ const ENV = {
 };
 
 function collectionResponse<T>(data: T[]): StrapiCollectionResponse<T> {
-  return { data, meta: { pagination: { page: 1, pageSize: 25, pageCount: 1, total: data.length } } };
+  return {
+    data,
+    meta: { pagination: { page: 1, pageSize: 25, pageCount: 1, total: data.length } },
+  };
 }
 
 const PROPERTY: Property = {
@@ -42,7 +45,9 @@ describe("resolveServerBaseUrl", () => {
   });
 
   it("retire le slash final", () => {
-    expect(resolveServerBaseUrl({ STRAPI_INTERNAL_URL: "http://cms:1337/" })).toBe("http://cms:1337");
+    expect(resolveServerBaseUrl({ STRAPI_INTERNAL_URL: "http://cms:1337/" })).toBe(
+      "http://cms:1337",
+    );
   });
 
   it("lève une erreur si aucune URL n'est configurée", () => {
@@ -66,7 +71,9 @@ describe("mediaUrl", () => {
   });
 
   it("laisse une URL déjà absolue inchangée", () => {
-    expect(mediaUrl("https://cdn.example.com/photo.jpg", ENV)).toBe("https://cdn.example.com/photo.jpg");
+    expect(mediaUrl("https://cdn.example.com/photo.jpg", ENV)).toBe(
+      "https://cdn.example.com/photo.jpg",
+    );
   });
 
   it("retourne null si le chemin est absent", () => {
@@ -170,7 +177,8 @@ describe("appels réseau (fetch mocké)", () => {
   it("getAllSlugs retourne la liste des slugs", async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
-      json: async () => collectionResponse([{ slug: "loft-du-vieux-port" }, { slug: "cabane-du-lac" }]),
+      json: async () =>
+        collectionResponse([{ slug: "loft-du-vieux-port" }, { slug: "cabane-du-lac" }]),
     } as Response);
 
     await expect(getAllSlugs()).resolves.toEqual(["loft-du-vieux-port", "cabane-du-lac"]);
@@ -185,7 +193,10 @@ describe("appels réseau (fetch mocké)", () => {
   it("getProperties replie sur la locale par défaut si la locale demandée n'a aucune entrée traduite", async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce({ ok: true, json: async () => collectionResponse([]) } as Response)
-      .mockResolvedValueOnce({ ok: true, json: async () => collectionResponse([PROPERTY]) } as Response);
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => collectionResponse([PROPERTY]),
+      } as Response);
 
     await expect(getProperties("en")).resolves.toEqual([PROPERTY]);
 
@@ -196,7 +207,10 @@ describe("appels réseau (fetch mocké)", () => {
   });
 
   it("getProperties ne replie pas si la locale demandée est déjà la locale par défaut", async () => {
-    vi.mocked(fetch).mockResolvedValue({ ok: true, json: async () => collectionResponse([]) } as Response);
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: async () => collectionResponse([]),
+    } as Response);
 
     await expect(getProperties("fr")).resolves.toEqual([]);
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -215,7 +229,10 @@ describe("appels réseau (fetch mocké)", () => {
   });
 
   it("getPropertyBySlug retourne null si absent même après repli", async () => {
-    vi.mocked(fetch).mockResolvedValue({ ok: true, json: async () => collectionResponse([]) } as Response);
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: async () => collectionResponse([]),
+    } as Response);
 
     await expect(getPropertyBySlug("inconnu", "en")).resolves.toBeNull();
     expect(fetch).toHaveBeenCalledTimes(2);

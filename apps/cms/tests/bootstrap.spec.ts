@@ -1,16 +1,16 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_LOCALE_CODE,
   ensureLocales,
   ensurePublicReadPermissions,
   PUBLIC_READ_ACTIONS,
   REQUIRED_LOCALES,
-} from '../src/bootstrap';
+} from "../src/bootstrap";
 
 function buildLocalesServiceMock(existingCodes: string[] = []) {
   return {
     findByCode: vi.fn((code: string) =>
-      Promise.resolve(existingCodes.includes(code) ? { code } : null)
+      Promise.resolve(existingCodes.includes(code) ? { code } : null),
     ),
     create: vi.fn(() => Promise.resolve({})),
     setDefaultLocale: vi.fn(() => Promise.resolve()),
@@ -23,8 +23,8 @@ function buildStrapiWithLocalesService(localesService: ReturnType<typeof buildLo
   };
 }
 
-describe('ensureLocales', () => {
-  it('crée fr et en quand aucune locale n’existe, puis fixe fr par défaut', async () => {
+describe("ensureLocales", () => {
+  it("crée fr et en quand aucune locale n’existe, puis fixe fr par défaut", async () => {
     const localesService = buildLocalesServiceMock([]);
     const strapi = buildStrapiWithLocalesService(localesService);
 
@@ -37,8 +37,8 @@ describe('ensureLocales', () => {
     expect(localesService.setDefaultLocale).toHaveBeenCalledWith({ code: DEFAULT_LOCALE_CODE });
   });
 
-  it('ne recrée pas les locales déjà présentes (idempotent)', async () => {
-    const localesService = buildLocalesServiceMock(['fr', 'en']);
+  it("ne recrée pas les locales déjà présentes (idempotent)", async () => {
+    const localesService = buildLocalesServiceMock(["fr", "en"]);
     const strapi = buildStrapiWithLocalesService(localesService);
 
     await ensureLocales({ strapi: strapi as never });
@@ -47,34 +47,34 @@ describe('ensureLocales', () => {
     expect(localesService.setDefaultLocale).toHaveBeenCalledWith({ code: DEFAULT_LOCALE_CODE });
   });
 
-  it('recrée uniquement la locale manquante', async () => {
-    const localesService = buildLocalesServiceMock(['fr']);
+  it("recrée uniquement la locale manquante", async () => {
+    const localesService = buildLocalesServiceMock(["fr"]);
     const strapi = buildStrapiWithLocalesService(localesService);
 
     await ensureLocales({ strapi: strapi as never });
 
     expect(localesService.create).toHaveBeenCalledTimes(1);
-    expect(localesService.create).toHaveBeenCalledWith({ code: 'en', name: 'English (en)' });
+    expect(localesService.create).toHaveBeenCalledWith({ code: "en", name: "English (en)" });
   });
 });
 
-const PUBLIC_ROLE = { id: 7, type: 'public' };
+const PUBLIC_ROLE = { id: 7, type: "public" };
 
 function buildDbMock({
   publicRole = PUBLIC_ROLE as typeof PUBLIC_ROLE | null,
   existingActions = [] as string[],
 } = {}) {
   const permissionFindOne = vi.fn(({ where }: { where: { action: string; role: number } }) =>
-    Promise.resolve(existingActions.includes(where.action) ? { id: 1, ...where } : null)
+    Promise.resolve(existingActions.includes(where.action) ? { id: 1, ...where } : null),
   );
   const permissionCreate = vi.fn(() => Promise.resolve({}));
   const roleFindOne = vi.fn(() => Promise.resolve(publicRole));
 
   const query = vi.fn((uid: string) => {
-    if (uid === 'plugin::users-permissions.role') {
+    if (uid === "plugin::users-permissions.role") {
       return { findOne: roleFindOne };
     }
-    if (uid === 'plugin::users-permissions.permission') {
+    if (uid === "plugin::users-permissions.permission") {
       return { findOne: permissionFindOne, create: permissionCreate };
     }
     throw new Error(`Unexpected query uid in test: ${uid}`);
@@ -83,8 +83,8 @@ function buildDbMock({
   return { query, roleFindOne, permissionFindOne, permissionCreate };
 }
 
-describe('ensurePublicReadPermissions', () => {
-  it('accorde find/findOne sur Property et Availability au rôle public', async () => {
+describe("ensurePublicReadPermissions", () => {
+  it("accorde find/findOne sur Property et Availability au rôle public", async () => {
     const db = buildDbMock();
     const strapi = { db, log: { warn: vi.fn() } };
 
@@ -96,17 +96,17 @@ describe('ensurePublicReadPermissions', () => {
     }
   });
 
-  it('n’accorde jamais de lecture publique sur BookingRequest', async () => {
+  it("n’accorde jamais de lecture publique sur BookingRequest", async () => {
     const db = buildDbMock();
     const strapi = { db, log: { warn: vi.fn() } };
 
     await ensurePublicReadPermissions({ strapi: strapi as never });
 
     const grantedActions = db.permissionCreate.mock.calls.map(([{ data }]) => data.action);
-    expect(grantedActions.some((action) => action.includes('booking-request'))).toBe(false);
+    expect(grantedActions.some((action) => action.includes("booking-request"))).toBe(false);
   });
 
-  it('ne recrée pas les permissions déjà accordées (idempotent)', async () => {
+  it("ne recrée pas les permissions déjà accordées (idempotent)", async () => {
     const db = buildDbMock({ existingActions: PUBLIC_READ_ACTIONS });
     const strapi = { db, log: { warn: vi.fn() } };
 
@@ -115,7 +115,7 @@ describe('ensurePublicReadPermissions', () => {
     expect(db.permissionCreate).not.toHaveBeenCalled();
   });
 
-  it('n’échoue pas et journalise un avertissement si le rôle public est introuvable', async () => {
+  it("n’échoue pas et journalise un avertissement si le rôle public est introuvable", async () => {
     const db = buildDbMock({ publicRole: null });
     const warn = vi.fn();
     const strapi = { db, log: { warn } };

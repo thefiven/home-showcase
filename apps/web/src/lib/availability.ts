@@ -10,7 +10,10 @@ function toUtcDay(date: Date): number {
  * chevauchent n'ont pas besoin d'être fusionnées au préalable : chacune est
  * testée indépendamment.
  */
-export function isDateBlocked(date: Date, ranges: Pick<Availability, "startDate" | "endDate">[]): boolean {
+export function isDateBlocked(
+  date: Date,
+  ranges: Pick<Availability, "startDate" | "endDate">[],
+): boolean {
   const day = toUtcDay(date);
   return ranges.some((range) => {
     const start = toUtcDay(new Date(range.startDate));
