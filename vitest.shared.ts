@@ -13,7 +13,7 @@ export const sharedTestConfig = {
   ],
   coverage: {
     provider: "v8" as const,
-    reporter: ["text", "html"] as const,
+    reporter: ["text", "html"] as ["text", "html"],
     // `all: true` + `include` forcent le rapport à lister aussi les fichiers
     // jamais importés par un test (ex. un composant sans spec) à 0 %, plutôt
     // que de les omettre silencieusement — sans ça la couverture affichée ne
