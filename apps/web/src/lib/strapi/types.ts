@@ -61,6 +61,21 @@ export interface Property {
   locale?: string;
 }
 
+/**
+ * Content-type `Availability` (apps/cms/src/api/availability), alimenté par
+ * la synchronisation iCal (`source: "airbnb"`) ou saisi manuellement. Non
+ * localisé côté Strapi : les dates ne dépendent pas de la langue.
+ */
+export interface Availability {
+  id: number;
+  documentId: string;
+  startDate: string;
+  endDate: string;
+  source: "airbnb" | "manual";
+  externalUid?: string | null;
+  summary?: string | null;
+}
+
 export interface StrapiPagination {
   page: number;
   pageSize: number;

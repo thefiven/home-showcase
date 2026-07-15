@@ -1,5 +1,5 @@
 import { defaultLocale } from "@/i18n/config";
-import type { Property, StrapiCollectionResponse } from "./types";
+import type { Availability, Property, StrapiCollectionResponse } from "./types";
 
 /** Locale de repli utilisée quand une traduction demandée n'existe pas encore côté Strapi. */
 export const DEFAULT_LOCALE = defaultLocale;
@@ -87,6 +87,23 @@ export function buildSlugsUrl(env: StrapiEnv = currentEnv()): string {
   return `${resolveServerBaseUrl(env)}/api/properties?${params.toString()}`;
 }
 
+/**
+ * `GET /api/availabilities?filters[property][documentId][$eq]=...` — plages
+ * bloquées d'un logement, triées chronologiquement. Filtre sur `documentId`
+ * (stable, non localisé) plutôt que sur `id` (propre à chaque variante de
+ * langue en Strapi v5).
+ */
+export function buildAvailabilitiesForPropertyUrl(
+  propertyDocumentId: string,
+  env: StrapiEnv = currentEnv(),
+): string {
+  const params = new URLSearchParams();
+  params.set("filters[property][documentId][$eq]", propertyDocumentId);
+  params.set("sort", "startDate:asc");
+  params.set("pagination[pageSize]", "100");
+  return `${resolveServerBaseUrl(env)}/api/availabilities?${params.toString()}`;
+}
+
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, { next: { revalidate: REVALIDATE_SECONDS } });
   if (!response.ok) {
@@ -140,6 +157,24 @@ export async function getPropertyBySlug(
   } catch (error) {
     console.error(`[strapi] getPropertyBySlug("${slug}") a échoué :`, error);
     return null;
+  }
+}
+
+/**
+ * Plages bloquées d'un logement pour le calendrier de disponibilité. Requête
+ * live (pas de données codées en dur) revalidée toutes les `REVALIDATE_SECONDS`,
+ * pour refléter une nouvelle synchronisation iCal sans redéploiement.
+ * Retourne `[]` si Strapi est injoignable.
+ */
+export async function getAvailabilitiesForProperty(propertyDocumentId: string): Promise<Availability[]> {
+  try {
+    const json = await fetchJson<StrapiCollectionResponse<Availability>>(
+      buildAvailabilitiesForPropertyUrl(propertyDocumentId),
+    );
+    return json.data;
+  } catch (error) {
+    console.error(`[strapi] getAvailabilitiesForProperty("${propertyDocumentId}") a échoué :`, error);
+    return [];
   }
 }
 

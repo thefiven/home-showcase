@@ -1,16 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  buildAvailabilitiesForPropertyUrl,
   buildPropertiesListUrl,
   buildPropertyBySlugUrl,
   buildSlugsUrl,
   getAllSlugs,
+  getAvailabilitiesForProperty,
   getProperties,
   getPropertyBySlug,
   mediaUrl,
   resolvePublicBaseUrl,
   resolveServerBaseUrl,
 } from "./client";
-import type { Property, StrapiCollectionResponse } from "./types";
+import type { Availability, Property, StrapiCollectionResponse } from "./types";
 
 const ENV = {
   NEXT_PUBLIC_STRAPI_URL: "http://localhost:1337",
@@ -100,6 +102,15 @@ describe("buildSlugsUrl", () => {
     const url = new URL(buildSlugsUrl(ENV));
     expect(url.searchParams.get("fields[0]")).toBe("slug");
     expect(url.searchParams.get("locale")).toBe("fr");
+  });
+});
+
+describe("buildAvailabilitiesForPropertyUrl", () => {
+  it("filtre sur le documentId du logement et trie par date de début", () => {
+    const url = new URL(buildAvailabilitiesForPropertyUrl("abc123", ENV));
+    expect(url.pathname).toBe("/api/availabilities");
+    expect(url.searchParams.get("filters[property][documentId][$eq]")).toBe("abc123");
+    expect(url.searchParams.get("sort")).toBe("startDate:asc");
   });
 });
 
@@ -208,5 +219,27 @@ describe("appels réseau (fetch mocké)", () => {
 
     await expect(getPropertyBySlug("inconnu", "en")).resolves.toBeNull();
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("getAvailabilitiesForProperty retourne les plages bloquées du logement", async () => {
+    const availability: Availability = {
+      id: 1,
+      documentId: "avail-1",
+      startDate: "2026-08-01",
+      endDate: "2026-08-05",
+      source: "airbnb",
+    };
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: async () => collectionResponse([availability]),
+    } as Response);
+
+    await expect(getAvailabilitiesForProperty("abc123")).resolves.toEqual([availability]);
+  });
+
+  it("getAvailabilitiesForProperty retourne [] si Strapi est injoignable (la fiche ne doit pas planter)", async () => {
+    vi.mocked(fetch).mockRejectedValue(new Error("network down"));
+
+    await expect(getAvailabilitiesForProperty("abc123")).resolves.toEqual([]);
   });
 });
