@@ -170,4 +170,43 @@ describe("appels réseau (fetch mocké)", () => {
 
     await expect(getAllSlugs()).resolves.toEqual([]);
   });
+
+  it("getProperties replie sur la locale par défaut si la locale demandée n'a aucune entrée traduite", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce({ ok: true, json: async () => collectionResponse([]) } as Response)
+      .mockResolvedValueOnce({ ok: true, json: async () => collectionResponse([PROPERTY]) } as Response);
+
+    await expect(getProperties("en")).resolves.toEqual([PROPERTY]);
+
+    const [firstCallUrl] = vi.mocked(fetch).mock.calls[0];
+    const [secondCallUrl] = vi.mocked(fetch).mock.calls[1];
+    expect(new URL(firstCallUrl as string).searchParams.get("locale")).toBe("en");
+    expect(new URL(secondCallUrl as string).searchParams.get("locale")).toBe("fr");
+  });
+
+  it("getProperties ne replie pas si la locale demandée est déjà la locale par défaut", async () => {
+    vi.mocked(fetch).mockResolvedValue({ ok: true, json: async () => collectionResponse([]) } as Response);
+
+    await expect(getProperties("fr")).resolves.toEqual([]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("getPropertyBySlug replie sur la locale par défaut si le logement n'est pas traduit", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce({ ok: true, json: async () => collectionResponse([]) } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => collectionResponse([PROPERTY]),
+      } as Response);
+
+    await expect(getPropertyBySlug("loft-du-vieux-port", "en")).resolves.toEqual(PROPERTY);
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("getPropertyBySlug retourne null si absent même après repli", async () => {
+    vi.mocked(fetch).mockResolvedValue({ ok: true, json: async () => collectionResponse([]) } as Response);
+
+    await expect(getPropertyBySlug("inconnu", "en")).resolves.toBeNull();
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
 });

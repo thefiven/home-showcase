@@ -1,0 +1,23 @@
+{
+  "nav": {
+    "siteTitle": "home-showcase",
+    "properties": "Nos logements"
+  },
+  "home": {
+    "title": "Bienvenue sur home-showcase",
+    "description": "Découvrez nos logements et réservez directement auprès de la propriétaire.",
+    "cta": "Voir nos logements"
+  },
+  "properties": {
+    "title": "Nos logements",
+    "empty": "Aucun logement n'est publié pour le moment."
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "Le contenu demandé n'existe pas ou n'est plus disponible.",
+    "backHome": "Retour à l'accueil"
+  },
+  "languageSwitcher": {
+    "label": "Langue"
+  }
+}

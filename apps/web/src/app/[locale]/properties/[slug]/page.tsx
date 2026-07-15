@@ -5,12 +5,13 @@ import { PropertyGallery } from "@/components/PropertyGallery";
 import { PropertyDescription } from "@/components/PropertyDescription";
 import { PricingSummary } from "@/components/PricingSummary";
 import { AmenitiesList } from "@/components/AmenitiesList";
+import { resolveLocale } from "@/i18n/config";
 import styles from "./page.module.css";
 
 export const revalidate = 60;
 
 interface PropertyPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateStaticParams() {
@@ -19,8 +20,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const property = await getPropertyBySlug(slug);
+  const { locale: rawLocale, slug } = await params;
+  const property = await getPropertyBySlug(slug, resolveLocale(rawLocale));
 
   if (!property) return {};
 
@@ -31,8 +32,8 @@ export async function generateMetadata({ params }: PropertyPageProps): Promise<M
 }
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
-  const { slug } = await params;
-  const property = await getPropertyBySlug(slug);
+  const { locale: rawLocale, slug } = await params;
+  const property = await getPropertyBySlug(slug, resolveLocale(rawLocale));
 
   if (!property) {
     notFound();

@@ -2,14 +2,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { mediaUrl } from "@/lib/strapi/client";
 import type { Property } from "@/lib/strapi/types";
+import type { Locale } from "@/i18n/config";
 import { PricingSummary } from "./PricingSummary";
 import styles from "./PropertyCard.module.css";
 
-export function PropertyCard({ property }: { property: Property }) {
+export function PropertyCard({ property, locale }: { property: Property; locale: Locale }) {
   const cover = property.photos?.[0];
 
   return (
-    <Link href={`/properties/${property.slug}`} className={styles.card}>
+    <Link href={`/${locale}/properties/${property.slug}`} className={styles.card}>
       <div className={styles.imageWrapper}>
         {cover ? (
           <Image

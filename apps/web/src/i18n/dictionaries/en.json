@@ -1,0 +1,23 @@
+{
+  "nav": {
+    "siteTitle": "home-showcase",
+    "properties": "Our properties"
+  },
+  "home": {
+    "title": "Welcome to home-showcase",
+    "description": "Discover our properties and book directly with the owner.",
+    "cta": "See our properties"
+  },
+  "properties": {
+    "title": "Our properties",
+    "empty": "No property is published yet."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The requested content doesn't exist or is no longer available.",
+    "backHome": "Back to home"
+  },
+  "languageSwitcher": {
+    "label": "Language"
+  }
+}
