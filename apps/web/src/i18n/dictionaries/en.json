@@ -19,5 +19,12 @@
   },
   "languageSwitcher": {
     "label": "Language"
+  },
+  "calendar": {
+    "title": "Availability",
+    "legendAvailable": "Available",
+    "legendBlocked": "Unavailable",
+    "blockedLabel": "Unavailable on {date}",
+    "availableLabel": "Available on {date}"
   }
 }
