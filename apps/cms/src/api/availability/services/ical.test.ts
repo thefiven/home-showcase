@@ -78,7 +78,7 @@ describe("reconcile", () => {
   it("marks a stored availability as toDelete when its UID is no longer in the iCal (cancellation)", () => {
     const existing = [
       {
-        id: 1,
+        documentId: "doc-1",
         externalUid: "cancelled@airbnb.com",
         startDate: "2026-08-01T00:00:00.000Z",
         endDate: "2026-08-05T00:00:00.000Z",
@@ -88,7 +88,7 @@ describe("reconcile", () => {
 
     const result = reconcile(existing, []);
 
-    expect(result.toDelete).toEqual([{ id: 1 }]);
+    expect(result.toDelete).toEqual([{ documentId: "doc-1" }]);
     expect(result.toCreate).toEqual([]);
     expect(result.toUpdate).toEqual([]);
   });
@@ -96,7 +96,7 @@ describe("reconcile", () => {
   it("marks an existing UID as toUpdate when its dates changed", () => {
     const existing = [
       {
-        id: 42,
+        documentId: "doc-42",
         externalUid: newBooking.externalUid,
         startDate: "2026-09-01T00:00:00.000Z",
         endDate: "2026-09-02T00:00:00.000Z",
@@ -106,7 +106,7 @@ describe("reconcile", () => {
 
     const result = reconcile(existing, [newBooking]);
 
-    expect(result.toUpdate).toEqual([{ id: 42, event: newBooking }]);
+    expect(result.toUpdate).toEqual([{ documentId: "doc-42", event: newBooking }]);
     expect(result.toCreate).toEqual([]);
     expect(result.toDelete).toEqual([]);
   });
@@ -114,7 +114,7 @@ describe("reconcile", () => {
   it("does not delete manual availabilities, since they are excluded from `existing` upstream", () => {
     const manualEntry = [
       {
-        id: 7,
+        documentId: "doc-7",
         externalUid: null,
         startDate: "2026-08-01T00:00:00.000Z",
         endDate: "2026-08-05T00:00:00.000Z",
@@ -130,7 +130,7 @@ describe("reconcile", () => {
   it("returns empty create/update/delete lists when nothing changed", () => {
     const existing = [
       {
-        id: 42,
+        documentId: "doc-42",
         externalUid: newBooking.externalUid,
         startDate: "2026-09-01T00:00:00.000Z",
         endDate: "2026-09-03T00:00:00.000Z",
@@ -139,6 +139,31 @@ describe("reconcile", () => {
     ];
 
     const result = reconcile(existing, [newBooking]);
+
+    expect(result).toEqual({ toCreate: [], toUpdate: [], toDelete: [] });
+  });
+
+  it("does not flag an unchanged all-day event as toUpdate regardless of server timezone", () => {
+    // Mirrors what parseIcalEvents actually produces for a VALUE=DATE event
+    // (a local-midnight Date, per node-ical), against how Strapi's `date`
+    // field round-trips it (a plain "YYYY-MM-DD" string, no timezone).
+    const event = {
+      externalUid: "same-day@airbnb.com",
+      startDate: new Date(2026, 8, 1),
+      endDate: new Date(2026, 8, 3),
+      summary: "Reserved",
+    };
+    const existing = [
+      {
+        documentId: "doc-99",
+        externalUid: "same-day@airbnb.com",
+        startDate: "2026-09-01",
+        endDate: "2026-09-03",
+        summary: "Reserved",
+      },
+    ];
+
+    const result = reconcile(existing, [event]);
 
     expect(result).toEqual({ toCreate: [], toUpdate: [], toDelete: [] });
   });

@@ -47,36 +47,39 @@ export default factories.createCoreService(
         });
 
         const { toCreate, toUpdate, toDelete } = reconcile(existing, parsedEvents);
+        const availabilityDocuments = strapi.documents("api::availability.availability");
 
-        for (const event of toCreate) {
-          await strapi.documents("api::availability.availability").create({
-            data: {
-              property: property.documentId,
-              source: "airbnb",
-              externalUid: event.externalUid,
-              startDate: event.startDate,
-              endDate: event.endDate,
-              summary: event.summary,
-            },
-          });
-        }
+        await Promise.all(
+          toCreate.map((event) =>
+            availabilityDocuments.create({
+              data: {
+                property: property.documentId,
+                source: "airbnb",
+                externalUid: event.externalUid,
+                startDate: event.startDate,
+                endDate: event.endDate,
+                summary: event.summary,
+              },
+            }),
+          ),
+        );
 
-        for (const { id, event } of toUpdate) {
-          await strapi.documents("api::availability.availability").update({
-            documentId: id as string,
-            data: {
-              startDate: event.startDate,
-              endDate: event.endDate,
-              summary: event.summary,
-            },
-          });
-        }
+        await Promise.all(
+          toUpdate.map(({ documentId, event }) =>
+            availabilityDocuments.update({
+              documentId,
+              data: {
+                startDate: event.startDate,
+                endDate: event.endDate,
+                summary: event.summary,
+              },
+            }),
+          ),
+        );
 
-        for (const { id } of toDelete) {
-          await strapi
-            .documents("api::availability.availability")
-            .delete({ documentId: id as string });
-        }
+        await Promise.all(
+          toDelete.map(({ documentId }) => availabilityDocuments.delete({ documentId })),
+        );
 
         return { created: toCreate.length, updated: toUpdate.length, deleted: toDelete.length };
       } catch (error) {

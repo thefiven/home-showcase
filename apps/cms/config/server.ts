@@ -1,5 +1,5 @@
 import type { Core } from "@strapi/strapi";
-import cronTasks from "../src/cron-tasks";
+import { createCronTasks } from "../src/cron-tasks";
 
 const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Server => ({
   host: env("HOST", "0.0.0.0"),
@@ -12,7 +12,7 @@ const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Server =>
   },
   cron: {
     enabled: env.bool("CRON_ENABLED", true),
-    tasks: cronTasks,
+    tasks: createCronTasks(env),
   },
 });
 

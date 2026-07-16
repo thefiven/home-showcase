@@ -9,7 +9,7 @@ export type ParsedEvent = {
 };
 
 export type AvailabilityRecord = {
-  id: string | number;
+  documentId: string;
   externalUid?: string | null;
   startDate?: string | Date | null;
   endDate?: string | Date | null;
@@ -18,8 +18,8 @@ export type AvailabilityRecord = {
 
 export type ReconcileResult = {
   toCreate: ParsedEvent[];
-  toUpdate: Array<{ id: string | number; event: ParsedEvent }>;
-  toDelete: Array<{ id: string | number }>;
+  toUpdate: Array<{ documentId: string; event: ParsedEvent }>;
+  toDelete: Array<{ documentId: string }>;
 };
 
 function toPlainSummary(summary: ParameterValue | undefined): string | undefined {
@@ -69,8 +69,25 @@ export function parseIcalEvents(icalString: string): ParsedEvent[] {
   return events;
 }
 
-function sameInstant(a: string | Date | null | undefined, b: Date): boolean {
-  return a != null && new Date(a).getTime() === b.getTime();
+/**
+ * Availability dates are all-day (no time component). node-ical yields
+ * local-midnight `Date` objects for `VALUE=DATE` events, while Strapi's
+ * `date` field round-trips as a plain "YYYY-MM-DD" string — comparing raw
+ * timestamps between the two would spuriously differ on any non-UTC server.
+ * Comparing the calendar-day components directly sidesteps that entirely.
+ */
+function toDateOnlyString(value: string | Date): string {
+  if (value instanceof Date) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+  return value.slice(0, 10);
+}
+
+function sameDate(a: string | Date | null | undefined, b: Date): boolean {
+  return a != null && toDateOnlyString(a) === toDateOnlyString(b);
 }
 
 /**
@@ -88,8 +105,8 @@ export function reconcile(existing: AvailabilityRecord[], parsed: ParsedEvent[])
   const parsedByUid = new Map(parsed.map((event) => [event.externalUid, event]));
 
   const toCreate: ParsedEvent[] = [];
-  const toUpdate: Array<{ id: string | number; event: ParsedEvent }> = [];
-  const toDelete: Array<{ id: string | number }> = [];
+  const toUpdate: Array<{ documentId: string; event: ParsedEvent }> = [];
+  const toDelete: Array<{ documentId: string }> = [];
 
   for (const event of parsed) {
     const existingRecord = existingByUid.get(event.externalUid);
@@ -99,18 +116,18 @@ export function reconcile(existing: AvailabilityRecord[], parsed: ParsedEvent[])
     }
 
     const changed =
-      !sameInstant(existingRecord.startDate, event.startDate) ||
-      !sameInstant(existingRecord.endDate, event.endDate) ||
+      !sameDate(existingRecord.startDate, event.startDate) ||
+      !sameDate(existingRecord.endDate, event.endDate) ||
       (existingRecord.summary ?? undefined) !== event.summary;
 
     if (changed) {
-      toUpdate.push({ id: existingRecord.id, event });
+      toUpdate.push({ documentId: existingRecord.documentId, event });
     }
   }
 
   for (const record of existing) {
     if (record.externalUid && !parsedByUid.has(record.externalUid)) {
-      toDelete.push({ id: record.id });
+      toDelete.push({ documentId: record.documentId });
     }
   }
 
