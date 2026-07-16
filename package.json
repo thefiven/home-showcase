@@ -11,6 +11,7 @@
     "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
+    "test:coverage": "pnpm -r run test:coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "docker:up": "docker compose -f docker/docker-compose.yml --env-file docker/.env up --build",
