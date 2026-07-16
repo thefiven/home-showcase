@@ -10,9 +10,9 @@ export type ParsedEvent = {
 
 export type AvailabilityRecord = {
   id: string | number;
-  externalUid: string | null;
-  startDate: string | Date;
-  endDate: string | Date;
+  externalUid?: string | null;
+  startDate?: string | Date | null;
+  endDate?: string | Date | null;
   summary?: string | null;
 };
 
@@ -69,8 +69,8 @@ export function parseIcalEvents(icalString: string): ParsedEvent[] {
   return events;
 }
 
-function sameInstant(a: string | Date, b: Date): boolean {
-  return new Date(a).getTime() === b.getTime();
+function sameInstant(a: string | Date | null | undefined, b: Date): boolean {
+  return a != null && new Date(a).getTime() === b.getTime();
 }
 
 /**
