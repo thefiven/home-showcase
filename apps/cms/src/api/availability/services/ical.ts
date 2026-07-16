@@ -36,17 +36,24 @@ function isVEvent(component: CalendarComponent): component is VEvent {
 
 /**
  * Parses raw iCal text into the availability blocks we care about.
- * Events without a UID or without valid start/end dates are skipped
- * rather than throwing, since a single malformed VEVENT shouldn't
- * abort the whole sync (CLAUDE.md/SPEC §5: sync errors must not crash).
+ *
+ * node-ical never throws on malformed input — it silently returns whatever
+ * partial data it could salvage, so a truncated response or an HTML error
+ * page would otherwise parse to zero events. Treated as real data, that
+ * would make reconcile() think every existing booking got cancelled and
+ * delete them all. Requiring the "BEGIN:VCALENDAR" marker lets us tell a
+ * genuinely empty calendar (no bookings) apart from an unreadable one, and
+ * throw for the latter so the caller logs it as a sync error instead of
+ * wiping availability (issue #7: "erreurs de sync... loguées sans crasher").
+ * Events without a UID or without valid start/end dates are still skipped
+ * individually rather than aborting the whole parse.
  */
 export function parseIcalEvents(icalString: string): ParsedEvent[] {
-  let parsed: ical.CalendarResponse;
-  try {
-    parsed = ical.sync.parseICS(icalString);
-  } catch {
-    return [];
+  if (!icalString.includes("BEGIN:VCALENDAR")) {
+    throw new Error("Response is not a valid iCal document");
   }
+
+  const parsed: ical.CalendarResponse = ical.sync.parseICS(icalString);
 
   const events: ParsedEvent[] = [];
 

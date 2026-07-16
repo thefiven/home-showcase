@@ -53,9 +53,14 @@ describe("parseIcalEvents", () => {
     expect(events[0].externalUid).toBe("reservation-2@airbnb.com");
   });
 
-  it("returns an empty array for an empty or non-iCal string, without throwing", () => {
-    expect(parseIcalEvents("")).toEqual([]);
-    expect(parseIcalEvents("not an ical file")).toEqual([]);
+  it("returns an empty array for a valid but empty calendar", () => {
+    expect(parseIcalEvents("BEGIN:VCALENDAR\nVERSION:2.0\nEND:VCALENDAR")).toEqual([]);
+  });
+
+  it("throws for an empty or non-iCal string, so callers log it as a sync error instead of treating it as a valid empty calendar", () => {
+    expect(() => parseIcalEvents("")).toThrow();
+    expect(() => parseIcalEvents("not an ical file")).toThrow();
+    expect(() => parseIcalEvents("<html>502 Bad Gateway</html>")).toThrow();
   });
 });
 

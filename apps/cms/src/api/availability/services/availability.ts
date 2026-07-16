@@ -20,6 +20,11 @@ type SyncSummary = {
 
 const EMPTY_SUMMARY: SyncSummary = { created: 0, updated: 0, deleted: 0 };
 
+// Strapi's Document Service defaults findMany() to a 25-item page, which
+// would silently truncate a property's booking history and make reconcile()
+// treat every un-fetched booking as cancelled. Page through all results.
+const EXISTING_AVAILABILITY_PAGE_SIZE = 100;
+
 export default factories.createCoreService(
   "api::availability.availability",
   ({ strapi }: { strapi: Core.Strapi }) => ({
@@ -42,12 +47,18 @@ export default factories.createCoreService(
         const icalBody = await response.text();
         const parsedEvents = parseIcalEvents(icalBody);
 
-        const existing = await strapi.documents("api::availability.availability").findMany({
-          filters: { property: { documentId: property.documentId }, source: "airbnb" },
-        });
+        const availabilityDocuments = strapi.documents("api::availability.availability");
+        const existing = [];
+        for (let page = 1; ; page += 1) {
+          const results = await availabilityDocuments.findMany({
+            filters: { property: { documentId: property.documentId }, source: "airbnb" },
+            pagination: { page, pageSize: EXISTING_AVAILABILITY_PAGE_SIZE },
+          });
+          existing.push(...results);
+          if (results.length < EXISTING_AVAILABILITY_PAGE_SIZE) break;
+        }
 
         const { toCreate, toUpdate, toDelete } = reconcile(existing, parsedEvents);
-        const availabilityDocuments = strapi.documents("api::availability.availability");
 
         await Promise.all(
           toCreate.map((event) =>
