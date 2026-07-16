@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_LOCALE_CODE,
   ensureLocales,
+  ensureOwnerRole,
   ensurePublicReadPermissions,
+  OWNER_CONTENT_TYPE_ACTIONS,
+  OWNER_MEDIA_LIBRARY_ACTIONS,
+  OWNER_ROLE,
   PUBLIC_READ_ACTIONS,
   REQUIRED_LOCALES,
 } from "../src/bootstrap";
@@ -124,5 +128,162 @@ describe("ensurePublicReadPermissions", () => {
 
     expect(warn).toHaveBeenCalledOnce();
     expect(db.permissionCreate).not.toHaveBeenCalled();
+  });
+});
+
+const ALL_ADMIN_ACTIONS = [
+  {
+    actionId: "plugin::content-manager.explorer.create",
+    section: "contentTypes",
+    subjects: ["api::property.property"],
+  },
+  {
+    actionId: "plugin::content-manager.explorer.read",
+    section: "contentTypes",
+    subjects: ["api::property.property"],
+  },
+  {
+    actionId: "plugin::content-manager.explorer.update",
+    section: "contentTypes",
+    subjects: ["api::property.property"],
+  },
+  {
+    actionId: "plugin::content-manager.explorer.publish",
+    section: "contentTypes",
+    subjects: ["api::property.property"],
+  },
+  {
+    actionId: "plugin::content-manager.explorer.delete",
+    section: "contentTypes",
+    subjects: ["api::property.property"],
+  },
+  {
+    actionId: "plugin::content-manager.explorer.read",
+    section: "contentTypes",
+    subjects: ["api::booking-request.booking-request"],
+  },
+  {
+    actionId: "plugin::content-manager.explorer.update",
+    section: "contentTypes",
+    subjects: ["api::booking-request.booking-request"],
+  },
+  {
+    actionId: "plugin::content-manager.explorer.create",
+    section: "contentTypes",
+    subjects: ["api::booking-request.booking-request"],
+  },
+  {
+    actionId: "plugin::content-manager.explorer.read",
+    section: "contentTypes",
+    subjects: ["api::availability.availability"],
+  },
+  {
+    actionId: "plugin::content-manager.collection-types.configure-view",
+    section: "plugins",
+    subjects: [],
+  },
+];
+
+function buildOwnerRoleStrapiMock({ existingRole = null as { id: number } | null } = {}) {
+  const roleFindOne = vi.fn(() => Promise.resolve(existingRole));
+  const roleCreate = vi.fn(() => Promise.resolve({ id: 42 }));
+  const assignPermissions = vi.fn(() => Promise.resolve([]));
+  const getPermissionsWithNestedFields = vi.fn(
+    (actions: Array<{ actionId: string; subjects: string[] }>) =>
+      actions.map((action) => ({
+        action: action.actionId,
+        subject: action.subjects[0],
+        properties: { fields: [] },
+      })),
+  );
+
+  const db = { query: vi.fn(() => ({ findOne: roleFindOne })) };
+  const service = vi.fn((uid: string) => {
+    if (uid === "admin::role") return { create: roleCreate, assignPermissions };
+    if (uid === "admin::content-type") return { getPermissionsWithNestedFields };
+    if (uid === "admin::permission") return { actionProvider: { values: () => ALL_ADMIN_ACTIONS } };
+    throw new Error(`Unexpected service uid in test: ${uid}`);
+  });
+
+  return {
+    db,
+    service,
+    roleFindOne,
+    roleCreate,
+    assignPermissions,
+    getPermissionsWithNestedFields,
+  };
+}
+
+describe("ensureOwnerRole", () => {
+  it("crée le rôle propriétaire quand il n’existe pas encore", async () => {
+    const mock = buildOwnerRoleStrapiMock();
+    const strapi = { db: mock.db, service: mock.service };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    expect(mock.db.query).toHaveBeenCalledWith("admin::role");
+    expect(mock.roleCreate).toHaveBeenCalledWith(OWNER_ROLE);
+    expect(mock.assignPermissions).toHaveBeenCalledWith(42, expect.any(Array));
+  });
+
+  it("ne recrée pas le rôle propriétaire déjà existant (idempotent)", async () => {
+    const mock = buildOwnerRoleStrapiMock({ existingRole: { id: 7 } });
+    const strapi = { db: mock.db, service: mock.service };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    expect(mock.roleCreate).not.toHaveBeenCalled();
+    expect(mock.assignPermissions).toHaveBeenCalledWith(7, expect.any(Array));
+  });
+
+  it("limite les actions content-manager à Property et BookingRequest, sans delete ni create sur BookingRequest", async () => {
+    const mock = buildOwnerRoleStrapiMock();
+    const strapi = { db: mock.db, service: mock.service };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    const scopedActions = mock.getPermissionsWithNestedFields.mock.calls[0][0] as Array<{
+      actionId: string;
+      subjects: string[];
+    }>;
+
+    for (const action of scopedActions) {
+      expect(action.subjects).toHaveLength(1);
+    }
+
+    const propertyActionIds = scopedActions
+      .filter((a) => a.subjects[0] === "api::property.property")
+      .map((a) => a.actionId)
+      .sort();
+    expect(propertyActionIds).toEqual(
+      [...OWNER_CONTENT_TYPE_ACTIONS["api::property.property"]].sort(),
+    );
+
+    const bookingRequestActionIds = scopedActions
+      .filter((a) => a.subjects[0] === "api::booking-request.booking-request")
+      .map((a) => a.actionId)
+      .sort();
+    expect(bookingRequestActionIds).toEqual(
+      [...OWNER_CONTENT_TYPE_ACTIONS["api::booking-request.booking-request"]].sort(),
+    );
+
+    expect(scopedActions.some((a) => a.subjects[0] === "api::availability.availability")).toBe(
+      false,
+    );
+  });
+
+  it("accorde l’accès à la médiathèque nécessaire à l’upload de photos", async () => {
+    const mock = buildOwnerRoleStrapiMock();
+    const strapi = { db: mock.db, service: mock.service };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    const permissions = mock.assignPermissions.mock.calls[0][1] as Array<{ action: string }>;
+    const grantedActions = permissions.map((p) => p.action);
+
+    for (const action of OWNER_MEDIA_LIBRARY_ACTIONS) {
+      expect(grantedActions).toContain(action);
+    }
   });
 });

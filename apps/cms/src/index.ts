@@ -1,5 +1,5 @@
 import type { Core } from "@strapi/strapi";
-import { ensureLocales, ensurePublicReadPermissions } from "./bootstrap";
+import { ensureLocales, ensureOwnerRole, ensurePublicReadPermissions } from "./bootstrap";
 
 export default {
   /**
@@ -20,5 +20,6 @@ export default {
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
     await ensureLocales({ strapi });
     await ensurePublicReadPermissions({ strapi });
+    await ensureOwnerRole({ strapi });
   },
 };
