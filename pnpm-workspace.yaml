@@ -1,5 +1,16 @@
 packages:
   - "apps/*"
+# Rustines de sécurité sur des dépendances transitives de @strapi/strapi
+# (outillage build/dev, pas de dépendance directe) — same-major uniquement,
+# scopées aux ranges vulnérables pour ne pas toucher d'autres majors présents
+# dans l'arbre (ex. ajv@6.x, ws@1.x/4.x, utilisés ailleurs). Résiduel non
+# couvert ici : vite, esbuild, uuid, @ai-sdk/provider-utils (bump major que
+# Strapi n'a pas encore absorbé en amont) et elliptic (le correctif annoncé
+# par l'advisory, 6.6.2, n'est pas encore publié sur le registre npm — rien à
+# override tant qu'il n'existe pas) — suivi par Dependabot, voir issue #25.
+overrides:
+  "ajv@>=7.0.0-alpha.0 <8.18.0": "^8.18.0"
+  "postcss@<8.5.10": "^8.5.10"
 allowBuilds:
   "@swc/core": true
   better-sqlite3: true
@@ -8,3 +19,28 @@ allowBuilds:
   lefthook: true
   sharp: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - "@strapi/admin@5.50.2"
+  - "@strapi/cloud-cli@5.50.2"
+  - "@strapi/content-manager@5.50.2"
+  - "@strapi/content-releases@5.50.2"
+  - "@strapi/content-type-builder@5.50.2"
+  - "@strapi/core@5.50.2"
+  - "@strapi/data-transfer@5.50.2"
+  - "@strapi/database@5.50.2"
+  - "@strapi/email@5.50.2"
+  - "@strapi/generators@5.50.2"
+  - "@strapi/i18n@5.50.2"
+  - "@strapi/logger@5.50.2"
+  - "@strapi/openapi@5.50.2"
+  - "@strapi/permissions@5.50.2"
+  - "@strapi/plugin-cloud@5.50.2"
+  - "@strapi/plugin-users-permissions@5.50.2"
+  - "@strapi/provider-email-sendmail@5.50.2"
+  - "@strapi/provider-upload-local@5.50.2"
+  - "@strapi/review-workflows@5.50.2"
+  - "@strapi/strapi@5.50.2"
+  - "@strapi/types@5.50.2"
+  - "@strapi/typescript-utils@5.50.2"
+  - "@strapi/upload@5.50.2"
+  - "@strapi/utils@5.50.2"
