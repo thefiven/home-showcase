@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1
 
 FROM node:26-bookworm-slim AS base
-RUN corepack enable
+# node:26 dropped corepack from the base image (Node 25+); install it
+# explicitly before enabling it.
+RUN npm install -g corepack@latest && corepack enable
 WORKDIR /app
 
 # Stage d'installation uniquement : seul endroit qui a besoin du toolchain natif
