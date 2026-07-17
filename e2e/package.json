@@ -1,0 +1,20 @@
+{
+  "name": "e2e",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:orchestrated": "bash ./run.sh",
+    "test:e2e:install": "playwright install --with-deps chromium",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^20",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "typescript": "^5",
+    "typescript-eslint": "^8.63.0"
+  }
+}

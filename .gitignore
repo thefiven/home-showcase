@@ -28,6 +28,12 @@ apps/cms/types/generated/
 # test coverage reports (apps/web, apps/cms — pnpm test:coverage)
 coverage/
 
+# Playwright (e2e/ — issue #12)
+e2e/playwright-report/
+e2e/test-results/
+e2e/tests/.auth/
+apps/cms/.tmp/e2e.db*
+
 # logs
 npm-debug.log*
 yarn-debug.log*
