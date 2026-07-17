@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { stampStatusChangeOnUpdate } from "./lifecycles";
+import { stampStatusChangeOnUpdate, notifyOwnerOnCreate } from "./lifecycles";
 
 function buildStrapi(existingStatus: string | null) {
   const findOne = vi.fn(() =>
@@ -36,5 +36,33 @@ describe("stampStatusChangeOnUpdate", () => {
 
     expect(findOne).not.toHaveBeenCalled();
     expect(event.params.data).not.toHaveProperty("statusChangedAt");
+  });
+});
+
+describe("notifyOwnerOnCreate", () => {
+  it("déclenche la notification email pour la demande créée", async () => {
+    const send = vi.fn(() => Promise.resolve());
+    const findOne = vi.fn(() => Promise.resolve({ property: { name: "Villa des Pins" } }));
+    const strapi = {
+      documents: vi.fn(() => ({ findOne })),
+      plugin: vi.fn(() => ({ service: vi.fn(() => ({ send })) })),
+      log: { error: vi.fn(), warn: vi.fn() },
+    };
+    process.env.OWNER_NOTIFICATION_EMAIL = "owner@example.com";
+
+    const event = {
+      result: {
+        documentId: "abc123",
+        startDate: "2026-08-01",
+        endDate: "2026-08-08",
+        guestName: "Alex Martin",
+        guestEmail: "alex@example.com",
+      },
+    };
+
+    await expect(notifyOwnerOnCreate(event, { strapi: strapi as never })).resolves.toBeUndefined();
+    expect(send).toHaveBeenCalledWith(expect.objectContaining({ to: "owner@example.com" }));
+
+    delete process.env.OWNER_NOTIFICATION_EMAIL;
   });
 });
