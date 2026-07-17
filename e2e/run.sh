@@ -55,7 +55,11 @@ echo "==> Build de Strapi"
   export ENCRYPTION_KEY="${ENCRYPTION_KEY:-e2e-key}"
   export DATABASE_CLIENT="sqlite"
   export DATABASE_FILENAME=".tmp/e2e.db"
-  pnpm exec strapi build
+  # Not `strapi build` directly: apps/cms's own build script runs
+  # `strapi ts:generate-types` first — skipping it left a stale/absent
+  # types/generated/ (gitignored, not present on a fresh checkout) and broke
+  # the TS compile in CI, where nothing had run it beforehand.
+  pnpm run build
 )
 
 echo "==> Démarrage de Strapi (SQLite éphémère)"
