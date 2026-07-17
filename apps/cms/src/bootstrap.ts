@@ -89,11 +89,17 @@ export const OWNER_CONTENT_TYPE_ACTIONS: Record<string, string[]> = {
 
 /**
  * Content-manager permissions on a localized content type need an explicit
- * `properties.locales: null` ("all locales") — the i18n plugin's permission
- * engine (`registerI18nPermissionsHandlers`) otherwise treats a *missing*
- * `locales` property as an empty allow-list (`locale: { $in: [] }`), which
- * silently hides every entry regardless of the granted content-manager
- * actions. Only `null` (not omitting the key, not `[]`) means unrestricted.
+ * `properties.locales` array of every configured locale code. Two separate
+ * layers read this property and disagree on what a missing/`null` value
+ * means:
+ * - Server (`@strapi/i18n` permission engine): a *missing* `locales` is
+ *   treated as an empty allow-list (`locale: { $in: [] }`) — hides every
+ *   entry. `null` explicitly means "all locales, unrestricted".
+ * - Admin UI (`useI18n` hook, feeds the locale picker/switcher): reads
+ *   `permission.properties?.locales ?? []` — `null` collapses to `[]` too,
+ *   so the locale dropdown ends up empty even though the server allows
+ *   every locale. `null` satisfies the server but not the UI.
+ * Listing the actual locale codes satisfies both.
  */
 const LOCALIZED_CONTENT_TYPES = ["api::property.property"];
 
@@ -136,6 +142,9 @@ export async function ensureOwnerRole({ strapi }: { strapi: Core.Strapi }) {
       .map((action) => ({ ...action, subjects: [subject] })),
   );
 
+  const allLocales: Array<{ code: string }> = await strapi.plugin("i18n").service("locales").find();
+  const allLocaleCodes = allLocales.map((locale) => locale.code);
+
   const contentTypePermissions = (
     contentTypeService.getPermissionsWithNestedFields(scopedActions) as Array<{
       subject?: string;
@@ -143,7 +152,7 @@ export async function ensureOwnerRole({ strapi }: { strapi: Core.Strapi }) {
     }>
   ).map((permission) =>
     permission.subject && LOCALIZED_CONTENT_TYPES.includes(permission.subject)
-      ? { ...permission, properties: { ...permission.properties, locales: null } }
+      ? { ...permission, properties: { ...permission.properties, locales: allLocaleCodes } }
       : permission,
   );
 
