@@ -5,6 +5,7 @@ import {
   ensureOwnerRole,
   ensurePublicReadPermissions,
   OWNER_CONTENT_TYPE_ACTIONS,
+  OWNER_I18N_ACTIONS,
   OWNER_MEDIA_LIBRARY_ACTIONS,
   OWNER_ROLE,
   PUBLIC_READ_ACTIONS,
@@ -184,7 +185,10 @@ const ALL_ADMIN_ACTIONS = [
   },
 ];
 
-function buildOwnerRoleStrapiMock({ existingRole = null as { id: number } | null } = {}) {
+function buildOwnerRoleStrapiMock({
+  existingRole = null as { id: number } | null,
+  localeCodes = ["fr", "en"],
+} = {}) {
   const roleFindOne = vi.fn(() => Promise.resolve(existingRole));
   const roleCreate = vi.fn(() => Promise.resolve({ id: 42 }));
   const assignPermissions = vi.fn(() => Promise.resolve([]));
@@ -196,6 +200,7 @@ function buildOwnerRoleStrapiMock({ existingRole = null as { id: number } | null
         properties: { fields: [] },
       })),
   );
+  const localesFind = vi.fn(() => Promise.resolve(localeCodes.map((code) => ({ code }))));
 
   const db = { query: vi.fn(() => ({ findOne: roleFindOne })) };
   const service = vi.fn((uid: string) => {
@@ -204,21 +209,27 @@ function buildOwnerRoleStrapiMock({ existingRole = null as { id: number } | null
     if (uid === "admin::permission") return { actionProvider: { values: () => ALL_ADMIN_ACTIONS } };
     throw new Error(`Unexpected service uid in test: ${uid}`);
   });
+  const plugin = vi.fn((name: string) => {
+    if (name === "i18n") return { service: () => ({ find: localesFind }) };
+    throw new Error(`Unexpected plugin name in test: ${name}`);
+  });
 
   return {
     db,
     service,
+    plugin,
     roleFindOne,
     roleCreate,
     assignPermissions,
     getPermissionsWithNestedFields,
+    localesFind,
   };
 }
 
 describe("ensureOwnerRole", () => {
   it("crée le rôle propriétaire quand il n’existe pas encore", async () => {
     const mock = buildOwnerRoleStrapiMock();
-    const strapi = { db: mock.db, service: mock.service };
+    const strapi = { db: mock.db, service: mock.service, plugin: mock.plugin };
 
     await ensureOwnerRole({ strapi: strapi as never });
 
@@ -229,7 +240,7 @@ describe("ensureOwnerRole", () => {
 
   it("ne recrée pas le rôle propriétaire déjà existant (idempotent)", async () => {
     const mock = buildOwnerRoleStrapiMock({ existingRole: { id: 7 } });
-    const strapi = { db: mock.db, service: mock.service };
+    const strapi = { db: mock.db, service: mock.service, plugin: mock.plugin };
 
     await ensureOwnerRole({ strapi: strapi as never });
 
@@ -239,7 +250,7 @@ describe("ensureOwnerRole", () => {
 
   it("limite les actions content-manager à Property (avec delete) et BookingRequest (sans delete ni create)", async () => {
     const mock = buildOwnerRoleStrapiMock();
-    const strapi = { db: mock.db, service: mock.service };
+    const strapi = { db: mock.db, service: mock.service, plugin: mock.plugin };
 
     await ensureOwnerRole({ strapi: strapi as never });
 
@@ -273,9 +284,47 @@ describe("ensureOwnerRole", () => {
     );
   });
 
+  it("accorde la liste explicite des locales configurées sur les permissions Property (pas null : le sélecteur de langue de l'admin traite null comme aucune locale)", async () => {
+    const mock = buildOwnerRoleStrapiMock({ localeCodes: ["fr", "en"] });
+    const strapi = { db: mock.db, service: mock.service, plugin: mock.plugin };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    const permissions = mock.assignPermissions.mock.calls[0][1] as Array<{
+      subject?: string;
+      properties?: { locales?: unknown };
+    }>;
+
+    const propertyPermissions = permissions.filter((p) => p.subject === "api::property.property");
+    expect(propertyPermissions.length).toBeGreaterThan(0);
+    for (const permission of propertyPermissions) {
+      expect(permission.properties?.locales).toEqual(["fr", "en"]);
+    }
+  });
+
+  it("n’ajoute pas de propriété locales sur les permissions BookingRequest (non localisé)", async () => {
+    const mock = buildOwnerRoleStrapiMock();
+    const strapi = { db: mock.db, service: mock.service, plugin: mock.plugin };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    const permissions = mock.assignPermissions.mock.calls[0][1] as Array<{
+      subject?: string;
+      properties?: { locales?: unknown };
+    }>;
+
+    const bookingRequestPermissions = permissions.filter(
+      (p) => p.subject === "api::booking-request.booking-request",
+    );
+    expect(bookingRequestPermissions.length).toBeGreaterThan(0);
+    for (const permission of bookingRequestPermissions) {
+      expect(permission.properties?.locales).toBeUndefined();
+    }
+  });
+
   it("accorde l’accès à la médiathèque nécessaire à l’upload de photos", async () => {
     const mock = buildOwnerRoleStrapiMock();
-    const strapi = { db: mock.db, service: mock.service };
+    const strapi = { db: mock.db, service: mock.service, plugin: mock.plugin };
 
     await ensureOwnerRole({ strapi: strapi as never });
 
@@ -283,6 +332,20 @@ describe("ensureOwnerRole", () => {
     const grantedActions = permissions.map((p) => p.action);
 
     for (const action of OWNER_MEDIA_LIBRARY_ACTIONS) {
+      expect(grantedActions).toContain(action);
+    }
+  });
+
+  it("accorde la lecture des locales i18n (sinon le sélecteur de langue du Content Manager reste vide)", async () => {
+    const mock = buildOwnerRoleStrapiMock();
+    const strapi = { db: mock.db, service: mock.service, plugin: mock.plugin };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    const permissions = mock.assignPermissions.mock.calls[0][1] as Array<{ action: string }>;
+    const grantedActions = permissions.map((p) => p.action);
+
+    for (const action of OWNER_I18N_ACTIONS) {
       expect(grantedActions).toContain(action);
     }
   });
