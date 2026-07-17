@@ -20,6 +20,22 @@ function buildAdminLink(adminUrl: string, documentId: string): string {
   return `${adminUrl.replace(/\/$/, "")}/content-manager/collection-types/api::booking-request.booking-request/${documentId}`;
 }
 
+/**
+ * guestName/guestEmail/guestPhone/message come from an unauthenticated
+ * visitor (public POST /booking-requests) and are interpolated into the
+ * HTML email body sent to the owner — escape them so a crafted submission
+ * can't inject markup/links into her inbox (issue #41). propertyName and
+ * adminLink are admin-controlled, not visitor input, so they're left as-is.
+ */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function buildBookingRequestEmail(
   booking: BookingRequestEmailData,
   { adminUrl }: { adminUrl: string },
@@ -39,14 +55,15 @@ export function buildBookingRequestEmail(
   const htmlLines = [
     `<p><strong>Logement :</strong> ${booking.propertyName}</p>`,
     `<p><strong>Dates :</strong> du ${booking.startDate} au ${booking.endDate}</p>`,
-    `<p><strong>Demandeur :</strong> ${booking.guestName} (${booking.guestEmail})</p>`,
+    `<p><strong>Demandeur :</strong> ${escapeHtml(booking.guestName)} (${escapeHtml(booking.guestEmail)})</p>`,
   ];
   if (booking.guestPhone)
-    htmlLines.push(`<p><strong>Téléphone :</strong> ${booking.guestPhone}</p>`);
+    htmlLines.push(`<p><strong>Téléphone :</strong> ${escapeHtml(booking.guestPhone)}</p>`);
   if (booking.numberOfGuests != null) {
     htmlLines.push(`<p><strong>Nombre de voyageurs :</strong> ${booking.numberOfGuests}</p>`);
   }
-  if (booking.message) htmlLines.push(`<p><strong>Message :</strong> ${booking.message}</p>`);
+  if (booking.message)
+    htmlLines.push(`<p><strong>Message :</strong> ${escapeHtml(booking.message)}</p>`);
   htmlLines.push(`<p><a href="${adminLink}">Voir la demande dans l'admin</a></p>`);
 
   return {
