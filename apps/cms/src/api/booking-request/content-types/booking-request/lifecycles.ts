@@ -1,10 +1,18 @@
 import type { Core } from "@strapi/strapi";
+import {
+  notifyOwnerOfBookingRequest,
+  type BookingRequestResult,
+} from "../../../../notifications/notify-owner";
 
 interface UpdateEvent {
   params: {
     where: Record<string, unknown>;
     data: Record<string, unknown>;
   };
+}
+
+interface CreateEvent {
+  result: BookingRequestResult;
 }
 
 /**
@@ -32,7 +40,23 @@ export async function stampStatusChangeOnUpdate(
   }
 }
 
+/**
+ * Sends the owner-notification email (issue #10) for every new booking
+ * request, whichever path created it (public API — issue #9 — or admin).
+ * Delegated to notifyOwnerOfBookingRequest, which never throws so a
+ * notification failure can't roll back or fail the creation.
+ */
+export async function notifyOwnerOnCreate(
+  event: CreateEvent,
+  { strapi }: { strapi: Core.Strapi },
+): Promise<void> {
+  await notifyOwnerOfBookingRequest(strapi, event.result);
+}
+
 export default {
+  async afterCreate(event: CreateEvent) {
+    await notifyOwnerOnCreate(event, { strapi });
+  },
   async beforeUpdate(event: UpdateEvent) {
     await stampStatusChangeOnUpdate(event, { strapi });
   },
