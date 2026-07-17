@@ -1,0 +1,11 @@
+home-showcase déployé (release {{ .Release.Name }}, namespace {{ .Release.Namespace }}).
+
+Prérequis avant ce déploiement (non gérés par ce chart, voir deploy/README.md) :
+  - Secret "{{ .Values.existingSecret }}" créé avec les clés Postgres/Strapi.
+  - Images cms/web construites et poussées (target `production` des Dockerfiles).
+
+{{- if .Values.ingress.enabled }}
+Accès public : http://{{ .Values.ingress.host }}
+{{- else }}
+Ingress désactivé — utilisez `kubectl port-forward` pour accéder aux services.
+{{- end }}

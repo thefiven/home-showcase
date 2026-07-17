@@ -1,0 +1,40 @@
+# Valeurs par défaut du chart home-showcase.
+# Aucune valeur sensible ici : les secrets (mots de passe, clés Strapi...) vivent
+# dans un Secret Kubernetes créé à part par l'opérateur (voir deploy/README.md)
+# et référencé via `existingSecret` ci-dessous.
+
+existingSecret: home-showcase-secrets
+
+postgres:
+  image:
+    repository: postgres
+    tag: "16-bookworm"
+  storage: 5Gi
+  storageClassName: ""
+  # Doit correspondre à POSTGRES_DB/USER dans le Secret référencé.
+  database: strapi
+  user: strapi
+
+cms:
+  image:
+    repository: ghcr.io/thefiven/home-showcase-cms
+    tag: latest
+  replicas: 1
+  port: 1337
+  resources: {}
+
+web:
+  image:
+    repository: ghcr.io/thefiven/home-showcase-web
+    tag: latest
+  replicas: 1
+  port: 3000
+  resources: {}
+
+ingress:
+  enabled: true
+  className: traefik
+  host: home-showcase.example.com
+  tls:
+    enabled: false
+    secretName: ""

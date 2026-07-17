@@ -10,3 +10,5 @@ apps/cms/types/generated
 apps/cms/public/uploads
 # Rewritten by the Strapi CLI on every update check — not hand-authored.
 apps/cms/.strapi-updater.json
+# Templates Helm : syntaxe {{ }} non parsable comme YAML par prettier.
+deploy/helm/*/templates

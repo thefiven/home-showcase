@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "home-showcase.fullname" . }}-web
+  labels:
+    {{- include "home-showcase.componentLabels" (dict "root" . "component" "web") | nindent 4 }}
+spec:
+  replicas: {{ .Values.web.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        {{- include "home-showcase.componentLabels" (dict "root" . "component" "web") | nindent 8 }}
+    spec:
+      containers:
+        - name: web
+          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.web.port }}
+              name: http
+          env:
+            - name: PORT
+              value: {{ .Values.web.port | quote }}
+            # NEXT_PUBLIC_STRAPI_URL est inliné au build par Next.js (voir
+            # docker/web.Dockerfile) : elle doit être fournie en build-arg lors
+            # de la construction de l'image, pas ici. Seule l'URL interne côté
+            # serveur (SSR) est configurable au runtime.
+            - name: STRAPI_INTERNAL_URL
+              value: "http://{{ include "home-showcase.fullname" . }}-cms:{{ .Values.cms.port }}"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
