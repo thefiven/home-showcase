@@ -94,6 +94,14 @@ export const OWNER_MEDIA_LIBRARY_ACTIONS = [
   "plugin::upload.assets.update",
 ];
 
+/**
+ * Without this, the Content Manager's locale selector has no options to
+ * offer, so it can't resolve which locale to filter by — Property entries
+ * (i18n-localized) become invisible in the list view for the owner role,
+ * regardless of `OWNER_CONTENT_TYPE_ACTIONS`.
+ */
+export const OWNER_I18N_ACTIONS = ["plugin::i18n.locale.read"];
+
 type AdminAction = { actionId: string; section: string; subjects: string[] };
 
 export async function ensureOwnerRole({ strapi }: { strapi: Core.Strapi }) {
@@ -121,6 +129,7 @@ export async function ensureOwnerRole({ strapi }: { strapi: Core.Strapi }) {
   const permissions = [
     ...contentTypeService.getPermissionsWithNestedFields(scopedActions),
     ...OWNER_MEDIA_LIBRARY_ACTIONS.map((action) => ({ action })),
+    ...OWNER_I18N_ACTIONS.map((action) => ({ action })),
   ];
 
   await roleService.assignPermissions(ownerRole.id, permissions);

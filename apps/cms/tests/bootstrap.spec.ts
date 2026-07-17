@@ -5,6 +5,7 @@ import {
   ensureOwnerRole,
   ensurePublicReadPermissions,
   OWNER_CONTENT_TYPE_ACTIONS,
+  OWNER_I18N_ACTIONS,
   OWNER_MEDIA_LIBRARY_ACTIONS,
   OWNER_ROLE,
   PUBLIC_READ_ACTIONS,
@@ -283,6 +284,20 @@ describe("ensureOwnerRole", () => {
     const grantedActions = permissions.map((p) => p.action);
 
     for (const action of OWNER_MEDIA_LIBRARY_ACTIONS) {
+      expect(grantedActions).toContain(action);
+    }
+  });
+
+  it("accorde la lecture des locales i18n (sinon le sélecteur de langue du Content Manager reste vide)", async () => {
+    const mock = buildOwnerRoleStrapiMock();
+    const strapi = { db: mock.db, service: mock.service };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    const permissions = mock.assignPermissions.mock.calls[0][1] as Array<{ action: string }>;
+    const grantedActions = permissions.map((p) => p.action);
+
+    for (const action of OWNER_I18N_ACTIONS) {
       expect(grantedActions).toContain(action);
     }
   });
