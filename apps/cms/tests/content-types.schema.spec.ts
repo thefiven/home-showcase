@@ -27,6 +27,10 @@ describe("booking-request schema", () => {
   it("n'est pas localisée (une demande de réservation n'a pas de traduction)", () => {
     expect(bookingRequestSchema.pluginOptions?.i18n?.localized).toBe(false);
   });
+
+  it("déclare statusChangedAt comme un datetime pour tracer le changement de statut", () => {
+    expect(bookingRequestSchema.attributes.statusChangedAt.type).toBe("datetime");
+  });
 });
 
 describe("availability schema", () => {

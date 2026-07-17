@@ -12,8 +12,10 @@ export const DEFAULT_LOCALE_CODE = "fr";
 
 /**
  * Content-type actions exposed to the public (unauthenticated) API role.
- * BookingRequest stays private: read access isn't needed by visitors, and
- * public `create` will be opened by the booking-request-form feature.
+ * BookingRequest stays read-private (visitors don't need to list requests),
+ * but `create` is public: the booking-request-form feature (issue #9) submits
+ * requests unauthenticated. The controller forces `status: "pending"`
+ * regardless of what's posted, so this can't be used to self-approve.
  */
 export const PUBLIC_READ_ACTIONS = [
   "api::property.property.find",
@@ -21,6 +23,8 @@ export const PUBLIC_READ_ACTIONS = [
   "api::availability.availability.find",
   "api::availability.availability.findOne",
 ];
+
+export const PUBLIC_WRITE_ACTIONS = ["api::booking-request.booking-request.create"];
 
 export async function ensureLocales({ strapi }: { strapi: Core.Strapi }) {
   const localesService = strapi.plugin("i18n").service("locales");
@@ -35,7 +39,7 @@ export async function ensureLocales({ strapi }: { strapi: Core.Strapi }) {
   await localesService.setDefaultLocale({ code: DEFAULT_LOCALE_CODE });
 }
 
-export async function ensurePublicReadPermissions({ strapi }: { strapi: Core.Strapi }) {
+export async function ensurePublicPermissions({ strapi }: { strapi: Core.Strapi }) {
   const publicRole = await strapi.db
     .query("plugin::users-permissions.role")
     .findOne({ where: { type: "public" } });
@@ -45,7 +49,7 @@ export async function ensurePublicReadPermissions({ strapi }: { strapi: Core.Str
     return;
   }
 
-  for (const action of PUBLIC_READ_ACTIONS) {
+  for (const action of [...PUBLIC_READ_ACTIONS, ...PUBLIC_WRITE_ACTIONS]) {
     const existing = await strapi.db
       .query("plugin::users-permissions.permission")
       .findOne({ where: { action, role: publicRole.id } });

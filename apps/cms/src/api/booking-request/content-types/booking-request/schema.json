@@ -52,6 +52,9 @@
       "enum": ["pending", "accepted", "refused"],
       "default": "pending",
       "required": true
+    },
+    "statusChangedAt": {
+      "type": "datetime"
     }
   }
 }
