@@ -1,0 +1,6 @@
+apiVersion: v2
+name: home-showcase
+description: Chart Helm de déploiement k3s pour home-showcase (web, cms, postgres)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
