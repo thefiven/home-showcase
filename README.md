@@ -42,6 +42,23 @@ pnpm build         # build de production des deux apps
 avant chaque commit. La CI GitHub Actions (`.github/workflows/ci.yml`)
 relance les mêmes étapes + le build sur chaque pull request vers `main`.
 
+## Tests E2E
+
+Les parcours critiques (demande de réservation, accept/refuse depuis
+l'admin) sont couverts par Playwright (`e2e/`), sur une stack Strapi/Next.js
+dédiée avec base SQLite jetable (voir `e2e/.env.example` pour les variables
+disponibles) :
+
+```sh
+pnpm --filter e2e exec playwright install --with-deps chromium  # une fois
+pnpm --filter e2e test:e2e:orchestrated
+```
+
+`e2e/run.sh` démarre Strapi et Next.js, attend qu'ils soient prêts, lance
+Playwright (qui crée son propre admin + logement de test via le
+global-setup), puis arrête les deux serveurs. Pas de dépendance à Postgres
+ni à Docker pour ce lane. La CI (job `e2e`) exécute le même script.
+
 ### Branch protection sur `main`
 
 Le repo est public, ce qui permet la branch protection sans plan payant.

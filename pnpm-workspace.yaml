@@ -1,5 +1,6 @@
 packages:
   - "apps/*"
+  - "e2e"
 # Rustines de sécurité sur des dépendances transitives de @strapi/strapi
 # (outillage build/dev, pas de dépendance directe) — same-major uniquement,
 # scopées aux ranges vulnérables pour ne pas toucher d'autres majors présents
