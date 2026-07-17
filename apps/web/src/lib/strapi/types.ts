@@ -76,6 +76,22 @@ export interface Availability {
   summary?: string | null;
 }
 
+/**
+ * Corps envoyé à `POST /api/booking-requests` (issue #9). `property` est le
+ * `documentId` du logement. Pas de `bookingStatus` : toujours forcé à
+ * `pending` côté Strapi (le contrôleur l'ignore si fourni).
+ */
+export interface BookingRequestPayload {
+  property: string;
+  startDate: string;
+  endDate: string;
+  guestName: string;
+  guestEmail: string;
+  guestPhone?: string;
+  numberOfGuests?: number;
+  message?: string;
+}
+
 export interface StrapiPagination {
   page: number;
   pageSize: number;

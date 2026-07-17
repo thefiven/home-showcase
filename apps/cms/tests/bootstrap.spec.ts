@@ -3,12 +3,13 @@ import {
   DEFAULT_LOCALE_CODE,
   ensureLocales,
   ensureOwnerRole,
-  ensurePublicReadPermissions,
+  ensurePublicPermissions,
   OWNER_CONTENT_TYPE_ACTIONS,
   OWNER_I18N_ACTIONS,
   OWNER_MEDIA_LIBRARY_ACTIONS,
   OWNER_ROLE,
   PUBLIC_READ_ACTIONS,
+  PUBLIC_WRITE_ACTIONS,
   REQUIRED_LOCALES,
 } from "../src/bootstrap";
 
@@ -88,34 +89,42 @@ function buildDbMock({
   return { query, roleFindOne, permissionFindOne, permissionCreate };
 }
 
-describe("ensurePublicReadPermissions", () => {
+describe("ensurePublicPermissions", () => {
   it("accorde find/findOne sur Property et Availability au rôle public", async () => {
     const db = buildDbMock();
     const strapi = { db, log: { warn: vi.fn() } };
 
-    await ensurePublicReadPermissions({ strapi: strapi as never });
+    await ensurePublicPermissions({ strapi: strapi as never });
 
-    expect(db.permissionCreate).toHaveBeenCalledTimes(PUBLIC_READ_ACTIONS.length);
     for (const action of PUBLIC_READ_ACTIONS) {
       expect(db.permissionCreate).toHaveBeenCalledWith({ data: { action, role: PUBLIC_ROLE.id } });
     }
   });
 
-  it("n’accorde jamais de lecture publique sur BookingRequest", async () => {
+  it("n’accorde jamais de lecture publique sur BookingRequest, mais accorde sa création", async () => {
     const db = buildDbMock();
     const strapi = { db, log: { warn: vi.fn() } };
 
-    await ensurePublicReadPermissions({ strapi: strapi as never });
+    await ensurePublicPermissions({ strapi: strapi as never });
 
     const grantedActions = db.permissionCreate.mock.calls.map(([{ data }]) => data.action);
-    expect(grantedActions.some((action) => action.includes("booking-request"))).toBe(false);
+    expect(
+      grantedActions.some(
+        (action) =>
+          action.includes("booking-request") &&
+          (action.endsWith(".find") || action.endsWith(".findOne")),
+      ),
+    ).toBe(false);
+    for (const action of PUBLIC_WRITE_ACTIONS) {
+      expect(grantedActions).toContain(action);
+    }
   });
 
   it("ne recrée pas les permissions déjà accordées (idempotent)", async () => {
-    const db = buildDbMock({ existingActions: PUBLIC_READ_ACTIONS });
+    const db = buildDbMock({ existingActions: [...PUBLIC_READ_ACTIONS, ...PUBLIC_WRITE_ACTIONS] });
     const strapi = { db, log: { warn: vi.fn() } };
 
-    await ensurePublicReadPermissions({ strapi: strapi as never });
+    await ensurePublicPermissions({ strapi: strapi as never });
 
     expect(db.permissionCreate).not.toHaveBeenCalled();
   });
@@ -125,7 +134,7 @@ describe("ensurePublicReadPermissions", () => {
     const warn = vi.fn();
     const strapi = { db, log: { warn } };
 
-    await expect(ensurePublicReadPermissions({ strapi: strapi as never })).resolves.toBeUndefined();
+    await expect(ensurePublicPermissions({ strapi: strapi as never })).resolves.toBeUndefined();
 
     expect(warn).toHaveBeenCalledOnce();
     expect(db.permissionCreate).not.toHaveBeenCalled();

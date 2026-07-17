@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildAvailabilitiesForPropertyUrl,
+  buildBookingRequestCreateUrl,
   buildPropertiesListUrl,
   buildPropertyBySlugUrl,
   buildSlugsUrl,
+  createBookingRequest,
   getAllSlugs,
   getAvailabilitiesForProperty,
   getProperties,
@@ -258,5 +260,56 @@ describe("appels réseau (fetch mocké)", () => {
     vi.mocked(fetch).mockRejectedValue(new Error("network down"));
 
     await expect(getAvailabilitiesForProperty("abc123")).resolves.toEqual([]);
+  });
+
+  const BOOKING_PAYLOAD = {
+    property: "abc123",
+    startDate: "2026-08-01",
+    endDate: "2026-08-05",
+    guestName: "Alex Dupont",
+    guestEmail: "alex@example.com",
+  };
+
+  it("createBookingRequest poste le payload en POST JSON vers /api/booking-requests", async () => {
+    vi.mocked(fetch).mockResolvedValue({ ok: true, json: async () => ({}) } as Response);
+
+    await createBookingRequest(BOOKING_PAYLOAD);
+
+    expect(fetch).toHaveBeenCalledWith(
+      buildBookingRequestCreateUrl(ENV),
+      expect.objectContaining({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: BOOKING_PAYLOAD }),
+      }),
+    );
+  });
+
+  it("createBookingRequest lève une erreur avec le message Strapi si la demande est rejetée", async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        error: { message: "Les dates demandées chevauchent une période indisponible." },
+      }),
+    } as Response);
+
+    await expect(createBookingRequest(BOOKING_PAYLOAD)).rejects.toThrow(
+      "Les dates demandées chevauchent une période indisponible.",
+    );
+  });
+
+  it("createBookingRequest lève une erreur générique si Strapi ne renvoie pas de message", async () => {
+    vi.mocked(fetch).mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => {
+        throw new Error("not json");
+      },
+    } as Response);
+
+    await expect(createBookingRequest(BOOKING_PAYLOAD)).rejects.toThrow(
+      "Requête Strapi échouée (500)",
+    );
   });
 });
