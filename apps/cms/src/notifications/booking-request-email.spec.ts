@@ -55,4 +55,26 @@ describe("buildBookingRequestEmail", () => {
     expect(email.text).toContain("Nombre de voyageurs : 4");
     expect(email.text).toContain("Arrivée tardive");
   });
+
+  it("échappe le HTML injecté dans les champs saisis par le visiteur (issue #41)", () => {
+    const email = buildBookingRequestEmail(
+      {
+        ...baseBooking,
+        guestName: '<img src=x onerror="alert(1)">',
+        guestEmail: 'evil@example.com"><script>alert(1)</script>',
+        guestPhone: "<b>0600000000</b>",
+        message: "<script>alert('xss')</script>",
+      },
+      { adminUrl: "http://localhost:1337/admin" },
+    );
+
+    expect(email.html).not.toContain("<img");
+    expect(email.html).not.toContain("<script>");
+    expect(email.html).not.toContain("<b>0600000000</b>");
+    expect(email.html).toContain("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
+    expect(email.html).toContain("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;");
+
+    // La version texte n'est pas du HTML : pas d'échappement nécessaire.
+    expect(email.text).toContain('<img src=x onerror="alert(1)">');
+  });
 });
