@@ -2,6 +2,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Availability } from "@/lib/strapi/types";
 import { getBlockedDatesInWindow } from "@/lib/availability";
+import { buildMonthWeeks, firstWeekday } from "@/lib/calendarGrid";
 import styles from "./AvailabilityCalendar.module.css";
 
 interface AvailabilityCalendarProps {
@@ -10,46 +11,8 @@ interface AvailabilityCalendarProps {
   dictionary: Dictionary;
 }
 
-/**
- * Premier jour de la semaine (1 = lundi ... 7 = dimanche) pour `locale`, avec
- * repli sur lundi. Selon la version du moteur JS, `Intl.Locale` expose cette
- * information via la méthode `getWeekInfo()` ou via la propriété `weekInfo`
- * (ancienne forme, encore utilisée par le Node de cet environnement).
- */
-function firstWeekday(locale: Locale): number {
-  const withWeekInfo = new Intl.Locale(locale) as Intl.Locale & {
-    getWeekInfo?: () => { firstDay: number };
-    weekInfo?: { firstDay: number };
-  };
-  const weekInfo = withWeekInfo.getWeekInfo?.() ?? withWeekInfo.weekInfo;
-  return weekInfo?.firstDay ?? 1;
-}
-
 function toIsoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
-}
-
-/** Grille d'un mois : semaines complètes (jours hors mois = `null`) alignées sur `startOfWeek`. */
-function buildMonthWeeks(monthStart: Date, startOfWeek: number): (Date | null)[][] {
-  const year = monthStart.getUTCFullYear();
-  const month = monthStart.getUTCMonth();
-  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-
-  const days: (Date | null)[] = [];
-  for (let day = 1; day <= daysInMonth; day++) {
-    days.push(new Date(Date.UTC(year, month, day)));
-  }
-
-  const isoWeekday = (date: Date) => ((date.getUTCDay() + 6) % 7) + 1; // 1 = lundi ... 7 = dimanche
-  const leadingBlanks = (isoWeekday(days[0]!) - startOfWeek + 7) % 7;
-  const padded: (Date | null)[] = [...Array(leadingBlanks).fill(null), ...days];
-  while (padded.length % 7 !== 0) padded.push(null);
-
-  const weeks: (Date | null)[][] = [];
-  for (let i = 0; i < padded.length; i += 7) {
-    weeks.push(padded.slice(i, i + 7));
-  }
-  return weeks;
 }
 
 function MonthGrid({
