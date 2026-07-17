@@ -71,8 +71,10 @@ export const OWNER_ROLE = {
 
 /**
  * Content-manager actions granted per content type. Property gets full lifecycle
- * including publish (draftAndPublish is on). BookingRequest is read/update only —
- * the owner reviews and accepts/refuses requests but doesn't create or delete them.
+ * including publish and delete (draftAndPublish is on) — the owner manages her
+ * own listings end-to-end, including removing one that's no longer offered.
+ * BookingRequest is read/update only — the owner reviews and accepts/refuses
+ * requests but doesn't create or delete them.
  */
 export const OWNER_CONTENT_TYPE_ACTIONS: Record<string, string[]> = {
   "api::property.property": [
@@ -80,6 +82,7 @@ export const OWNER_CONTENT_TYPE_ACTIONS: Record<string, string[]> = {
     "plugin::content-manager.explorer.read",
     "plugin::content-manager.explorer.update",
     "plugin::content-manager.explorer.publish",
+    "plugin::content-manager.explorer.delete",
   ],
   "api::booking-request.booking-request": [
     "plugin::content-manager.explorer.read",
