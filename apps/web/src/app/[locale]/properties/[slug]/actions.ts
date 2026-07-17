@@ -9,8 +9,6 @@ export interface BookingRequestState {
   errorMessage?: string;
 }
 
-export const initialBookingRequestState: BookingRequestState = { status: "idle", errors: {} };
-
 function readTrimmed(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
 }

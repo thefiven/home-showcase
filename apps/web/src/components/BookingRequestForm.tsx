@@ -3,8 +3,8 @@
 import { useActionState } from "react";
 import type { Dictionary } from "@/i18n/dictionaries";
 import {
-  initialBookingRequestState,
   submitBookingRequest,
+  type BookingRequestState,
 } from "@/app/[locale]/properties/[slug]/actions";
 import styles from "./BookingRequestForm.module.css";
 
@@ -12,6 +12,8 @@ interface BookingRequestFormProps {
   propertyDocumentId: string;
   dictionary: Dictionary;
 }
+
+const INITIAL_STATE: BookingRequestState = { status: "idle", errors: {} };
 
 /**
  * Formulaire de demande de réservation (issue #9). Soumission via Server
@@ -21,7 +23,7 @@ interface BookingRequestFormProps {
 export function BookingRequestForm({ propertyDocumentId, dictionary }: BookingRequestFormProps) {
   const t = dictionary.booking;
   const action = submitBookingRequest.bind(null, propertyDocumentId);
-  const [state, formAction, isPending] = useActionState(action, initialBookingRequestState);
+  const [state, formAction, isPending] = useActionState(action, INITIAL_STATE);
 
   if (state.status === "success") {
     return (
