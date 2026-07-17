@@ -248,7 +248,7 @@ describe("ensureOwnerRole", () => {
     expect(mock.assignPermissions).toHaveBeenCalledWith(7, expect.any(Array));
   });
 
-  it("limite les actions content-manager à Property et BookingRequest, sans delete ni create sur BookingRequest", async () => {
+  it("limite les actions content-manager à Property (avec delete) et BookingRequest (sans delete ni create)", async () => {
     const mock = buildOwnerRoleStrapiMock();
     const strapi = { db: mock.db, service: mock.service, plugin: mock.plugin };
 
