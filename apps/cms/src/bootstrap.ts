@@ -87,6 +87,16 @@ export const OWNER_CONTENT_TYPE_ACTIONS: Record<string, string[]> = {
   ],
 };
 
+/**
+ * Content-manager permissions on a localized content type need an explicit
+ * `properties.locales: null` ("all locales") — the i18n plugin's permission
+ * engine (`registerI18nPermissionsHandlers`) otherwise treats a *missing*
+ * `locales` property as an empty allow-list (`locale: { $in: [] }`), which
+ * silently hides every entry regardless of the granted content-manager
+ * actions. Only `null` (not omitting the key, not `[]`) means unrestricted.
+ */
+const LOCALIZED_CONTENT_TYPES = ["api::property.property"];
+
 /** Media library access needed to upload/replace property photos from the admin. */
 export const OWNER_MEDIA_LIBRARY_ACTIONS = [
   "plugin::upload.read",
@@ -126,8 +136,19 @@ export async function ensureOwnerRole({ strapi }: { strapi: Core.Strapi }) {
       .map((action) => ({ ...action, subjects: [subject] })),
   );
 
+  const contentTypePermissions = (
+    contentTypeService.getPermissionsWithNestedFields(scopedActions) as Array<{
+      subject?: string;
+      properties?: Record<string, unknown>;
+    }>
+  ).map((permission) =>
+    permission.subject && LOCALIZED_CONTENT_TYPES.includes(permission.subject)
+      ? { ...permission, properties: { ...permission.properties, locales: null } }
+      : permission,
+  );
+
   const permissions = [
-    ...contentTypeService.getPermissionsWithNestedFields(scopedActions),
+    ...contentTypePermissions,
     ...OWNER_MEDIA_LIBRARY_ACTIONS.map((action) => ({ action })),
     ...OWNER_I18N_ACTIONS.map((action) => ({ action })),
   ];

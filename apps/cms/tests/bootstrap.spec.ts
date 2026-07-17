@@ -274,6 +274,44 @@ describe("ensureOwnerRole", () => {
     );
   });
 
+  it("accorde locales: null (tous locales) sur les permissions Property, sinon le Content Manager ne montre aucune entrée", async () => {
+    const mock = buildOwnerRoleStrapiMock();
+    const strapi = { db: mock.db, service: mock.service };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    const permissions = mock.assignPermissions.mock.calls[0][1] as Array<{
+      subject?: string;
+      properties?: { locales?: unknown };
+    }>;
+
+    const propertyPermissions = permissions.filter((p) => p.subject === "api::property.property");
+    expect(propertyPermissions.length).toBeGreaterThan(0);
+    for (const permission of propertyPermissions) {
+      expect(permission.properties?.locales).toBeNull();
+    }
+  });
+
+  it("n’ajoute pas de propriété locales sur les permissions BookingRequest (non localisé)", async () => {
+    const mock = buildOwnerRoleStrapiMock();
+    const strapi = { db: mock.db, service: mock.service };
+
+    await ensureOwnerRole({ strapi: strapi as never });
+
+    const permissions = mock.assignPermissions.mock.calls[0][1] as Array<{
+      subject?: string;
+      properties?: { locales?: unknown };
+    }>;
+
+    const bookingRequestPermissions = permissions.filter(
+      (p) => p.subject === "api::booking-request.booking-request",
+    );
+    expect(bookingRequestPermissions.length).toBeGreaterThan(0);
+    for (const permission of bookingRequestPermissions) {
+      expect(permission.properties?.locales).toBeUndefined();
+    }
+  });
+
   it("accorde l’accès à la médiathèque nécessaire à l’upload de photos", async () => {
     const mock = buildOwnerRoleStrapiMock();
     const strapi = { db: mock.db, service: mock.service };
