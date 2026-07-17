@@ -78,8 +78,8 @@ export interface Availability {
 
 /**
  * Corps envoyé à `POST /api/booking-requests` (issue #9). `property` est le
- * `documentId` du logement. Pas de `status` : toujours forcé à `pending` côté
- * Strapi (le contrôleur l'ignore si fourni).
+ * `documentId` du logement. Pas de `bookingStatus` : toujours forcé à
+ * `pending` côté Strapi (le contrôleur l'ignore si fourni).
  */
 export interface BookingRequestPayload {
   property: string;

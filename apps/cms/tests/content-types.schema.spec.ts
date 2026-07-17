@@ -7,8 +7,8 @@ import propertySchema from "../src/api/property/content-types/property/schema.js
 // silencieuse de ces champs (ex. un statut par défaut oublié) casserait le
 // workflow de réservation sans faire échouer le build Strapi.
 describe("booking-request schema", () => {
-  it("déclare le statut comme un enum pending/accepted/refused, requis, par défaut pending", () => {
-    const status = bookingRequestSchema.attributes.status;
+  it("déclare le statut (bookingStatus, pas status — réservé par Strapi) comme un enum pending/accepted/refused, requis, par défaut pending", () => {
+    const status = bookingRequestSchema.attributes.bookingStatus;
 
     expect(status.type).toBe("enumeration");
     expect(status.enum).toEqual(["pending", "accepted", "refused"]);

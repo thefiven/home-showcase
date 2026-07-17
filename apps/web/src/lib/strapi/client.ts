@@ -203,7 +203,7 @@ export function buildBookingRequestCreateUrl(env: StrapiEnv = currentEnv()): str
 
 /**
  * Soumet une demande de réservation (visiteur non authentifié). Strapi force
- * `status: "pending"` côté serveur quoi que contienne `payload` (issue #9) :
+ * `bookingStatus: "pending"` côté serveur quoi que contienne `payload` (issue #9) :
  * ceci n'est jamais un moyen d'auto-accepter une demande. Lève une erreur
  * portant le message renvoyé par Strapi si la demande est rejetée (ex. dates
  * indisponibles), pour affichage au visiteur.

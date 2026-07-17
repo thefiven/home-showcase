@@ -47,7 +47,7 @@
     "message": {
       "type": "text"
     },
-    "status": {
+    "bookingStatus": {
       "type": "enumeration",
       "enum": ["pending", "accepted", "refused"],
       "default": "pending",

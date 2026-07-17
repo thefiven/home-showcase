@@ -22,8 +22,8 @@ export default factories.createCoreController(
   ({ strapi }) => ({
     /**
      * Public endpoint (issue #9): a visitor submits this unauthenticated.
-     * `status`/`statusChangedAt` are always overwritten server-side so a
-     * crafted request body can't self-approve a booking.
+     * `bookingStatus`/`statusChangedAt` are always overwritten server-side so
+     * a crafted request body can't self-approve a booking.
      */
     async create(ctx) {
       const context = ctx as unknown as CreateContext;
@@ -47,9 +47,9 @@ export default factories.createCoreController(
       }
 
       const sanitizedInput: BookingRequestInput = { ...input };
-      delete sanitizedInput.status;
+      delete sanitizedInput.bookingStatus;
       delete sanitizedInput.statusChangedAt;
-      context.request.body = { data: { ...sanitizedInput, status: "pending" } };
+      context.request.body = { data: { ...sanitizedInput, bookingStatus: "pending" } };
 
       return await super.create(ctx);
     },
