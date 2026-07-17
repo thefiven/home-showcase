@@ -26,5 +26,24 @@
     "legendBlocked": "Unavailable",
     "blockedLabel": "Unavailable on {date}",
     "availableLabel": "Available on {date}"
+  },
+  "booking": {
+    "title": "Booking request",
+    "startDate": "Check-in date",
+    "endDate": "Check-out date",
+    "guestName": "Full name",
+    "guestEmail": "Email",
+    "guestPhone": "Phone (optional)",
+    "numberOfGuests": "Number of guests (optional)",
+    "message": "Message (optional)",
+    "submit": "Send request",
+    "submitting": "Sending…",
+    "success": "Your request has been sent. The owner will get back to you shortly.",
+    "errors": {
+      "required": "This field is required.",
+      "invalidRange": "The check-out date must be on or after the check-in date.",
+      "pastDate": "The check-in date can't be in the past.",
+      "unavailable": "These dates aren't available."
+    }
   }
 }

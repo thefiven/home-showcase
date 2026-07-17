@@ -1,5 +1,10 @@
 import { defaultLocale } from "@/i18n/config";
-import type { Availability, Property, StrapiCollectionResponse } from "./types";
+import type {
+  Availability,
+  BookingRequestPayload,
+  Property,
+  StrapiCollectionResponse,
+} from "./types";
 
 /** Locale de repli utilisée quand une traduction demandée n'existe pas encore côté Strapi. */
 export const DEFAULT_LOCALE = defaultLocale;
@@ -188,6 +193,36 @@ export async function getAvailabilitiesForProperty(
       error,
     );
     return [];
+  }
+}
+
+/** `POST /api/booking-requests` — soumission d'une demande de réservation. */
+export function buildBookingRequestCreateUrl(env: StrapiEnv = currentEnv()): string {
+  return `${resolveServerBaseUrl(env)}/api/booking-requests`;
+}
+
+/**
+ * Soumet une demande de réservation (visiteur non authentifié). Strapi force
+ * `status: "pending"` côté serveur quoi que contienne `payload` (issue #9) :
+ * ceci n'est jamais un moyen d'auto-accepter une demande. Lève une erreur
+ * portant le message renvoyé par Strapi si la demande est rejetée (ex. dates
+ * indisponibles), pour affichage au visiteur.
+ */
+export async function createBookingRequest(
+  payload: BookingRequestPayload,
+  env: StrapiEnv = currentEnv(),
+): Promise<void> {
+  const response = await fetch(buildBookingRequestCreateUrl(env), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: payload }),
+  });
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as {
+      error?: { message?: string };
+    } | null;
+    throw new Error(body?.error?.message || `Requête Strapi échouée (${response.status})`);
   }
 }
 

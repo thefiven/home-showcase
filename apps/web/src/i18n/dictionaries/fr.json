@@ -26,5 +26,24 @@
     "legendBlocked": "Indisponible",
     "blockedLabel": "Indisponible le {date}",
     "availableLabel": "Disponible le {date}"
+  },
+  "booking": {
+    "title": "Demande de réservation",
+    "startDate": "Date d'arrivée",
+    "endDate": "Date de départ",
+    "guestName": "Nom complet",
+    "guestEmail": "Email",
+    "guestPhone": "Téléphone (optionnel)",
+    "numberOfGuests": "Nombre de voyageurs (optionnel)",
+    "message": "Message (optionnel)",
+    "submit": "Envoyer la demande",
+    "submitting": "Envoi en cours…",
+    "success": "Votre demande a bien été envoyée. La propriétaire vous recontactera rapidement.",
+    "errors": {
+      "required": "Ce champ est obligatoire.",
+      "invalidRange": "La date de départ doit être postérieure ou égale à la date d'arrivée.",
+      "pastDate": "La date d'arrivée ne peut pas être dans le passé.",
+      "unavailable": "Ces dates ne sont pas disponibles."
+    }
   }
 }

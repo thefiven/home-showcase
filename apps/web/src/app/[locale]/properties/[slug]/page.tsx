@@ -6,6 +6,7 @@ import { PropertyDescription } from "@/components/PropertyDescription";
 import { PricingSummary } from "@/components/PricingSummary";
 import { AmenitiesList } from "@/components/AmenitiesList";
 import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
+import { BookingRequestForm } from "@/components/BookingRequestForm";
 import { getDictionary } from "@/i18n/dictionaries";
 import { resolveLocale } from "@/i18n/config";
 import styles from "./page.module.css";
@@ -77,6 +78,8 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
       <PropertyDescription content={property.description} />
 
       <AmenitiesList amenities={property.amenities} />
+
+      <BookingRequestForm propertyDocumentId={property.documentId} dictionary={dictionary} />
     </main>
   );
 }
