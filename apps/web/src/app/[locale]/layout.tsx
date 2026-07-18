@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Source_Serif_4, Work_Sans, Space_Mono } from "next/font/google";
 import { locales, resolveLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { SiteNav } from "@/components/SiteNav";
 import "../globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fontDisplay = Source_Serif_4({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const fontBody = Work_Sans({
+  variable: "--font-body",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fontMono = Space_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export function generateStaticParams() {
@@ -43,7 +50,10 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
   const dictionary = getDictionary(locale);
 
   return (
-    <html lang={locale} className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html
+      lang={locale}
+      className={`${fontDisplay.variable} ${fontBody.variable} ${fontMono.variable}`}
+    >
       <body>
         <SiteNav locale={locale} dictionary={dictionary} />
         {children}

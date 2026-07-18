@@ -1,13 +1,43 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --background: #f5f2ec;
+  --surface: #ede9df;
+  --surface-dark: #1c2b33;
+  --border: rgba(28, 43, 51, 0.1);
+  --border-strong: rgba(28, 43, 51, 0.25);
+  --foreground: #1c2b33;
+  --foreground-muted: #3a3c3d;
+  --foreground-soft: #6b6459;
+  --foreground-on-dark: #f5f2ec;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --atlantic: #2b4a5e;
+  --atlantic-hover: #1c2b33;
+  --gorse: #b8863a;
+  --gorse-hover: #a37530;
+  --unavailable: #8b8177;
+
+  --color-error: #9e5b52;
+  --color-success: var(--atlantic);
+
+  --font-display: "Source Serif 4", serif;
+  --font-body: "Work Sans", sans-serif;
+  --font-mono: "Space Mono", monospace;
+
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 8px;
+  --space-6: 12px;
+  --space-8: 16px;
+  --space-10: 20px;
+  --space-12: 24px;
+  --space-16: 32px;
+
+  --pad-section: clamp(48px, 7vw, 88px);
+  --pad-nav-x: clamp(16px, 4vw, 48px);
+  --gap-cols: clamp(32px, 5vw, 64px);
+
+  --radius: 2px;
+  --radius-pill: 20px;
 }
 
 html {
@@ -26,7 +56,7 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -37,13 +67,18 @@ body {
   margin: 0;
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
 a {
-  color: inherit;
+  color: var(--atlantic);
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+a:hover {
+  color: var(--atlantic-hover);
 }
