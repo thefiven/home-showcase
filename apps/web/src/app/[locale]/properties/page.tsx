@@ -3,7 +3,6 @@ import { getProperties } from "@/lib/strapi/client";
 import { PropertyCard } from "@/components/PropertyCard";
 import { getDictionary } from "@/i18n/dictionaries";
 import { resolveLocale } from "@/i18n/config";
-import styles from "./page.module.css";
 
 export const revalidate = 60;
 
@@ -27,7 +26,7 @@ export default async function PropertiesPage({ params }: PropertiesPageProps) {
 
   if (properties.length === 0) {
     return (
-      <main className={styles.main}>
+      <main className="mx-auto flex max-w-[1200px] flex-col gap-16 px-[var(--pad-nav-x)] py-[var(--pad-section)]">
         <h1>{dictionary.properties.title}</h1>
         <p>{dictionary.properties.empty}</p>
       </main>
@@ -35,9 +34,9 @@ export default async function PropertiesPage({ params }: PropertiesPageProps) {
   }
 
   return (
-    <main className={styles.main}>
+    <main className="mx-auto flex max-w-[1200px] flex-col gap-16 px-[var(--pad-nav-x)] py-[var(--pad-section)]">
       <h1>{dictionary.properties.title}</h1>
-      <div className={styles.grid}>
+      <div className="grid gap-[var(--gap-cols)] [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
         {properties.map((property) => (
           <PropertyCard key={property.documentId} property={property} locale={locale} />
         ))}

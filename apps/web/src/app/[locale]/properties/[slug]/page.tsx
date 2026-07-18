@@ -10,7 +10,6 @@ import { BookingRequestForm } from "@/components/BookingRequestForm";
 import { LocationSection } from "@/components/LocationSection";
 import { getDictionary } from "@/i18n/dictionaries";
 import { resolveLocale } from "@/i18n/config";
-import styles from "./page.module.css";
 
 export const revalidate = 60;
 
@@ -60,7 +59,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
         location={property.location}
         dictionary={dictionary}
       />
-      <main className={styles.main}>
+      <main className="mx-auto flex max-w-[1000px] flex-col gap-[var(--gap-cols)] px-[var(--pad-nav-x)] py-[var(--pad-section)]">
         <div id="galerie">
           <PropertyGallery photos={property.photos} alt={property.name} />
         </div>

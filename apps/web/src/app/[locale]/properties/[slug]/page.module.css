@@ -1,8 +1,0 @@
-.main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-cols);
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: var(--pad-section) var(--pad-nav-x);
-}
