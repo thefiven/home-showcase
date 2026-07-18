@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { metersToPixelsAtZoom } from "@/lib/location";
 
 interface LocationMapProps {
   latitude: number;
@@ -22,13 +23,6 @@ const OSM_STYLE = {
   },
   layers: [{ id: "osm", type: "raster" as const, source: "osm" }],
 };
-
-function metersToPixelsAtZoom(radiusMeters: number, latitude: number, zoom: number): number {
-  const earthCircumference = 40075017;
-  const metersPerPixel =
-    (earthCircumference * Math.cos((latitude * Math.PI) / 180)) / 2 ** (zoom + 8);
-  return radiusMeters / metersPerPixel;
-}
 
 export function LocationMap({ latitude, longitude, radiusMeters, label }: LocationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
