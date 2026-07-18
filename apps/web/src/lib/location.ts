@@ -25,3 +25,12 @@ export function approximateLocation(latitude: number, longitude: number): Approx
     radiusMeters: APPROXIMATE_RADIUS_METERS,
   };
 }
+
+const EARTH_CIRCUMFERENCE_METERS = 40075017;
+
+/** Convertit un rayon en mètres en rayon en pixels pour un cercle MapLibre à une latitude/zoom donnés. */
+export function metersToPixelsAtZoom(radiusMeters: number, latitude: number, zoom: number): number {
+  const metersPerPixel =
+    (EARTH_CIRCUMFERENCE_METERS * Math.cos((latitude * Math.PI) / 180)) / 2 ** (zoom + 8);
+  return radiusMeters / metersPerPixel;
+}

@@ -7,23 +7,33 @@
   "options": {},
   "attributes": {
     "addressLine": {
-      "type": "string"
+      "type": "string",
+      "private": true
     },
     "city": {
       "type": "string",
       "required": true
     },
     "postalCode": {
-      "type": "string"
+      "type": "string",
+      "private": true
     },
     "country": {
       "type": "string",
       "required": true
     },
     "latitude": {
-      "type": "decimal"
+      "type": "decimal",
+      "private": true
     },
     "longitude": {
+      "type": "decimal",
+      "private": true
+    },
+    "approxLatitude": {
+      "type": "decimal"
+    },
+    "approxLongitude": {
       "type": "decimal"
     },
     "proximityNote": {

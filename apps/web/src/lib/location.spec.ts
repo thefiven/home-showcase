@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { APPROXIMATE_RADIUS_METERS, approximateLocation } from "./location";
+import { APPROXIMATE_RADIUS_METERS, approximateLocation, metersToPixelsAtZoom } from "./location";
 
 describe("approximateLocation", () => {
   it("arrondit les coordonnées à 2 décimales (~1 km de précision)", () => {
@@ -32,5 +32,30 @@ describe("approximateLocation", () => {
 
   it("inclut un rayon d'approximation constant", () => {
     expect(approximateLocation(10.1234, 20.5678).radiusMeters).toBe(APPROXIMATE_RADIUS_METERS);
+  });
+});
+
+describe("metersToPixelsAtZoom", () => {
+  it("convertit un rayon en mètres à l'équateur (cos(0) = 1)", () => {
+    const zoom = 11;
+    const metersPerPixelAtEquator = 40075017 / 2 ** (zoom + 8);
+    const expected = 900 / metersPerPixelAtEquator;
+
+    expect(metersToPixelsAtZoom(900, 0, zoom)).toBeCloseTo(expected, 6);
+  });
+
+  it("augmente le rayon en pixels avec le zoom, à latitude fixée", () => {
+    const atZoom11 = metersToPixelsAtZoom(900, 48.86, 11);
+    const atZoom12 = metersToPixelsAtZoom(900, 48.86, 12);
+
+    expect(atZoom12).toBeGreaterThan(atZoom11);
+    expect(atZoom12).toBeCloseTo(atZoom11 * 2, 6);
+  });
+
+  it("augmente le rayon en pixels à mesure que la latitude s'éloigne de l'équateur (étirement Web Mercator, cos(lat) au dénominateur)", () => {
+    const atEquator = metersToPixelsAtZoom(900, 0, 11);
+    const atParis = metersToPixelsAtZoom(900, 48.86, 11);
+
+    expect(atParis).toBeGreaterThan(atEquator);
   });
 });

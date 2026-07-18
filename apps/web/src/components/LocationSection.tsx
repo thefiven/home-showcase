@@ -24,8 +24,8 @@ export function LocationSection({
 
   const photo = photos?.[1] ?? photos?.[0];
   const approximate =
-    location.latitude != null && location.longitude != null
-      ? approximateLocation(location.latitude, location.longitude)
+    location.approxLatitude != null && location.approxLongitude != null
+      ? approximateLocation(location.approxLatitude, location.approxLongitude)
       : null;
 
   return (
