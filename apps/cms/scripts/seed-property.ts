@@ -20,6 +20,13 @@ const SLUG = "maison-en-campagne-vue-mer";
 const PHOTOS_DIR =
   process.env.SEED_PHOTOS_DIR ?? path.join(__dirname, "..", "seed-data", "property-1", "photos");
 
+// PropertyHero (apps/web/src/components/PropertyHero.tsx) always uses
+// `photos[0]` as the background image — landscape orientation matters more
+// here than elsewhere, since it's rendered `fill` + `object-cover` across a
+// full-width banner. Pulled to the front of the upload order regardless of
+// filename sort.
+const HERO_PHOTO_FILENAME = "photo-02.jpeg";
+
 type BlocksContent = Array<{ type: "paragraph"; children: Array<{ type: "text"; text: string }> }>;
 
 function paragraphs(text: string): BlocksContent {
@@ -125,7 +132,11 @@ async function uploadPhotos(strapi: Core.Strapi): Promise<number[]> {
   const filenames = fs
     .readdirSync(PHOTOS_DIR)
     .filter((f) => /\.(jpe?g|png|webp)$/i.test(f))
-    .sort();
+    .sort((a, b) => {
+      if (a === HERO_PHOTO_FILENAME) return -1;
+      if (b === HERO_PHOTO_FILENAME) return 1;
+      return a.localeCompare(b);
+    });
 
   if (filenames.length === 0) {
     strapi.log.warn(`No image files found in ${PHOTOS_DIR} — seeding without photos.`);

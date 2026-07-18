@@ -52,14 +52,23 @@ export function resolvePublicBaseUrl(env: StrapiEnv = currentEnv()): string {
   return stripTrailingSlash(url);
 }
 
-/** Préfixe une URL de média Strapi (relative) avec l'URL publique. Idempotent sur les URLs déjà absolues. */
+/**
+ * Préfixe une URL de média Strapi (relative) pour l'utiliser comme `src` de
+ * `next/image`. Utilise l'URL serveur (`resolveServerBaseUrl`), pas l'URL
+ * publique : même pour une page rendue côté serveur, c'est l'optimiseur
+ * d'images de Next qui va chercher le fichier source, et il tourne dans le
+ * process serveur (conteneur `web` en Docker) — une URL uniquement
+ * résolvable par le navigateur (`localhost:1337`) y échoue (`fetch failed`,
+ * `cms` n'étant pas `localhost` vu depuis ce conteneur). Idempotent sur les
+ * URLs déjà absolues.
+ */
 export function mediaUrl(
   path: string | undefined | null,
   env: StrapiEnv = currentEnv(),
 ): string | null {
   if (!path) return null;
   if (/^https?:\/\//.test(path)) return path;
-  return `${resolvePublicBaseUrl(env)}${path}`;
+  return `${resolveServerBaseUrl(env)}${path}`;
 }
 
 /** `GET /api/properties` — liste, avec populate des relations/composants nécessaires à l'affichage. */
