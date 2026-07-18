@@ -1,5 +1,6 @@
 import type { Core } from "@strapi/strapi";
 import { ensureLocales, ensureOwnerRole, ensurePublicPermissions } from "./bootstrap";
+import { deriveApproximateLocationMiddleware } from "./documents-middlewares/derive-approximate-location";
 
 export default {
   /**
@@ -8,7 +9,9 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/* { strapi }: { strapi: Core.Strapi } */) {},
+  register({ strapi }: { strapi: Core.Strapi }) {
+    strapi.documents.use(deriveApproximateLocationMiddleware);
+  },
 
   /**
    * An asynchronous bootstrap function that runs before
