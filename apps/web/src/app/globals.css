@@ -1,43 +1,43 @@
-:root {
-  --background: #f5f2ec;
-  --surface: #ede9df;
-  --surface-dark: #24445c;
-  --border: rgba(28, 43, 51, 0.1);
-  --border-strong: rgba(28, 43, 51, 0.25);
-  --foreground: #1c2b33;
-  --foreground-muted: #3a3c3d;
-  --foreground-soft: #6b6459;
-  --foreground-on-dark: #f5f2ec;
+@import "tailwindcss";
 
-  --atlantic: #24445c;
-  --atlantic-hover: color-mix(in srgb, #24445c 85%, black);
-  --gorse: #b8863a;
-  --gorse-hover: #a37530;
-  --unavailable: #8b8177;
+@theme {
+  --color-background: #f5f2ec;
+  --color-surface: #ede9df;
+  --color-surface-dark: #24445c;
+  --color-border: rgba(28, 43, 51, 0.1);
+  --color-border-strong: rgba(28, 43, 51, 0.25);
+  --color-foreground: #1c2b33;
+  --color-foreground-muted: #3a3c3d;
+  --color-foreground-soft: #6b6459;
+  --color-foreground-on-dark: #f5f2ec;
+
+  --color-atlantic: #24445c;
+  --color-atlantic-hover: color-mix(in srgb, #24445c 85%, black);
+  --color-gorse: #b8863a;
+  --color-gorse-hover: #a37530;
+  --color-unavailable: #8b8177;
 
   --color-error: #9e5b52;
-  --color-success: var(--atlantic);
+  --color-success: var(--color-atlantic);
 
   --font-display: "Source Serif 4", serif;
   --font-body: "Work Sans", sans-serif;
   --font-mono: "Space Mono", monospace;
 
-  --space-1: 2px;
-  --space-2: 4px;
-  --space-3: 6px;
-  --space-4: 8px;
-  --space-6: 12px;
-  --space-8: 16px;
-  --space-10: 20px;
-  --space-12: 24px;
-  --space-16: 32px;
+  /* Unité de base DESIGN.md §3 (2px) : les utilitaires numériques Tailwind
+     (p-8, gap-12, m-16...) deviennent des multiples directs de 2px. */
+  --spacing: 2px;
 
+  --radius-flat: 2px;
+  --radius-pill: 20px;
+}
+
+/* Espacements fluides (clamp()) : hors de l'échelle numérique Tailwind,
+   utilisés en valeur arbitraire (ex. px-[var(--pad-nav-x)]). */
+:root {
   --pad-section: clamp(48px, 7vw, 88px);
   --pad-nav-x: clamp(16px, 4vw, 48px);
   --gap-cols: clamp(32px, 5vw, 64px);
-
-  --radius: 2px;
-  --radius-pill: 20px;
 }
 
 html {
@@ -54,8 +54,8 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--color-foreground);
+  background: var(--color-background);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -75,10 +75,10 @@ h3 {
 }
 
 a {
-  color: var(--atlantic);
+  color: var(--color-atlantic);
   text-decoration: none;
 }
 
 a:hover {
-  color: var(--atlantic-hover);
+  color: var(--color-atlantic-hover);
 }
