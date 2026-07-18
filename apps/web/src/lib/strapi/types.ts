@@ -19,14 +19,17 @@ export interface StrapiMedia {
   formats?: Record<string, StrapiMediaFormat> | null;
 }
 
-/** Composant `shared.location`. */
+/**
+ * Composant `shared.location`. addressLine/postalCode/latitude/longitude sont
+ * `private` côté Strapi (issue #56) : jamais présents dans les réponses API.
+ * approxLatitude/approxLongitude (~1km de précision) sont la seule source
+ * publique de position, dérivée côté CMS (lifecycle Property).
+ */
 export interface PropertyLocation {
-  addressLine?: string | null;
   city: string;
-  postalCode?: string | null;
   country: string;
-  latitude?: number | null;
-  longitude?: number | null;
+  approxLatitude?: number | null;
+  approxLongitude?: number | null;
   proximityNote?: string | null;
 }
 
