@@ -3,7 +3,9 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import type { Availability } from "@/lib/strapi/types";
 import { getBlockedDatesInWindow } from "@/lib/availability";
 import { buildMonthWeeks, firstWeekday } from "@/lib/calendarGrid";
-import styles from "./AvailabilityCalendar.module.css";
+
+const DAY_CELL =
+  "flex aspect-square min-w-[34px] items-center justify-center rounded-flat font-mono text-[13px]";
 
 interface AvailabilityCalendarProps {
   availabilities: Availability[];
@@ -41,25 +43,24 @@ function MonthGrid({
   const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" });
 
   return (
-    <div className={styles.month}>
-      <h3 className={styles.monthLabel}>{monthLabel}</h3>
-      <div className={styles.weekdays}>
+    <div className="flex-[1_1_300px] min-w-[300px]">
+      <h3 className="mb-8 text-[18px] capitalize">{monthLabel}</h3>
+      <div className="grid grid-cols-7 gap-2">
         {weekdayLabels.map((label, index) => (
-          <span key={index} className={styles.weekday}>
+          <span
+            key={index}
+            className="text-center font-mono text-xs capitalize text-foreground-soft"
+          >
             {label}
           </span>
         ))}
       </div>
-      <div className={styles.grid}>
+      <div className="grid grid-cols-7 gap-2">
         {weeks.flatMap((week, weekIndex) =>
           week.map((date, dayIndex) => {
             if (!date) {
               return (
-                <span
-                  key={`${weekIndex}-${dayIndex}`}
-                  className={styles.empty}
-                  aria-hidden="true"
-                />
+                <span key={`${weekIndex}-${dayIndex}`} className={DAY_CELL} aria-hidden="true" />
               );
             }
             const iso = toIsoDate(date);
@@ -71,7 +72,11 @@ function MonthGrid({
             return (
               <span
                 key={iso}
-                className={blocked ? `${styles.day} ${styles.blocked}` : styles.day}
+                className={
+                  blocked
+                    ? `${DAY_CELL} border border-unavailable bg-unavailable text-foreground-on-dark line-through`
+                    : `${DAY_CELL} border border-border-strong bg-background`
+                }
                 aria-label={label}
               >
                 {date.getUTCDate()}
@@ -103,21 +108,23 @@ export function AvailabilityCalendar({
   const startOfWeek = firstWeekday(locale);
 
   return (
-    <section className={styles.calendar}>
-      <p className={styles.eyebrow}>{dictionary.calendar.eyebrow}</p>
+    <section className="flex flex-col gap-8">
+      <p className="font-mono text-xs uppercase tracking-[0.12em] text-foreground-soft">
+        {dictionary.calendar.eyebrow}
+      </p>
       <h2>{dictionary.calendar.title}</h2>
-      <p className={styles.intro}>{dictionary.calendar.intro}</p>
-      <div className={styles.legend}>
-        <span className={styles.legendItem}>
-          <span className={styles.legendSwatch} />
+      <p className="max-w-[58ch] text-foreground-muted">{dictionary.calendar.intro}</p>
+      <div className="flex flex-wrap gap-8 font-mono text-[13px]">
+        <span className="inline-flex items-center gap-3">
+          <span className="h-3 w-3 rounded-flat border border-border-strong bg-background" />
           {dictionary.calendar.legendAvailable}
         </span>
-        <span className={styles.legendItem}>
-          <span className={`${styles.legendSwatch} ${styles.legendSwatchBlocked}`} />
+        <span className="inline-flex items-center gap-3">
+          <span className="h-3 w-3 rounded-flat border border-unavailable bg-unavailable" />
           {dictionary.calendar.legendBlocked}
         </span>
       </div>
-      <div className={styles.months}>
+      <div className="flex flex-wrap gap-[var(--gap-cols)]">
         <MonthGrid
           monthStart={currentMonthStart}
           startOfWeek={startOfWeek}
