@@ -20,7 +20,26 @@
   "languageSwitcher": {
     "label": "Langue"
   },
+  "hero": {
+    "ctaAvailability": "Demander la disponibilité",
+    "ctaGallery": "Voir la galerie",
+    "noPhotoAlt": "Aucune photo disponible pour {name}"
+  },
+  "stats": {
+    "perNight": "par nuit",
+    "maxGuests": "voyageurs max.",
+    "cleaningFee": "frais de ménage"
+  },
+  "hostNote": {
+    "eyebrow": "Le mot des hôtes"
+  },
+  "location": {
+    "eyebrow": "Localisation",
+    "addressHidden": "Adresse communiquée après confirmation de la demande."
+  },
   "calendar": {
+    "eyebrow": "Synchronisé avec Airbnb",
+    "intro": "Le calendrier ci-dessous reflète les réservations Airbnb en cours. Une demande sur une date libre ne réserve rien tant que nous ne l'avons pas confirmée.",
     "title": "Disponibilités",
     "legendAvailable": "Disponible",
     "legendBlocked": "Indisponible",
@@ -28,6 +47,7 @@
     "availableLabel": "Disponible le {date}"
   },
   "booking": {
+    "airbnbNote": "Aucun paiement en ligne : votre demande nous parvient directement, nous vérifions les dates et revenons vers vous sous 24 à 48h pour convenir des modalités (contrat, acompte).",
     "title": "Demande de réservation",
     "startDate": "Date d'arrivée",
     "endDate": "Date de départ",
