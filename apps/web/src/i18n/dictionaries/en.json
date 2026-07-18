@@ -31,7 +31,8 @@
     "cleaningFee": "cleaning fee"
   },
   "hostNote": {
-    "eyebrow": "A note from your hosts"
+    "eyebrow": "A note from your hosts",
+    "amenitiesEyebrow": "Amenities"
   },
   "location": {
     "eyebrow": "Location",

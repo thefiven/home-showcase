@@ -31,7 +31,8 @@
     "cleaningFee": "frais de ménage"
   },
   "hostNote": {
-    "eyebrow": "Le mot des hôtes"
+    "eyebrow": "Le mot des hôtes",
+    "amenitiesEyebrow": "Équipements"
   },
   "location": {
     "eyebrow": "Localisation",
