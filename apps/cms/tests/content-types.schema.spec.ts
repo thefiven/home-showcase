@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import bookingRequestSchema from "../src/api/booking-request/content-types/booking-request/schema.json";
 import availabilitySchema from "../src/api/availability/content-types/availability/schema.json";
 import propertySchema from "../src/api/property/content-types/property/schema.json";
+import locationSchema from "../src/components/shared/location.json";
 
 // Garde-fou pour les critères d'acceptation de l'issue #3 : une régression
 // silencieuse de ces champs (ex. un statut par défaut oublié) casserait le
@@ -62,5 +63,23 @@ describe("property schema", () => {
 
   it("a un slug non localisé (clé de routing stable entre langues)", () => {
     expect(propertySchema.attributes.slug.pluginOptions?.i18n?.localized).toBe(false);
+  });
+});
+
+// Garde-fou pour l'issue #56 : l'API publique fuyait la position et l'adresse
+// exactes du logement (seul l'arrondi côté Next.js les masquait). Ces champs
+// doivent rester `private` (jamais sérialisés côté API), et les projections
+// approximatives publiques doivent exister pour alimenter la carte.
+describe("shared.location component", () => {
+  it("garde l'adresse et les coordonnées exactes privées (jamais dans l'API publique)", () => {
+    expect(locationSchema.attributes.addressLine.private).toBe(true);
+    expect(locationSchema.attributes.postalCode.private).toBe(true);
+    expect(locationSchema.attributes.latitude.private).toBe(true);
+    expect(locationSchema.attributes.longitude.private).toBe(true);
+  });
+
+  it("expose des coordonnées approximatives publiques pour la carte", () => {
+    expect(locationSchema.attributes.approxLatitude.private).not.toBe(true);
+    expect(locationSchema.attributes.approxLongitude.private).not.toBe(true);
   });
 });
