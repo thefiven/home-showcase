@@ -40,6 +40,15 @@ Modèle de contenu Strapi (`apps/cms`) : `Property`, `Availability` (alimenté p
 - Ne pas tester ce qui relève du framework lui-même (rendu Next.js par défaut, admin Strapi standard) — se concentrer sur le code métier propre au projet.
 - Vitest est configuré dans `apps/web` et `apps/cms` (`pnpm run test` à la racine, `--passWithNoTests` tant qu'aucune logique métier n'existe) : c'est la fondation posée dès le monorepo (issue #1), à remplir au fil des issues qui introduisent de la vraie logique (ex. sync iCal, workflow de réservation).
 
+## Design System
+
+Respecter les tokens de DESIGN.md pour tout travail UI.
+
+- Utiliser les tokens de couleur exactement comme spécifiés
+- Appliquer l'échelle typographique de façon cohérente
+- Respecter les breakpoints responsive définis
+- Ne pas introduire de nouvelle couleur, police ou espacement sans raison explicite
+
 ## Workflow Git
 
 Projet solo mais avec un historique propre et une PR systématique avant merge sur `main`.
