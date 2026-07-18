@@ -42,6 +42,8 @@
     "eyebrow": "Synced with Airbnb",
     "intro": "The calendar below reflects current Airbnb bookings. A request on an open date doesn't reserve anything until we've confirmed it.",
     "title": "Availability",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
     "legendAvailable": "Available",
     "legendBlocked": "Unavailable",
     "blockedLabel": "Unavailable on {date}",
