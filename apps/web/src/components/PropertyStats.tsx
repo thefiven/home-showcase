@@ -1,7 +1,6 @@
 import type { Dictionary } from "@/i18n/dictionaries";
 import { formatAmount } from "@/lib/pricing";
 import type { PropertyLocation, PropertyPricing } from "@/lib/strapi/types";
-import styles from "./PropertyStats.module.css";
 
 interface PropertyStatsProps {
   pricing?: PropertyPricing | null;
@@ -33,13 +32,23 @@ export function PropertyStats({ pricing, maxGuests, location, dictionary }: Prop
   if (tiles.length === 0) return null;
 
   return (
-    <section className={styles.stats}>
+    <section className="flex flex-wrap gap-[clamp(24px,5vw,64px)] bg-surface-dark px-[var(--pad-nav-x)] py-16 text-foreground-on-dark">
       {tiles.map((tile, index) => (
-        <div key={index} className={styles.tile}>
-          <p className={tile.accent ? `${styles.value} ${styles.accent}` : styles.value}>
+        <div key={index}>
+          <p
+            className={
+              tile.accent
+                ? "font-mono text-[22px] font-bold text-gorse"
+                : "font-mono text-[22px] font-bold text-foreground-on-dark"
+            }
+          >
             {tile.value}
           </p>
-          {tile.label && <p className={styles.label}>{tile.label}</p>}
+          {tile.label && (
+            <p className="mt-1 text-sm text-[color-mix(in_srgb,var(--color-foreground-on-dark)_75%,transparent)]">
+              {tile.label}
+            </p>
+          )}
         </div>
       ))}
     </section>

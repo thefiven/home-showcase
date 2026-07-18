@@ -42,6 +42,8 @@
     "eyebrow": "Synchronisé avec Airbnb",
     "intro": "Le calendrier ci-dessous reflète les réservations Airbnb en cours. Une demande sur une date libre ne réserve rien tant que nous ne l'avons pas confirmée.",
     "title": "Disponibilités",
+    "previousMonth": "Mois précédent",
+    "nextMonth": "Mois suivant",
     "legendAvailable": "Disponible",
     "legendBlocked": "Indisponible",
     "blockedLabel": "Indisponible le {date}",
