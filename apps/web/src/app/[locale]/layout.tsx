@@ -3,6 +3,7 @@ import { Source_Serif_4, Work_Sans, Space_Mono } from "next/font/google";
 import { locales, resolveLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { SiteNav } from "@/components/SiteNav";
+import { SiteFooter } from "@/components/SiteFooter";
 import "../globals.css";
 
 const fontDisplay = Source_Serif_4({
@@ -57,6 +58,7 @@ export default async function RootLayout({ children, params }: RootLayoutProps) 
       <body>
         <SiteNav locale={locale} dictionary={dictionary} />
         {children}
+        <SiteFooter dictionary={dictionary} />
       </body>
     </html>
   );
