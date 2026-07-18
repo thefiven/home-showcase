@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage --passWithNoTests",
     "upgrade": "npx @strapi/upgrade latest",
-    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+    "upgrade:dry": "npx @strapi/upgrade latest --dry",
+    "seed:property": "tsx scripts/seed-property.ts"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.50.2",
@@ -40,6 +41,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
+    "tsx": "^4.19.2",
     "typescript": "^5",
     "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.10"

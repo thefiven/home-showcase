@@ -68,8 +68,14 @@ describe("resolvePublicBaseUrl", () => {
 });
 
 describe("mediaUrl", () => {
-  it("préfixe un chemin relatif avec l'URL publique (résolvable par le navigateur)", () => {
-    expect(mediaUrl("/uploads/photo.jpg", ENV)).toBe("http://localhost:1337/uploads/photo.jpg");
+  it("préfixe un chemin relatif avec l'URL serveur (l'optimiseur next/image fetch depuis le conteneur web, pas depuis le navigateur)", () => {
+    expect(mediaUrl("/uploads/photo.jpg", ENV)).toBe("http://cms:1337/uploads/photo.jpg");
+  });
+
+  it("retombe sur l'URL publique si STRAPI_INTERNAL_URL est absent", () => {
+    expect(
+      mediaUrl("/uploads/photo.jpg", { NEXT_PUBLIC_STRAPI_URL: "http://localhost:1337" }),
+    ).toBe("http://localhost:1337/uploads/photo.jpg");
   });
 
   it("laisse une URL déjà absolue inchangée", () => {
