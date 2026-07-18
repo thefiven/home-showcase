@@ -6,13 +6,3 @@
   margin: 0 auto;
   padding: var(--pad-section) var(--pad-nav-x);
 }
-
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.location {
-  color: var(--foreground-soft);
-}

@@ -104,7 +104,9 @@ export function AvailabilityCalendar({
 
   return (
     <section className={styles.calendar}>
+      <p className={styles.eyebrow}>{dictionary.calendar.eyebrow}</p>
       <h2>{dictionary.calendar.title}</h2>
+      <p className={styles.intro}>{dictionary.calendar.intro}</p>
       <div className={styles.legend}>
         <span className={styles.legendItem}>
           <span className={styles.legendSwatch} />

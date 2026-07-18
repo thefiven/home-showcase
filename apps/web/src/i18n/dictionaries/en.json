@@ -20,7 +20,27 @@
   "languageSwitcher": {
     "label": "Language"
   },
+  "hero": {
+    "ctaAvailability": "Check availability",
+    "ctaGallery": "View gallery",
+    "noPhotoAlt": "No photo available for {name}"
+  },
+  "stats": {
+    "perNight": "per night",
+    "maxGuests": "guests max.",
+    "cleaningFee": "cleaning fee"
+  },
+  "hostNote": {
+    "eyebrow": "A note from your hosts",
+    "amenitiesEyebrow": "Amenities"
+  },
+  "location": {
+    "eyebrow": "Location",
+    "addressHidden": "The exact address is shared once your request is confirmed."
+  },
   "calendar": {
+    "eyebrow": "Synced with Airbnb",
+    "intro": "The calendar below reflects current Airbnb bookings. A request on an open date doesn't reserve anything until we've confirmed it.",
     "title": "Availability",
     "legendAvailable": "Available",
     "legendBlocked": "Unavailable",
@@ -28,6 +48,7 @@
     "availableLabel": "Available on {date}"
   },
   "booking": {
+    "airbnbNote": "No online payment: your request reaches us directly, we check the dates and get back to you within 24 to 48h to arrange the details (contract, deposit).",
     "title": "Booking request",
     "startDate": "Check-in date",
     "endDate": "Check-out date",

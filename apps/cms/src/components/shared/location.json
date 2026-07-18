@@ -25,6 +25,9 @@
     },
     "longitude": {
       "type": "decimal"
+    },
+    "proximityNote": {
+      "type": "string"
     }
   }
 }

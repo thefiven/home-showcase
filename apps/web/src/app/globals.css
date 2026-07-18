@@ -1,7 +1,7 @@
 :root {
   --background: #f5f2ec;
   --surface: #ede9df;
-  --surface-dark: #1c2b33;
+  --surface-dark: #24445c;
   --border: rgba(28, 43, 51, 0.1);
   --border-strong: rgba(28, 43, 51, 0.25);
   --foreground: #1c2b33;
@@ -9,8 +9,8 @@
   --foreground-soft: #6b6459;
   --foreground-on-dark: #f5f2ec;
 
-  --atlantic: #2b4a5e;
-  --atlantic-hover: #1c2b33;
+  --atlantic: #24445c;
+  --atlantic-hover: color-mix(in srgb, #24445c 85%, black);
   --gorse: #b8863a;
   --gorse-hover: #a37530;
   --unavailable: #8b8177;

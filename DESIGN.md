@@ -8,7 +8,7 @@ Source de vérité du design system utilisé dans `Maison Vue Mer - Plouider.dc.
 | -------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `background`                     | `#F5F2EC`                                       | Fond de page général (pierre chaude / blanc cassé), fond des inputs                                      |
 | `surface`                        | `#EDE9DF`                                       | Fond de section alterné (disponibilités, carte du formulaire)                                            |
-| `surface-dark`                   | `#1C2B33`                                       | Fond des sections sombres (bandeau chiffres clés, localisation, footer top-border), couleur du logo mark |
+| `surface-dark`                   | `#24445c`                                       | Fond des sections sombres (bandeau chiffres clés, localisation, footer top-border), couleur du logo mark |
 | `border`                         | `rgba(28,43,51,0.1)`                            | Séparateurs discrets (nav, footer)                                                                       |
 | `border-strong`                  | `rgba(28,43,51,0.15)` à `rgba(28,43,51,0.25)`   | Bordures d'inputs, cases de calendrier, pastille langue                                                  |
 | `foreground`                     | `#1C2B33`                                       | Texte principal sur fond clair (ardoise / navy profond)                                                  |
@@ -16,14 +16,14 @@ Source de vérité du design system utilisé dans `Maison Vue Mer - Plouider.dc.
 | `foreground-soft`                | `#6B6459`                                       | Éyebrows/labels en majuscules, texte secondaire (granite)                                                |
 | `foreground-on-dark`             | `#F5F2EC`                                       | Texte sur fond sombre (hero, bandeau, localisation, footer texte)                                        |
 | `foreground-on-dark-muted`       | `#C7CDD1` / `#9BB0BC` / `#E7E1D3`               | Texte secondaire sur fond sombre (variantes selon section)                                               |
-| **Accent primaire** — `atlantic` | `#2B4A5E`                                       | CTA principal (nav, bouton formulaire), liens (`a`)                                                      |
-| **Accent primaire hover**        | `#1C2B33`                                       | État hover des CTA/liens en accent primaire                                                              |
+| **Accent primaire** — `atlantic` | `#24445c`                                       | CTA principal (nav, bouton formulaire), liens (`a`)                                                      |
+| **Accent primaire hover**        | `color-mix(in srgb, #24445c 85%, black)`        | État hover des CTA/liens en accent primaire                                                              |
 | **Accent chaud** — `gorse`       | `#B8863A`                                       | CTA hero ("Demander la disponibilité"), prix, coches équipements                                         |
 | **Accent chaud hover**           | `#a37530`                                       | État hover du CTA en accent chaud                                                                        |
 | **Sémantique — disponible**      | `#F5F2EC` (case) + bordure `rgba(28,43,51,0.3)` | Case de calendrier libre                                                                                 |
 | **Sémantique — indisponible**    | `#8B8177`                                       | Case de calendrier bloquée (écume grisée), fond légende                                                  |
 
-Pas de couleur de succès/erreur codée en dur dans le design actuel (formulaire sans état de validation visuel) — si ajoutée, dériver de `#2B4A5E` (info/succès) et d'un rouge discret desaturé à définir avant implémentation, jamais un rouge saturé générique.
+Pas de couleur de succès/erreur codée en dur dans le design actuel (formulaire sans état de validation visuel) — si ajoutée, dériver de `#24445c` (`atlantic`, info/succès) et d'un rouge discret desaturé à définir avant implémentation, jamais un rouge saturé générique.
 
 ## 2. Échelle typographique
 
@@ -74,11 +74,11 @@ Les grands espacements (padding de section, gaps de grille responsive) utilisent
 
 - **Radius** : politique volontairement plate — `2px` sur tous les éléments interactifs (boutons, inputs, cartes de formulaire), `20px` (pill) uniquement sur le sélecteur de langue FR/EN. Pas de `border-radius` sur les images (angles francs, cohérent avec le motif de toit). Pas de cartes "rounded-xl" façon SaaS.
 - **Bordures** : `1px solid`, toujours en `rgba(28,43,51, α)` — `0.1` (séparateurs discrets), `0.15` (cases calendrier), `0.25` (inputs, pastille langue), `0.3` (légende disponible), `0.6` (bouton ghost sur hero, en `rgba(245,242,236,0.6)`).
-- **Ombres** : **aucune** box-shadow dans le design actuel. La profondeur vient du contraste de fond (bandeaux `#1C2B33` / `#EDE9DF` / `#F5F2EC`) et d'un `backdrop-filter: blur(8px)` sur la nav sticky, pas d'élévation en ombre portée. Ne pas introduire de shadow sans revoir cette règle.
+- **Ombres** : **aucune** box-shadow dans le design actuel. La profondeur vient du contraste de fond (bandeaux `#24445c` / `#EDE9DF` / `#F5F2EC`) et d'un `backdrop-filter: blur(8px)` sur la nav sticky, pas d'élévation en ombre portée. Ne pas introduire de shadow sans revoir cette règle.
 
 ## 5. Élément signature
 
-Silhouette de toit de longère (deux pans, faîtage bas) : `clip-path: polygon(0 100%, 0 55%, 22% 20%, 50% 0%, 78% 20%, 100% 55%, 100% 100%)` sur fond `#1C2B33`. Utilisée en logo mark (nav `34×26px`, footer `26×20px`). Réutilisable comme divider ou accent décoratif, jamais comme icône vague/mouette.
+Silhouette de toit de longère (deux pans, faîtage bas) : `clip-path: polygon(0 100%, 0 55%, 22% 20%, 50% 0%, 78% 20%, 100% 55%, 100% 100%)` sur fond `#24445c`. Utilisée en logo mark (nav `34×26px`, footer `26×20px`). Réutilisable comme divider ou accent décoratif, jamais comme icône vague/mouette.
 
 ## 6. Breakpoints responsive
 

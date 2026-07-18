@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllSlugs, getAvailabilitiesForProperty, getPropertyBySlug } from "@/lib/strapi/client";
+import { PropertyHero } from "@/components/PropertyHero";
+import { PropertyStats } from "@/components/PropertyStats";
 import { PropertyGallery } from "@/components/PropertyGallery";
-import { PropertyDescription } from "@/components/PropertyDescription";
-import { PricingSummary } from "@/components/PricingSummary";
-import { AmenitiesList } from "@/components/AmenitiesList";
 import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
+import { HostNote } from "@/components/HostNote";
 import { BookingRequestForm } from "@/components/BookingRequestForm";
+import { LocationSection } from "@/components/LocationSection";
 import { getDictionary } from "@/i18n/dictionaries";
 import { resolveLocale } from "@/i18n/config";
 import styles from "./page.module.css";
@@ -50,36 +51,40 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
   // par nécessité, pas parallélisable via Promise.all.
   const availabilities = await getAvailabilitiesForProperty(property.documentId);
 
-  const { location } = property;
-
   return (
-    <main className={styles.main}>
-      <PropertyGallery photos={property.photos} alt={property.name} />
-
-      <div className={styles.header}>
-        <h1>{property.name}</h1>
-        {location && (
-          <p className={styles.location}>
-            {[location.addressLine, location.postalCode, location.city, location.country]
-              .filter(Boolean)
-              .join(", ")}
-          </p>
-        )}
-      </div>
-
-      <PricingSummary pricing={property.pricing} />
-
-      <AvailabilityCalendar
-        availabilities={availabilities}
-        locale={locale}
+    <>
+      <PropertyHero property={property} dictionary={dictionary} />
+      <PropertyStats
+        pricing={property.pricing}
+        maxGuests={property.maxGuests}
+        location={property.location}
         dictionary={dictionary}
       />
+      <main className={styles.main}>
+        <div id="galerie">
+          <PropertyGallery photos={property.photos} alt={property.name} />
+        </div>
 
-      <PropertyDescription content={property.description} />
+        <AvailabilityCalendar
+          availabilities={availabilities}
+          locale={locale}
+          dictionary={dictionary}
+        />
 
-      <AmenitiesList amenities={property.amenities} />
+        <HostNote
+          description={property.description}
+          amenities={property.amenities}
+          dictionary={dictionary}
+        />
 
-      <BookingRequestForm propertyDocumentId={property.documentId} dictionary={dictionary} />
-    </main>
+        <BookingRequestForm propertyDocumentId={property.documentId} dictionary={dictionary} />
+      </main>
+      <LocationSection
+        location={property.location}
+        photos={property.photos}
+        propertyName={property.name}
+        dictionary={dictionary}
+      />
+    </>
   );
 }

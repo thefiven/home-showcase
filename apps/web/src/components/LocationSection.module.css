@@ -1,0 +1,46 @@
+.location {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--gap-cols);
+  align-items: center;
+  padding: var(--pad-section) var(--pad-nav-x);
+  background: var(--surface-dark);
+  color: var(--foreground-on-dark);
+}
+
+.text {
+  max-width: 58ch;
+}
+
+.text p {
+  color: color-mix(in srgb, var(--foreground-on-dark) 85%, transparent);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-8);
+  color: color-mix(in srgb, var(--foreground-on-dark) 85%, transparent);
+}
+
+.title {
+  color: var(--foreground-on-dark);
+  margin-bottom: var(--space-8);
+}
+
+.hidden {
+  margin-top: var(--space-8);
+  font-size: 14px;
+}
+
+.photo {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: color-mix(in srgb, var(--foreground-on-dark) 12%, transparent);
+}
+
+.photo img {
+  object-fit: cover;
+}
