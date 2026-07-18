@@ -1,17 +1,26 @@
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
+  gap: clamp(14px, 3vw, 28px);
+  padding: var(--space-8) var(--pad-nav-x);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 85%, transparent);
+  backdrop-filter: blur(8px);
 }
 
 .siteTitle {
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-weight: 600;
 }
 
 .right {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1.5rem;
+  gap: var(--space-12);
 }

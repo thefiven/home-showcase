@@ -1,16 +1,15 @@
 .gallery {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-6);
 }
 
 .cover {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 0.5rem;
   overflow: hidden;
-  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  background: var(--surface);
 }
 
 .cover img {
@@ -19,16 +18,15 @@
 
 .thumbnails {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: var(--space-6);
 }
 
 .thumbnail {
   position: relative;
   aspect-ratio: 1 / 1;
-  border-radius: 0.375rem;
   overflow: hidden;
-  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  background: var(--surface);
 }
 
 .thumbnail img {
@@ -38,6 +36,5 @@
 .placeholder {
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  background: var(--surface);
 }

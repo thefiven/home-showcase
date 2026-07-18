@@ -1,18 +1,18 @@
 .main {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  max-width: 900px;
+  gap: var(--gap-cols);
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: var(--pad-section) var(--pad-nav-x);
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-2);
 }
 
 .location {
-  opacity: 0.7;
+  color: var(--foreground-soft);
 }
