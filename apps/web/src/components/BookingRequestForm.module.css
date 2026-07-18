@@ -1,17 +1,28 @@
 .booking {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--gap-cols);
+  align-items: start;
+}
+
+.intro {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  padding: clamp(20px, 3vw, 32px);
-  border-radius: var(--radius);
-  background: var(--surface);
+  max-width: 40ch;
+}
+
+.intro p {
+  color: var(--foreground-muted);
 }
 
 .form {
   display: flex;
   flex-direction: column;
   gap: clamp(14px, 3vw, 16px);
-  max-width: 28rem;
+  padding: clamp(20px, 3vw, 32px);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .row {

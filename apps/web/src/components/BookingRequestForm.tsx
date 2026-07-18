@@ -27,15 +27,18 @@ export function BookingRequestForm({ propertyDocumentId, dictionary }: BookingRe
 
   if (state.status === "success") {
     return (
-      <section className={styles.booking}>
+      <section className={styles.booking} id="reservation">
         <p className={styles.success}>{t.success}</p>
       </section>
     );
   }
 
   return (
-    <section className={styles.booking}>
-      <h2>{t.title}</h2>
+    <section className={styles.booking} id="reservation">
+      <div className={styles.intro}>
+        <h2>{t.title}</h2>
+        <p>{t.airbnbNote}</p>
+      </div>
       <form action={formAction} className={styles.form}>
         <div className={styles.row}>
           <div className={styles.field}>
