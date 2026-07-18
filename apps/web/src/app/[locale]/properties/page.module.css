@@ -1,14 +1,14 @@
 .main {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  max-width: 1100px;
+  gap: var(--space-16);
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: var(--pad-section) var(--pad-nav-x);
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--gap-cols);
 }
