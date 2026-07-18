@@ -27,6 +27,7 @@ export interface PropertyLocation {
   country: string;
   latitude?: number | null;
   longitude?: number | null;
+  proximityNote?: string | null;
 }
 
 /** Composant `property.pricing`. */
@@ -58,6 +59,7 @@ export interface Property {
   location?: PropertyLocation | null;
   pricing?: PropertyPricing | null;
   amenities?: PropertyAmenity[] | null;
+  maxGuests?: number | null;
   locale?: string;
 }
 

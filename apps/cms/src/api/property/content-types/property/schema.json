@@ -61,6 +61,14 @@
         }
       }
     },
+    "maxGuests": {
+      "type": "integer",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
     "location": {
       "type": "component",
       "component": "shared.location",
