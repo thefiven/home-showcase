@@ -26,6 +26,9 @@ ENV NEXT_PUBLIC_STRAPI_URL=$NEXT_PUBLIC_STRAPI_URL
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NODE_ENV=production
+# vitest.config.ts (apps/web) importe ce fichier racine ; `next build` type-checke
+# tout le projet, y compris la config Vitest, donc il doit être présent dans l'image.
+COPY vitest.shared.ts vitest.shared.ts
 COPY apps/web apps/web
 WORKDIR /app/apps/web
 RUN pnpm run build
