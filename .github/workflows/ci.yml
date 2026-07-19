@@ -26,6 +26,15 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Audit dépendances
+        # continue-on-error : une vuln high transitive existe déjà via
+        # apps/cms > @strapi/strapi > vite (GHSA-fx2h-pf6j-xcff), pas
+        # corrigeable côté projet — non bloquant tant qu'elle n'est pas
+        # patchée en amont par Strapi. À retirer si le seuil doit devenir
+        # bloquant une fois résolue.
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
+
       - run: pnpm run format:check
 
       - run: pnpm run lint
