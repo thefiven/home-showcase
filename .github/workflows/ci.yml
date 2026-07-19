@@ -13,6 +13,7 @@ concurrency:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
 
@@ -24,6 +25,15 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      - name: Audit dépendances
+        # continue-on-error : une vuln high transitive existe déjà via
+        # apps/cms > @strapi/strapi > vite (GHSA-fx2h-pf6j-xcff), pas
+        # corrigeable côté projet — non bloquant tant qu'elle n'est pas
+        # patchée en amont par Strapi. À retirer si le seuil doit devenir
+        # bloquant une fois résolue.
+        run: pnpm audit --audit-level=high
+        continue-on-error: true
 
       - run: pnpm run format:check
 
@@ -51,6 +61,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
@@ -63,7 +74,20 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm --filter e2e exec playwright install --with-deps chromium
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright (browsers + deps)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm --filter e2e exec playwright install --with-deps chromium
+
+      - name: Install Playwright system deps (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm --filter e2e exec playwright install-deps chromium
 
       - name: E2E (Playwright)
         run: pnpm --filter e2e run test:e2e:orchestrated
