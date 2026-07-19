@@ -31,8 +31,6 @@ Pas de contrainte de délai : projet développé au rythme normal, sans deadline
 - Notification **WhatsApp** (Twilio ou WhatsApp Business API) — v2.
 - Paiement en ligne / acompte.
 - Export/écriture vers le calendrier Airbnb (le flux reste unidirectionnel : Airbnb → home-showcase).
-- Tests end-to-end (Playwright) — à introduire une fois le MVP stabilisé.
-- Manifests Helm / déploiement k3s — préparés dans une phase dédiée ultérieure.
 
 ## 3. Décisions techniques
 
@@ -42,12 +40,12 @@ Pas de contrainte de délai : projet développé au rythme normal, sans deadline
 | CMS                                 | Strapi, self-hosted (plutôt qu'un SaaS type Sanity, pour rester cohérent avec la cible d'hébergement)                                                                                                                                                                                       |
 | Base de données                     | PostgreSQL (utilisée par Strapi) — cible et environnement de référence, démarré via `docker/docker-compose.yml` (issue #2). `apps/cms` peut aussi tourner sur SQLite en local hors Docker (issue #1, fallback pratique sans lancer les conteneurs, mais non garanti à parité avec Postgres) |
 | Conteneurisation                    | Docker dès le départ : `docker/docker-compose.yml` (Postgres + Strapi + Next.js) et Dockerfiles multi-stage (`dev`/`production`) par app — voir README.md                                                                                                                                   |
-| Hébergement cible                   | Homelab **k3s** (Kubernetes), pas encore en place — le repo doit rester "portable" (pas de dépendance à un PaaS propriétaire) mais les manifests k3s/Helm sont une phase ultérieure                                                                                                         |
+| Hébergement cible                   | Homelab **k3s** (Kubernetes), pas encore en place — le repo doit rester "portable" (pas de dépendance à un PaaS propriétaire) ; manifests Helm dans `deploy/helm/home-showcase/`                                                                                                            |
 | Structure de repo                   | Monorepo : `apps/web` (Next.js) + `apps/cms` (Strapi), gestion via workspaces `pnpm`                                                                                                                                                                                                        |
 | Demandes de réservation & sync iCal | Gérées **dans Strapi** : content-type `booking-request` (statut pending/accepted/refused) + content-type `availability` alimenté par un job cron Strapi qui importe les iCal Airbnb. Next.js consomme l'API Strapi (pas de base de données ni de backend séparé côté web)                   |
 | Notification email                  | Service à trancher avant l'implémentation de la feature notifications (candidat par défaut : Resend ; alternative : SMTP self-hosté, plus cohérent avec la logique homelab mais plus de maintenance) — **point ouvert**, voir §5                                                            |
 | Notification WhatsApp               | Hors périmètre MVP, prévu en v2                                                                                                                                                                                                                                                             |
-| Stratégie de tests                  | Tests unitaires + intégration ciblés (Vitest) sur la logique métier critique (calcul de disponibilité, workflow de réservation, parsing iCal) et sur les endpoints API. Pas de E2E pour l'instant                                                                                           |
+| Stratégie de tests                  | Tests unitaires + intégration ciblés (Vitest) sur la logique métier critique (calcul de disponibilité, workflow de réservation, parsing iCal) et sur les endpoints API. Tests end-to-end (Playwright) dans `e2e/` sur les parcours critiques (disponibilité, demande de réservation)        |
 | Workflow Git                        | Solo mais rigoureux : branches par feature, commits gitmoji, PR systématique sur GitHub avant merge sur `main` (via l'intégration MCP GitHub), voir `CLAUDE.md`                                                                                                                             |
 
 ## 4. Modèle de contenu (Strapi) — vue d'ensemble
@@ -63,4 +61,3 @@ Ce modèle est une base de départ, à affiner lors de l'implémentation.
 - **Fournisseur d'email transactionnel** (Resend vs SMTP self-hosté) : à décider avant de commencer la feature notifications.
 - **Format exact de l'export iCal Airbnb** et fréquence de synchronisation (ex. toutes les heures) : à valider avec une vraie URL iCal Airbnb lors de l'implémentation.
 - **Détails de l'intégration WhatsApp** (v2) : choix du provider, coût, opt-in de la propriétaire.
-- **Manifests k3s/Helm** : structure à définir dans une phase dédiée, une fois le homelab prêt.

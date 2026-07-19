@@ -13,7 +13,7 @@ Vitrine web multi-logements type Airbnb (complément à Airbnb, pas un remplacem
 - **Base de données** : PostgreSQL (utilisée par Strapi) — cible et environnement de référence, démarré via `docker/docker-compose.yml` (issue #2). Le SQLite dans `apps/cms` (issue #1) reste disponible comme fallback pratique pour du local hors Docker, mais n'est pas garanti à parité avec Postgres (pas de CI dessus) : toute fonctionnalité spécifique à Postgres (JSON, SQL brut...) prime sur la compatibilité SQLite.
 - **Gestionnaire de paquets** : `pnpm` (workspaces pour le monorepo).
 - **Conteneurisation** : Docker + docker-compose pour le développement local (Next.js, Strapi, Postgres) — voir `README.md` (`pnpm docker:up`).
-- **Hébergement cible** : homelab k3s (à venir) — éviter toute dépendance à un PaaS propriétaire non portable. Les manifests Helm/k3s seront ajoutés dans une phase dédiée ultérieure, pas au démarrage.
+- **Hébergement cible** : homelab k3s (à venir) — éviter toute dépendance à un PaaS propriétaire non portable. Manifests Helm dans `deploy/helm/home-showcase/` (voir `deploy/README.md`).
 - **Notification email** : fournisseur non encore tranché (voir `SPEC.md` §5) — prévoir un point d'extension isolé (ex. un module `notifications`) plutôt que de coupler l'implémentation au reste du code.
 - **WhatsApp** : hors périmètre MVP, prévu en v2.
 
@@ -25,6 +25,8 @@ home-showcase/
 │   ├── web/          # Next.js — site vitrine public (FR/EN)
 │   └── cms/          # Strapi — back-office, API, content-types, jobs cron (sync iCal), notifications
 ├── docker/            # Dockerfiles et docker-compose pour le dev local
+├── deploy/            # Manifests Helm pour le déploiement k3s (deploy/helm/home-showcase/)
+├── e2e/                # Tests end-to-end Playwright
 ├── SPEC.md            # Cadrage produit et décisions
 ├── CLAUDE.md          # Ce fichier
 └── README.md
@@ -36,7 +38,7 @@ Modèle de contenu Strapi (`apps/cms`) : `Property`, `Availability` (alimenté p
 
 - **Vitest** pour les tests unitaires et d'intégration ciblés.
 - Prioriser la logique métier critique : calcul/fusion de disponibilité, parsing et synchronisation iCal, workflow de statut des demandes de réservation (`pending`/`accepted`/`refused`), endpoints API Strapi.
-- Pas de tests E2E pour l'instant (à introduire avec Playwright une fois le MVP stabilisé) — ne pas ajouter cette dépendance sans validation préalable.
+- **Playwright** pour les tests end-to-end, dans `e2e/` (workspace pnpm dédié) : parcours critiques (disponibilité, demande de réservation, validation de formulaire, statut admin). Voir `e2e/run.sh` pour lancer la stack jetable en local/CI.
 - Ne pas tester ce qui relève du framework lui-même (rendu Next.js par défaut, admin Strapi standard) — se concentrer sur le code métier propre au projet.
 - Vitest est configuré dans `apps/web` et `apps/cms` (`pnpm run test` à la racine, `--passWithNoTests` tant qu'aucune logique métier n'existe) : c'est la fondation posée dès le monorepo (issue #1), à remplir au fil des issues qui introduisent de la vraie logique (ex. sync iCal, workflow de réservation).
 
