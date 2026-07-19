@@ -4,9 +4,22 @@ export interface CreatedBookingRequest {
   documentId: string;
 }
 
-/** Formats a `Date` as the `YYYY-MM-DD` string the booking form's `<input type="date">` expects. */
+/** Formats a `Date` as the `YYYY-MM-DD` string the API expects. */
 export function formatDate(date: Date): string {
   return date.toISOString().slice(0, 10);
+}
+
+/**
+ * Builds the accessible name of an available calendar day button, matching
+ * `AvailabilityCalendar` + the `calendar.availableLabel` dictionary entry
+ * ("Available on {date}"), so the e2e test can target it by role/name.
+ */
+export function calendarDayButtonName(date: Date, locale: string): string {
+  const formattedDate = new Intl.DateTimeFormat(locale, {
+    dateStyle: "long",
+    timeZone: "UTC",
+  }).format(date);
+  return `Available on ${formattedDate}`;
 }
 
 export function futureDateRange(startOffsetDays: number, nights: number) {
