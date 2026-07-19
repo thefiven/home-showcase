@@ -18,7 +18,7 @@ postgres:
 cms:
   image:
     repository: ghcr.io/thefiven/home-showcase-cms
-    tag: latest
+    tag: "1.0.0"
   replicas: 1
   port: 1337
   resources: {}
@@ -26,7 +26,7 @@ cms:
 web:
   image:
     repository: ghcr.io/thefiven/home-showcase-web
-    tag: latest
+    tag: "1.0.0"
   replicas: 1
   port: 3000
   resources: {}
