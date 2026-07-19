@@ -3,6 +3,7 @@ import { getProperties } from "@/lib/strapi/client";
 import { PropertyCard } from "@/components/PropertyCard";
 import { getDictionary } from "@/i18n/dictionaries";
 import { resolveLocale } from "@/i18n/config";
+import { localizedAlternates } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -12,9 +13,11 @@ interface PropertiesPageProps {
 
 export async function generateMetadata({ params }: PropertiesPageProps): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const dictionary = getDictionary(resolveLocale(rawLocale));
+  const locale = resolveLocale(rawLocale);
+  const dictionary = getDictionary(locale);
   return {
     title: dictionary.properties.title,
+    alternates: localizedAlternates(locale, "/properties"),
   };
 }
 

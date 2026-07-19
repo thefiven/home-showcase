@@ -4,6 +4,7 @@ import { locales, resolveLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { SiteNav } from "@/components/SiteNav";
 import { SiteFooter } from "@/components/SiteFooter";
+import { resolveSiteUrl, localizedAlternates } from "@/lib/site";
 import "../globals.css";
 
 const fontDisplay = Source_Serif_4({
@@ -33,10 +34,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const dictionary = getDictionary(resolveLocale(rawLocale));
+  const locale = resolveLocale(rawLocale);
+  const dictionary = getDictionary(locale);
   return {
+    metadataBase: new URL(resolveSiteUrl()),
     title: dictionary.nav.siteTitle,
     description: dictionary.home.description,
+    alternates: localizedAlternates(locale, ""),
     openGraph: {
       title: dictionary.nav.siteTitle,
       description: dictionary.home.description,
