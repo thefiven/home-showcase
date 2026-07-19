@@ -51,7 +51,11 @@
   html,
   body {
     max-width: 100vw;
-    overflow-x: hidden;
+    /* `clip` plutôt que `hidden` : évite la règle CSS qui force
+       `overflow-y: auto` dès qu'un axe n'est pas `visible`, ce qui ferait de
+       `body` un conteneur de scroll distinct du viewport et casserait le
+       `position: sticky` de la navbar (issue #67). */
+    overflow-x: clip;
   }
 
   body {
