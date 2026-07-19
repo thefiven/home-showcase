@@ -29,10 +29,33 @@ describe("parseIcalEvents", () => {
     expect(events[0]).toEqual({
       externalUid: "reservation-1@airbnb.com",
       startDate: new Date(2026, 7, 1),
-      endDate: new Date(2026, 7, 5),
+      // DTEND:20260805 est exclusif (RFC 5545) : converti en borne
+      // inclusive, le 4 août est le dernier jour réellement bloqué.
+      endDate: new Date(2026, 7, 4),
       summary: "Reserved",
     });
     expect(events[1].externalUid).toBe("reservation-2@airbnb.com");
+  });
+
+  it("convertit une plage d'un seul jour (DTSTART=DTEND-1) en un unique jour bloqué", () => {
+    const oneDayBuffer = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Airbnb Inc//Hosting Calendar 0.8.8//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20260821
+DTEND;VALUE=DATE:20260822
+DTSTAMP:20260716T120000Z
+UID:turnover-day@airbnb.com
+SUMMARY:Airbnb (Not available)
+END:VEVENT
+END:VCALENDAR`;
+
+    const events = parseIcalEvents(oneDayBuffer);
+
+    expect(events).toHaveLength(1);
+    expect(events[0].startDate).toEqual(new Date(2026, 7, 21));
+    expect(events[0].endDate).toEqual(new Date(2026, 7, 21));
   });
 
   it("ignores events without a UID", () => {

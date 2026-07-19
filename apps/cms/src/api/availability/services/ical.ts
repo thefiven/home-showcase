@@ -62,8 +62,19 @@ export function parseIcalEvents(icalString: string): ParsedEvent[] {
     if (!component.uid || !component.start || !component.end) continue;
 
     const startDate = new Date(component.start);
-    const endDate = new Date(component.end);
+    let endDate = new Date(component.end);
     if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) continue;
+
+    // RFC 5545 : DTEND d'un événement journée entière (VALUE=DATE) est
+    // exclusif — il désigne le lendemain du dernier jour occupé, pas ce
+    // jour-là. Le reste du système (isDateBlocked, overlaps, saisie
+    // manuelle) traite startDate/endDate en bornes inclusives : sans cette
+    // conversion, le jour de turnover (départ + nouvelle arrivée le même
+    // jour) serait bloqué à tort. Décalage en jour civil local (pas en
+    // millisecondes) pour rester correct autour des changements d'heure.
+    if (component.datetype === "date") {
+      endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() - 1);
+    }
 
     events.push({
       externalUid: component.uid,
