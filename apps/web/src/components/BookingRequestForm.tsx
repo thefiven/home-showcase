@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { DateRange } from "@/lib/dateRange";
@@ -40,9 +40,25 @@ export function BookingRequestForm({
   const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" });
   const formatIso = (iso: string) => dateFormatter.format(new Date(`${iso}T00:00:00Z`));
   const rangeComplete = Boolean(range.start && range.end);
+  const successRef = useRef<HTMLParagraphElement>(null);
+
+  // Le succès remplace tout le formulaire par une seule ligne : la page
+  // rétrécit fortement à l'endroit où l'utilisateur vient de cliquer
+  // "Envoyer" (en bas du formulaire), donc son scroll se retrouve après le
+  // message de confirmation, désormais bien plus haut. On le ramène dans le
+  // viewport plutôt que de compter sur l'utilisateur pour remonter.
+  useEffect(() => {
+    if (state.status === "success") {
+      successRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [state.status]);
 
   if (state.status === "success") {
-    return <p className="text-[15px] text-success">{t.success}</p>;
+    return (
+      <p ref={successRef} className="text-[15px] text-success">
+        {t.success}
+      </p>
+    );
   }
 
   return (
