@@ -1,6 +1,6 @@
-# home-showcase
+# Ar Mor
 
-Vitrine web multi-logements type Airbnb. Voir `SPEC.md` (cadrage produit) et `CLAUDE.md` (conventions du projet).
+Vitrine web multi-logements type Airbnb (dépôt `home-showcase`). Voir `SPEC.md` (cadrage produit) et `CLAUDE.md` (conventions du projet).
 
 ## Développement avec Docker
 

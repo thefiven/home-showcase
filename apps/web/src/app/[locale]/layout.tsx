@@ -37,6 +37,11 @@ export async function generateMetadata({
   return {
     title: dictionary.nav.siteTitle,
     description: dictionary.home.description,
+    openGraph: {
+      title: dictionary.nav.siteTitle,
+      description: dictionary.home.description,
+      type: "website",
+    },
   };
 }
 
