@@ -1,8 +1,33 @@
-import Image from "next/image";
 import { mediaUrl } from "@/lib/strapi/client";
+import { buildGalleryPreview } from "@/lib/gallery";
 import type { StrapiMedia } from "@/lib/strapi/types";
+import { GalleryClient, type ResolvedPhoto } from "@/components/GalleryClient";
+import type { Dictionary } from "@/i18n/dictionaries";
 
-export function PropertyGallery({ photos, alt }: { photos?: StrapiMedia[] | null; alt: string }) {
+function resolvePhoto(photo: StrapiMedia, alt: string): ResolvedPhoto {
+  return {
+    id: photo.id,
+    src: mediaUrl(photo.url)!,
+    alt: photo.alternativeText || alt,
+  };
+}
+
+/**
+ * Résout les URLs de médias côté serveur (`mediaUrl` dépend de
+ * `STRAPI_INTERNAL_URL`, une variable serveur uniquement) avant de les
+ * transmettre en données déjà prêtes à `GalleryClient` : ce dernier ne doit
+ * jamais rappeler `mediaUrl` lui-même, sous peine d'échouer une fois exécuté
+ * dans le navigateur (cf. issue #68).
+ */
+export function PropertyGallery({
+  photos,
+  alt,
+  dictionary,
+}: {
+  photos?: StrapiMedia[] | null;
+  alt: string;
+  dictionary: Dictionary;
+}) {
   if (!photos || photos.length === 0) {
     return (
       <div
@@ -13,35 +38,15 @@ export function PropertyGallery({ photos, alt }: { photos?: StrapiMedia[] | null
     );
   }
 
-  const [cover, ...rest] = photos;
+  const { cover, tiles, hiddenCount } = buildGalleryPreview(photos);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="relative aspect-video w-full overflow-hidden bg-surface">
-        <Image
-          src={mediaUrl(cover.url)!}
-          alt={cover.alternativeText || alt}
-          fill
-          sizes="(max-width: 768px) 100vw, 800px"
-          priority
-          className="object-cover"
-        />
-      </div>
-      {rest.length > 0 && (
-        <div className="grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(96px,1fr))]">
-          {rest.map((photo) => (
-            <div key={photo.id} className="relative aspect-square overflow-hidden bg-surface">
-              <Image
-                src={mediaUrl(photo.url)!}
-                alt={photo.alternativeText || alt}
-                fill
-                sizes="200px"
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    <GalleryClient
+      cover={resolvePhoto(cover!, alt)}
+      tiles={tiles.map((photo) => resolvePhoto(photo, alt))}
+      allPhotos={photos.map((photo) => resolvePhoto(photo, alt))}
+      hiddenCount={hiddenCount}
+      dictionary={dictionary}
+    />
   );
 }

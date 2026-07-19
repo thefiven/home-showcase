@@ -25,6 +25,16 @@
     "ctaGallery": "View gallery",
     "noPhotoAlt": "No photo available for {name}"
   },
+  "gallery": {
+    "viewAll": "View all photos",
+    "openAt": "View photo {index} of {total}",
+    "close": "Close",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "counter": "{current} of {total}"
+  },
   "stats": {
     "perNight": "per night",
     "maxGuests": "guests max.",
