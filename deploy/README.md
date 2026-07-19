@@ -8,12 +8,19 @@ Chart Helm de déploiement de `home-showcase` (web, cms, postgres) sur un cluste
 - Un cluster k3s accessible (`kubectl` configuré), avec l'ingress controller
   Traefik embarqué (par défaut dans k3s).
 - `helm` v3 installé côté poste d'administration.
-- Les images `cms` et `web` construites (target `production` de
-  `docker/cms.Dockerfile` et `docker/web.Dockerfile`) et poussées vers un registry
-  accessible par le cluster.
+- Les images `cms` et `web`, disponibles sur un registry accessible par le
+  cluster. Publiées automatiquement sur GHCR par `.github/workflows/release.yml`
+  à chaque tag `vX.Y.Z` poussé sur `main` :
+  `ghcr.io/thefiven/home-showcase-cms:<version>` et `-web:<version>` (+ `latest`) —
+  ce sont les valeurs par défaut de `values.yaml`.
   - `web` nécessite `NEXT_PUBLIC_STRAPI_URL` et `NEXT_PUBLIC_SITE_URL` comme
     **build-args** (inlinées au build par Next.js, non reconfigurables au
-    runtime) :
+    runtime). En CI, définies via les variables de dépôt GitHub
+    `NEXT_PUBLIC_STRAPI_URL`/`NEXT_PUBLIC_SITE_URL` (Settings → Secrets and
+    variables → Actions → Variables) — à renseigner avec les vraies URLs
+    publiques une fois le cluster en place ; sans ça, le workflow retombe sur
+    des valeurs `localhost` inutilisables en prod.
+  - Pour un build manuel (sans le workflow) :
     ```
     docker build -f docker/web.Dockerfile --target production \
       --build-arg NEXT_PUBLIC_STRAPI_URL=https://cms.example.com \
@@ -63,6 +70,5 @@ helm upgrade home-showcase deploy/helm/home-showcase
 
 ## Hors périmètre de ce chart
 
-- Registry d'images et CI/CD de build/push (à définir séparément).
 - Rotation ou gestion avancée des secrets (ex. Sealed Secrets, Vault) — le chart
   se contente de référencer un Secret existant.
