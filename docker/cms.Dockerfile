@@ -38,6 +38,9 @@ CMD ["sh", "-c", "pnpm install && pnpm run develop"]
 
 FROM deps AS build
 ENV NODE_ENV=production
+# vitest.config.ts (apps/cms) importe ce fichier racine ; le même risque de
+# module manquant existe si le build en vient à le type-checker (cf. web.Dockerfile).
+COPY vitest.shared.ts vitest.shared.ts
 COPY apps/cms apps/cms
 WORKDIR /app/apps/cms
 RUN pnpm run build
