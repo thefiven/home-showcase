@@ -10,6 +10,7 @@ import { LocationSection } from "@/components/LocationSection";
 import { getDictionary } from "@/i18n/dictionaries";
 import { resolveLocale } from "@/i18n/config";
 import { localizedAlternates } from "@/lib/site";
+import { buildLodgingJsonLd } from "@/lib/seo/jsonld";
 
 export const revalidate = 60;
 
@@ -51,9 +52,17 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
   // Dépend du documentId renvoyé par getPropertyBySlug ci-dessus : séquentiel
   // par nécessité, pas parallélisable via Promise.all.
   const availabilities = await getAvailabilitiesForProperty(property.documentId);
+  const jsonLd = buildLodgingJsonLd(
+    property,
+    localizedAlternates(locale, `/properties/${slug}`).canonical,
+  );
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <PropertyHero property={property} dictionary={dictionary} />
       <PropertyStats
         pricing={property.pricing}
