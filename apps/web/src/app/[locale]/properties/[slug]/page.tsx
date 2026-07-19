@@ -61,7 +61,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
       />
       <main className="mx-auto flex max-w-[1000px] flex-col gap-[var(--gap-cols)] px-[var(--pad-nav-x)] py-[var(--pad-section)]">
         <div id="galerie">
-          <PropertyGallery photos={property.photos} alt={property.name} />
+          <PropertyGallery photos={property.photos} alt={property.name} dictionary={dictionary} />
         </div>
 
         <AvailabilityCalendar
