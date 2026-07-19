@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { stampStatusChangeOnUpdate, notifyOwnerOnCreate } from "./lifecycles";
+import {
+  stampStatusChangeOnUpdate,
+  notifyOwnerOnCreate,
+  reconcileAvailabilityForBooking,
+} from "./lifecycles";
 
 function buildStrapi(existingStatus: string | null) {
   const findOne = vi.fn(() =>
@@ -64,5 +68,141 @@ describe("notifyOwnerOnCreate", () => {
     expect(send).toHaveBeenCalledWith(expect.objectContaining({ to: "owner@example.com" }));
 
     delete process.env.OWNER_NOTIFICATION_EMAIL;
+  });
+});
+
+describe("reconcileAvailabilityForBooking", () => {
+  const booking = {
+    documentId: "booking-1",
+    bookingStatus: "accepted",
+    startDate: "2026-08-01",
+    endDate: "2026-08-08",
+    guestName: "Alex Martin",
+    property: { documentId: "property-1" },
+  };
+
+  function buildStrapi({
+    bookingOverrides = {},
+    existingAvailability = null as { documentId: string } | null,
+  } = {}) {
+    const findOneBooking = vi.fn(() => Promise.resolve({ ...booking, ...bookingOverrides }));
+    const findFirst = vi.fn(() => Promise.resolve(existingAvailability));
+    const create = vi.fn(() => Promise.resolve({}));
+    const update = vi.fn(() => Promise.resolve({}));
+    const del = vi.fn(() => Promise.resolve({}));
+
+    const documents = vi.fn((uid: string) =>
+      uid === "api::booking-request.booking-request"
+        ? { findOne: findOneBooking }
+        : { findFirst, create, update, delete: del },
+    );
+
+    const strapi = { documents, log: { error: vi.fn() } };
+    return { strapi, findOneBooking, findFirst, create, update, delete: del };
+  }
+
+  it("ignore les updates qui ne touchent pas bookingStatus", async () => {
+    const { strapi, findOneBooking } = buildStrapi();
+    const event = { result: { documentId: "booking-1" }, params: { data: { message: "hi" } } };
+
+    await reconcileAvailabilityForBooking(event, { strapi: strapi as never });
+
+    expect(findOneBooking).not.toHaveBeenCalled();
+  });
+
+  it("crée une Availability quand la demande passe à accepted", async () => {
+    const { strapi, create, findFirst } = buildStrapi();
+    const event = {
+      result: { documentId: "booking-1" },
+      params: { data: { bookingStatus: "accepted" } },
+    };
+
+    await reconcileAvailabilityForBooking(event, { strapi: strapi as never });
+
+    expect(findFirst).toHaveBeenCalledWith({
+      filters: { externalUid: "booking:booking-1", source: "manual" },
+    });
+    expect(create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        property: "property-1",
+        source: "manual",
+        externalUid: "booking:booking-1",
+        startDate: "2026-08-01",
+        endDate: "2026-08-08",
+      }),
+    });
+  });
+
+  it("met à jour l'Availability existante plutôt que d'en recréer une", async () => {
+    const { strapi, create, update } = buildStrapi({
+      existingAvailability: { documentId: "availability-1" },
+    });
+    const event = {
+      result: { documentId: "booking-1" },
+      params: { data: { bookingStatus: "accepted" } },
+    };
+
+    await reconcileAvailabilityForBooking(event, { strapi: strapi as never });
+
+    expect(update).toHaveBeenCalledWith({
+      documentId: "availability-1",
+      data: expect.objectContaining({ startDate: "2026-08-01", endDate: "2026-08-08" }),
+    });
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("supprime l'Availability quand la demande repasse à refused", async () => {
+    const {
+      strapi,
+      delete: del,
+      create,
+    } = buildStrapi({
+      bookingOverrides: { bookingStatus: "refused" },
+      existingAvailability: { documentId: "availability-1" },
+    });
+    const event = {
+      result: { documentId: "booking-1" },
+      params: { data: { bookingStatus: "refused" } },
+    };
+
+    await reconcileAvailabilityForBooking(event, { strapi: strapi as never });
+
+    expect(del).toHaveBeenCalledWith({ documentId: "availability-1" });
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it("ne fait rien si la demande repasse à pending sans Availability existante", async () => {
+    const {
+      strapi,
+      delete: del,
+      create,
+      update,
+    } = buildStrapi({
+      bookingOverrides: { bookingStatus: "pending" },
+    });
+    const event = {
+      result: { documentId: "booking-1" },
+      params: { data: { bookingStatus: "pending" } },
+    };
+
+    await reconcileAvailabilityForBooking(event, { strapi: strapi as never });
+
+    expect(del).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("logue et avale les erreurs du Document Service", async () => {
+    const { strapi, findFirst } = buildStrapi();
+    findFirst.mockRejectedValueOnce(new Error("db down"));
+    const event = {
+      result: { documentId: "booking-1" },
+      params: { data: { bookingStatus: "accepted" } },
+    };
+
+    await expect(
+      reconcileAvailabilityForBooking(event, { strapi: strapi as never }),
+    ).resolves.toBeUndefined();
+    expect(strapi.log.error).toHaveBeenCalledWith(expect.stringContaining("booking-1"));
   });
 });
