@@ -26,3 +26,26 @@ test("un visiteur peut soumettre une demande de réservation depuis la fiche log
     page.getByText("Your request has been sent. The owner will get back to you shortly."),
   ).toBeVisible();
 });
+
+test("le nom et l'email sont requis avant l'envoi (validation native du formulaire)", async ({
+  page,
+}) => {
+  await page.goto(`/en/properties/${PROPERTY_SLUG}`);
+
+  const { start, end } = futureDateRange(20, 2);
+  await page
+    .getByRole("button", { name: calendarDayButtonName(new Date(`${start}T00:00:00Z`), "en") })
+    .click();
+  await page
+    .getByRole("button", { name: calendarDayButtonName(new Date(`${end}T00:00:00Z`), "en") })
+    .click();
+
+  await page.getByRole("button", { name: "Send request" }).click();
+
+  // Champs vides + `required` : le navigateur bloque la soumission avant
+  // qu'elle n'atteigne la Server Action, donc pas de round-trip serveur ici.
+  await expect(page.locator("#guestName")).toHaveJSProperty("validity.valid", false);
+  await expect(
+    page.getByText("Your request has been sent. The owner will get back to you shortly."),
+  ).not.toBeVisible();
+});
