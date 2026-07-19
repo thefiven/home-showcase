@@ -55,6 +55,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Résout le tag d'image (sans le préfixe "v" du tag git)
+        id: image-tag
+        run: echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: false
@@ -62,5 +66,5 @@ jobs:
             Voir [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) pour le détail de cette version.
 
             Images publiées :
-            - `ghcr.io/${{ github.repository }}-cms:${{ github.ref_name }}`
-            - `ghcr.io/${{ github.repository }}-web:${{ github.ref_name }}`
+            - `ghcr.io/${{ github.repository }}-cms:${{ steps.image-tag.outputs.value }}`
+            - `ghcr.io/${{ github.repository }}-web:${{ steps.image-tag.outputs.value }}`
