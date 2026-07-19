@@ -62,6 +62,9 @@
   "booking": {
     "airbnbNote": "No online payment: your request reaches us directly, we check the dates and get back to you within 24 to 48h to arrange the details (contract, deposit).",
     "title": "Booking request",
+    "datesLabel": "Stay dates",
+    "selectDatesHint": "Click the calendar to choose your dates.",
+    "selectedRange": "From {start} to {end}",
     "startDate": "Check-in date",
     "endDate": "Check-out date",
     "guestName": "Full name",
