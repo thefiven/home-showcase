@@ -43,7 +43,7 @@ Pas de contrainte de délai : projet développé au rythme normal, sans deadline
 | Hébergement cible                   | Homelab **k3s** (Kubernetes), pas encore en place — le repo doit rester "portable" (pas de dépendance à un PaaS propriétaire) ; manifests Helm dans `deploy/helm/home-showcase/`                                                                                                            |
 | Structure de repo                   | Monorepo : `apps/web` (Next.js) + `apps/cms` (Strapi), gestion via workspaces `pnpm`                                                                                                                                                                                                        |
 | Demandes de réservation & sync iCal | Gérées **dans Strapi** : content-type `booking-request` (statut pending/accepted/refused) + content-type `availability` alimenté par un job cron Strapi qui importe les iCal Airbnb. Next.js consomme l'API Strapi (pas de base de données ni de backend séparé côté web)                   |
-| Notification email                  | Service à trancher avant l'implémentation de la feature notifications (candidat par défaut : Resend ; alternative : SMTP self-hosté, plus cohérent avec la logique homelab mais plus de maintenance) — **point ouvert**, voir §5                                                            |
+| Notification email                  | SMTP self-hosté via `@strapi/provider-email-nodemailer`, plutôt que Resend — cohérent avec la logique homelab (voir §5)                                                                                                                                                                     |
 | Notification WhatsApp               | Hors périmètre MVP, prévu en v2                                                                                                                                                                                                                                                             |
 | Stratégie de tests                  | Tests unitaires + intégration ciblés (Vitest) sur la logique métier critique (calcul de disponibilité, workflow de réservation, parsing iCal) et sur les endpoints API. Tests end-to-end (Playwright) dans `e2e/` sur les parcours critiques (disponibilité, demande de réservation)        |
 | Workflow Git                        | Solo mais rigoureux : branches par feature, commits gitmoji, PR systématique sur GitHub avant merge sur `main` (via l'intégration MCP GitHub), voir `CLAUDE.md`                                                                                                                             |
@@ -52,12 +52,21 @@ Pas de contrainte de délai : projet développé au rythme normal, sans deadline
 
 - **Property** : nom, slug, description FR/EN, photos, adresse/localisation, tarifs, équipements, URL iCal Airbnb.
 - **Availability** : plages bloquées par `Property`, alimentées automatiquement par le job de sync iCal (lecture seule côté admin, pas d'édition manuelle des blocs importés).
-- **BookingRequest** : `Property` liée, dates demandées, nom/email/téléphone du demandeur, message, statut (`pending` / `accepted` / `refused`), horodatage. La bascule de statut déclenche l'email de notification et, à terme, la mise à jour de la disponibilité affichée.
+- **BookingRequest** : `Property` liée, dates demandées, nom/email/téléphone/nombre de voyageurs du demandeur, message, statut (`pending` / `accepted` / `refused`), horodatage. La création déclenche l'email de notification à la propriétaire ; le passage à `accepted`/`refused` crée ou retire l'`Availability` correspondante (`apps/cms/src/documents-middlewares`).
 
-Ce modèle est une base de départ, à affiner lors de l'implémentation.
+Ce modèle a été implémenté tel quel pour le MVP (voir `CLAUDE.md` pour la structure de dossiers à jour).
 
-## 5. Points ouverts / à trancher plus tard
+## 5. Points tranchés en cours d'implémentation
 
-- **Fournisseur d'email transactionnel** (Resend vs SMTP self-hosté) : à décider avant de commencer la feature notifications.
-- **Format exact de l'export iCal Airbnb** et fréquence de synchronisation (ex. toutes les heures) : à valider avec une vraie URL iCal Airbnb lors de l'implémentation.
+- **Fournisseur d'email transactionnel** : SMTP self-hosté via `@strapi/provider-email-nodemailer` (config `apps/cms/config/plugins.ts`, variables `SMTP_*`/`EMAIL_FROM`/`EMAIL_REPLY_TO`), plutôt que Resend — cohérent avec la cible homelab. L'échec d'envoi est loggé mais ne bloque jamais la création de la demande de réservation.
+- **Sync iCal** : job cron Strapi (`apps/cms/src/cron-tasks`, service `apps/cms/src/api/availability/services/ical.ts`) qui importe l'export iCal Airbnb par `Property` et alimente `Availability`. `DTEND` traité comme exclusif (le jour de checkout redevient réservable).
+- **Confidentialité de la localisation** : l'adresse précise n'est jamais exposée publiquement ; le web ne reçoit qu'une position approximative dérivée côté CMS (Document Service middleware sur `Property`).
+
+## 6. Points ouverts / à trancher plus tard
+
 - **Détails de l'intégration WhatsApp** (v2) : choix du provider, coût, opt-in de la propriétaire.
+- **Paiement en ligne / acompte** (v2).
+
+## 7. État du MVP
+
+Le MVP tel que décrit ci-dessus (§2 « Inclus au MVP ») est implémenté et couvert par des tests unitaires (Vitest) et end-to-end (Playwright, `e2e/`) : logements multi-fiches FR/EN, calendrier de disponibilité sélectionnable synchronisé depuis Airbnb, formulaire de demande de réservation avec notification email, back-office Strapi (accept/refuse), SEO technique (sitemap, robots.txt, JSON-LD, canoniques/hreflang), Docker pour le dev local, chart Helm pour le déploiement k3s, CI GitHub Actions (lint/test/build/e2e/audit de dépendances). Reste en dehors du périmètre MVP : WhatsApp et paiement en ligne (v2, voir §6).

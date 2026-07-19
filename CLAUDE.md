@@ -4,7 +4,9 @@ Conventions du projet **home-showcase**. Voir `SPEC.md` pour le cadrage produit 
 
 ## Résumé du projet
 
-Vitrine web multi-logements type Airbnb (complément à Airbnb, pas un remplacement) : présentation des logements, calendrier de disponibilité synchronisé depuis Airbnb (iCal, lecture seule), demandes de réservation avec notification email à la propriétaire, back-office pour éditer le contenu sans toucher au code.
+**Ar Mor** — vitrine web multi-logements type Airbnb (complément à Airbnb, pas un remplacement) : présentation des logements, calendrier de disponibilité synchronisé depuis Airbnb (iCal, lecture seule), demandes de réservation avec notification email à la propriétaire, back-office pour éditer le contenu sans toucher au code.
+
+Le MVP (voir `SPEC.md` §2 et §7) est implémenté : logements FR/EN, calendrier sélectionnable, formulaire de réservation, notifications email, back-office, SEO technique, Docker, Helm/k3s, CI.
 
 ## Stack technique
 
@@ -14,7 +16,7 @@ Vitrine web multi-logements type Airbnb (complément à Airbnb, pas un remplacem
 - **Gestionnaire de paquets** : `pnpm` (workspaces pour le monorepo).
 - **Conteneurisation** : Docker + docker-compose pour le développement local (Next.js, Strapi, Postgres) — voir `README.md` (`pnpm docker:up`).
 - **Hébergement cible** : homelab k3s (à venir) — éviter toute dépendance à un PaaS propriétaire non portable. Manifests Helm dans `deploy/helm/home-showcase/` (voir `deploy/README.md`).
-- **Notification email** : fournisseur non encore tranché (voir `SPEC.md` §5) — prévoir un point d'extension isolé (ex. un module `notifications`) plutôt que de coupler l'implémentation au reste du code.
+- **Notification email** : SMTP self-hosté via `@strapi/provider-email-nodemailer` (voir `SPEC.md` §5), isolé dans `apps/cms/src/notifications`. Un échec d'envoi est loggé, jamais bloquant pour la création de la demande.
 - **WhatsApp** : hors périmètre MVP, prévu en v2.
 
 ## Structure de dossiers
@@ -32,7 +34,7 @@ home-showcase/
 └── README.md
 ```
 
-Modèle de contenu Strapi (`apps/cms`) : `Property`, `Availability` (alimenté par sync iCal, lecture seule côté admin), `BookingRequest` (statut `pending`/`accepted`/`refused`, déclenche la notification email).
+Modèle de contenu Strapi (`apps/cms`) : `Property` (position exacte jamais exposée publiquement — dérivation d'une position approximative via Document Service middleware), `Availability` (alimenté par le job cron `src/cron-tasks` + service `src/api/availability/services/ical.ts`, lecture seule côté admin), `BookingRequest` (statut `pending`/`accepted`/`refused` ; la création déclenche la notification email, le changement de statut crée/retire l'`Availability` correspondante).
 
 ## Stratégie de tests
 
