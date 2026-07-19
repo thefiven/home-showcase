@@ -11,11 +11,13 @@ Chart Helm de déploiement de `home-showcase` (web, cms, postgres) sur un cluste
 - Les images `cms` et `web` construites (target `production` de
   `docker/cms.Dockerfile` et `docker/web.Dockerfile`) et poussées vers un registry
   accessible par le cluster.
-  - `web` nécessite `NEXT_PUBLIC_STRAPI_URL` comme **build-arg** (inliné au build
-    par Next.js, non reconfigurable au runtime) :
+  - `web` nécessite `NEXT_PUBLIC_STRAPI_URL` et `NEXT_PUBLIC_SITE_URL` comme
+    **build-args** (inlinées au build par Next.js, non reconfigurables au
+    runtime) :
     ```
     docker build -f docker/web.Dockerfile --target production \
       --build-arg NEXT_PUBLIC_STRAPI_URL=https://cms.example.com \
+      --build-arg NEXT_PUBLIC_SITE_URL=https://home-showcase.example.com \
       -t <registry>/home-showcase-web:<tag> .
     docker build -f docker/cms.Dockerfile --target production \
       -t <registry>/home-showcase-cms:<tag> .

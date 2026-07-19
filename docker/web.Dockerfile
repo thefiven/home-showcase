@@ -23,6 +23,8 @@ FROM deps AS build
 # être fourni comme build arg (pas seulement comme env de conteneur au runtime).
 ARG NEXT_PUBLIC_STRAPI_URL
 ENV NEXT_PUBLIC_STRAPI_URL=$NEXT_PUBLIC_STRAPI_URL
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NODE_ENV=production
 COPY apps/web apps/web
 WORKDIR /app/apps/web
