@@ -31,7 +31,8 @@ async function registerAdminIfNeeded(): Promise<void> {
   }
 }
 
-async function adminLogin(): Promise<string> {
+/** Exported for use by test helpers that need to seed data via the admin API (see helpers.ts). */
+export async function adminLogin(): Promise<string> {
   const res = await fetch(`${STRAPI_URL}/admin/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
