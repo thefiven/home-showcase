@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { PROPERTY_SLUG, STRAPI_URL } from "./config";
 import { ADMIN_STORAGE_STATE_PATH } from "./global-setup";
-import { createBookingRequest, getPropertyDocumentId } from "./helpers";
+import { createBookingRequest, futureDateRange, getPropertyDocumentId } from "./helpers";
 
 test.use({ storageState: ADMIN_STORAGE_STATE_PATH });
 
@@ -39,7 +39,13 @@ test.describe("accept/refuse une demande de réservation depuis l'admin", () => 
   });
 
   test("la propriétaire peut refuser une demande", async ({ page }) => {
+    // Plage distincte du test "accepter" ci-dessus : accepter une demande y
+    // bloque désormais ses dates (issue #79), la réutilisation de la plage
+    // par défaut ferait rejeter cette création comme chevauchante.
+    const { start, end } = futureDateRange(80, 4);
     const { documentId } = await createBookingRequest(propertyDocumentId, {
+      startDate: start,
+      endDate: end,
       guestEmail: "refuse-flow@example.com",
     });
 
