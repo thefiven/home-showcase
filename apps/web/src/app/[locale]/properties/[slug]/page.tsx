@@ -9,6 +9,7 @@ import { BookingSection } from "@/components/BookingSection";
 import { LocationSection } from "@/components/LocationSection";
 import { getDictionary } from "@/i18n/dictionaries";
 import { resolveLocale } from "@/i18n/config";
+import { localizedAlternates } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -23,15 +24,17 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params;
+  const locale = resolveLocale(rawLocale);
   // Même URL/options que l'appel de PropertyPage : dédupliqué par la request
   // memoization fetch de Next.js (pas de round-trip Strapi supplémentaire).
-  const property = await getPropertyBySlug(slug, resolveLocale(rawLocale));
+  const property = await getPropertyBySlug(slug, locale);
 
   if (!property) return {};
 
   return {
     title: property.name,
     description: property.shortDescription || undefined,
+    alternates: localizedAlternates(locale, `/properties/${slug}`),
   };
 }
 
