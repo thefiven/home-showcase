@@ -62,6 +62,9 @@
   "booking": {
     "airbnbNote": "Aucun paiement en ligne : votre demande nous parvient directement, nous vérifions les dates et revenons vers vous sous 24 à 48h pour convenir des modalités (contrat, acompte).",
     "title": "Demande de réservation",
+    "datesLabel": "Dates du séjour",
+    "selectDatesHint": "Cliquez sur le calendrier pour choisir vos dates.",
+    "selectedRange": "Du {start} au {end}",
     "startDate": "Date d'arrivée",
     "endDate": "Date de départ",
     "guestName": "Nom complet",

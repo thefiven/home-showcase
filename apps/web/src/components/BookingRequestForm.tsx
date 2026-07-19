@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
+import type { DateRange } from "@/lib/dateRange";
 import {
   submitBookingRequest,
   type BookingRequestState,
@@ -10,6 +12,8 @@ import {
 interface BookingRequestFormProps {
   propertyDocumentId: string;
   dictionary: Dictionary;
+  locale: Locale;
+  range: DateRange;
 }
 
 const INITIAL_STATE: BookingRequestState = { status: "idle", errors: {} };
@@ -24,48 +28,41 @@ const ERROR = "text-[13px] text-error";
  * Action : la validation autoritaire et la création se font côté serveur
  * (`actions.ts`), donc pas de client Strapi appelé depuis le navigateur.
  */
-export function BookingRequestForm({ propertyDocumentId, dictionary }: BookingRequestFormProps) {
+export function BookingRequestForm({
+  propertyDocumentId,
+  dictionary,
+  locale,
+  range,
+}: BookingRequestFormProps) {
   const t = dictionary.booking;
   const action = submitBookingRequest.bind(null, propertyDocumentId);
   const [state, formAction, isPending] = useActionState(action, INITIAL_STATE);
+  const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" });
+  const formatIso = (iso: string) => dateFormatter.format(new Date(`${iso}T00:00:00Z`));
+  const rangeComplete = Boolean(range.start && range.end);
 
   if (state.status === "success") {
-    return (
-      <section
-        className="grid items-start gap-[var(--gap-cols)] [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]"
-        id="reservation"
-      >
-        <p className="text-[15px] text-success">{t.success}</p>
-      </section>
-    );
+    return <p className="text-[15px] text-success">{t.success}</p>;
   }
 
   return (
-    <section
-      className="grid items-start gap-[var(--gap-cols)] [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]"
-      id="reservation"
-    >
+    <>
       <div className="flex max-w-[40ch] flex-col gap-8">
         <h2>{t.title}</h2>
         <p className="text-foreground-muted">{t.airbnbNote}</p>
       </div>
-      <form
-        action={formAction}
-        className="flex flex-col gap-[clamp(14px,3vw,16px)] rounded-flat bg-surface p-[clamp(20px,3vw,32px)]"
-      >
-        <div className="grid gap-[clamp(14px,3vw,16px)] [grid-template-columns:repeat(auto-fit,minmax(160px,1fr))]">
-          <div className={FIELD}>
-            <label htmlFor="startDate" className={LABEL}>
-              {t.startDate}
-            </label>
-            <input type="date" id="startDate" name="startDate" required className={INPUT} />
-          </div>
-          <div className={FIELD}>
-            <label htmlFor="endDate" className={LABEL}>
-              {t.endDate}
-            </label>
-            <input type="date" id="endDate" name="endDate" required className={INPUT} />
-          </div>
+      <form action={formAction} className="flex flex-col gap-[clamp(14px,3vw,16px)]">
+        <input type="hidden" name="startDate" value={range.start ?? ""} />
+        <input type="hidden" name="endDate" value={range.end ?? ""} />
+        <div className={FIELD}>
+          <span className={LABEL}>{t.datesLabel}</span>
+          <p className="text-[15px]">
+            {rangeComplete && range.start && range.end
+              ? t.selectedRange
+                  .replace("{start}", formatIso(range.start))
+                  .replace("{end}", formatIso(range.end))
+              : t.selectDatesHint}
+          </p>
         </div>
         {state.errors.startDate && <p className={ERROR}>{t.errors.required}</p>}
         {state.errors.endDate && !state.errors.startDate && (
@@ -120,12 +117,12 @@ export function BookingRequestForm({ propertyDocumentId, dictionary }: BookingRe
 
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || !rangeComplete}
           className="self-start rounded-flat bg-atlantic px-13 py-7 font-semibold text-foreground-on-dark enabled:hover:bg-atlantic-hover disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? t.submitting : t.submit}
         </button>
       </form>
-    </section>
+    </>
   );
 }

@@ -4,9 +4,8 @@ import { getAllSlugs, getAvailabilitiesForProperty, getPropertyBySlug } from "@/
 import { PropertyHero } from "@/components/PropertyHero";
 import { PropertyStats } from "@/components/PropertyStats";
 import { PropertyGallery } from "@/components/PropertyGallery";
-import { AvailabilityCalendar } from "@/components/AvailabilityCalendar";
 import { HostNote } from "@/components/HostNote";
-import { BookingRequestForm } from "@/components/BookingRequestForm";
+import { BookingSection } from "@/components/BookingSection";
 import { LocationSection } from "@/components/LocationSection";
 import { getDictionary } from "@/i18n/dictionaries";
 import { resolveLocale } from "@/i18n/config";
@@ -64,19 +63,18 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
           <PropertyGallery photos={property.photos} alt={property.name} dictionary={dictionary} />
         </div>
 
-        <AvailabilityCalendar
-          availabilities={availabilities}
-          locale={locale}
-          dictionary={dictionary}
-        />
-
         <HostNote
           description={property.description}
           amenities={property.amenities}
           dictionary={dictionary}
         />
 
-        <BookingRequestForm propertyDocumentId={property.documentId} dictionary={dictionary} />
+        <BookingSection
+          availabilities={availabilities}
+          locale={locale}
+          dictionary={dictionary}
+          propertyDocumentId={property.documentId}
+        />
       </main>
       <LocationSection
         location={property.location}

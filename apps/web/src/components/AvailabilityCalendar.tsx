@@ -6,6 +6,7 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import type { Availability } from "@/lib/strapi/types";
 import { getBlockedDatesInWindow } from "@/lib/availability";
 import { buildMonthWeeks, firstWeekday } from "@/lib/calendarGrid";
+import { cellState, isPastDate, type DateRange } from "@/lib/dateRange";
 
 const DAY_CELL =
   "flex aspect-square min-w-[34px] items-center justify-center rounded-flat font-mono text-[13px]";
@@ -18,6 +19,8 @@ interface AvailabilityCalendarProps {
   availabilities: Availability[];
   locale: Locale;
   dictionary: Dictionary;
+  selection: DateRange;
+  onDateClick: (iso: string) => void;
 }
 
 function toIsoDate(date: Date): string {
@@ -28,12 +31,18 @@ function MonthGrid({
   monthStart,
   startOfWeek,
   blockedDates,
+  todayIso,
+  selection,
+  onDateClick,
   locale,
   dictionary,
 }: {
   monthStart: Date;
   startOfWeek: number;
   blockedDates: Set<string>;
+  todayIso: string;
+  selection: DateRange;
+  onDateClick: (iso: string) => void;
   locale: Locale;
   dictionary: Dictionary;
 }) {
@@ -72,22 +81,49 @@ function MonthGrid({
             }
             const iso = toIsoDate(date);
             const blocked = blockedDates.has(iso);
+            const past = isPastDate(iso, todayIso);
             const formattedDate = dateFormatter.format(date);
-            const label = (
-              blocked ? dictionary.calendar.blockedLabel : dictionary.calendar.availableLabel
-            ).replace("{date}", formattedDate);
+
+            if (blocked || past) {
+              const label = (
+                blocked ? dictionary.calendar.blockedLabel : dictionary.calendar.availableLabel
+              ).replace("{date}", formattedDate);
+              return (
+                <span
+                  key={iso}
+                  aria-disabled="true"
+                  aria-label={label}
+                  className={
+                    blocked
+                      ? `${DAY_CELL} border border-unavailable bg-unavailable text-foreground-on-dark line-through`
+                      : `${DAY_CELL} border border-border-strong bg-background opacity-40`
+                  }
+                >
+                  {date.getUTCDate()}
+                </span>
+              );
+            }
+
+            const state = cellState(iso, selection);
+            const label = dictionary.calendar.availableLabel.replace("{date}", formattedDate);
+            const stateClassName =
+              state === "start" || state === "end"
+                ? "border border-atlantic bg-atlantic text-foreground-on-dark"
+                : state === "between"
+                  ? "border border-atlantic bg-atlantic/25"
+                  : "border border-border-strong bg-background";
+
             return (
-              <span
+              <button
                 key={iso}
-                className={
-                  blocked
-                    ? `${DAY_CELL} border border-unavailable bg-unavailable text-foreground-on-dark line-through`
-                    : `${DAY_CELL} border border-border-strong bg-background`
-                }
+                type="button"
+                aria-pressed={state !== "none"}
                 aria-label={label}
+                className={`${DAY_CELL} ${stateClassName}`}
+                onClick={() => onDateClick(iso)}
               >
                 {date.getUTCDate()}
-              </span>
+              </button>
             );
           }),
         )}
@@ -101,15 +137,20 @@ function MonthGrid({
  * borné entre le mois courant et courant+12 (issue #53). Les disponibilités
  * sont toutes récupérées côté serveur en amont (pas de fenêtre côté API) :
  * la navigation ne fait que recalculer la fenêtre affichée côté client.
+ * Composant présentational : la sélection de plage (issue #69) est détenue
+ * par le parent (`BookingSection`) et pilotée via `selection`/`onDateClick`.
  */
 export function AvailabilityCalendar({
   availabilities,
   locale,
   dictionary,
+  selection,
+  onDateClick,
 }: AvailabilityCalendarProps) {
   const [monthOffset, setMonthOffset] = useState(0);
 
   const now = new Date();
+  const todayIso = toIsoDate(now);
   const firstMonthStart = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + monthOffset, 1),
   );
@@ -167,6 +208,9 @@ export function AvailabilityCalendar({
           monthStart={firstMonthStart}
           startOfWeek={startOfWeek}
           blockedDates={blockedDates}
+          todayIso={todayIso}
+          selection={selection}
+          onDateClick={onDateClick}
           locale={locale}
           dictionary={dictionary}
         />
@@ -174,6 +218,9 @@ export function AvailabilityCalendar({
           monthStart={secondMonthStart}
           startOfWeek={startOfWeek}
           blockedDates={blockedDates}
+          todayIso={todayIso}
+          selection={selection}
+          onDateClick={onDateClick}
           locale={locale}
           dictionary={dictionary}
         />
