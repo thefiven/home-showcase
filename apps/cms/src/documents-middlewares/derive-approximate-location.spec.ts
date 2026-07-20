@@ -9,7 +9,7 @@ function buildContext(uid: string, action: string, params: Record<string, unknow
 }
 
 describe("deriveApproximateLocation", () => {
-  it("dérive approxLatitude/approxLongitude à ~1km de précision depuis les coordonnées exactes", () => {
+  it("derives approxLatitude/approxLongitude at ~1km precision from the exact coordinates", () => {
     const data = { location: { latitude: 48.856614, longitude: 2.352222 } };
 
     deriveApproximateLocation(data);
@@ -18,14 +18,14 @@ describe("deriveApproximateLocation", () => {
     expect(data.location.approxLongitude).toBe(2.35);
   });
 
-  it("ne fait rien si aucune donnée location n'est présente", () => {
+  it("does nothing if no location data is present", () => {
     const data = {};
 
     expect(() => deriveApproximateLocation(data)).not.toThrow();
     expect(data).not.toHaveProperty("location");
   });
 
-  it("ne fait rien si latitude ou longitude sont manquantes (ne dérive pas de valeur partielle)", () => {
+  it("does nothing if latitude or longitude is missing (does not derive a partial value)", () => {
     const data = { location: { latitude: 48.86 } };
 
     deriveApproximateLocation(data);
@@ -34,7 +34,7 @@ describe("deriveApproximateLocation", () => {
     expect(data.location).not.toHaveProperty("approxLongitude");
   });
 
-  it("écrase toute saisie manuelle des champs approx (source de vérité = coordonnées exactes)", () => {
+  it("overwrites any manually entered approx fields (source of truth = exact coordinates)", () => {
     const data = {
       location: {
         latitude: 45.764043,
@@ -52,7 +52,7 @@ describe("deriveApproximateLocation", () => {
 });
 
 describe("deriveApproximateLocationMiddleware", () => {
-  it("dérive approx* lors d'un create api::property.property et appelle next()", async () => {
+  it("derives approx* during an api::property.property create and calls next()", async () => {
     const context = buildContext("api::property.property", "create", {
       data: { location: { latitude: 48.856614, longitude: 2.352222 } },
     });
@@ -66,7 +66,7 @@ describe("deriveApproximateLocationMiddleware", () => {
     expect(result).toBe("result");
   });
 
-  it("recalcule approx* lors d'un update", async () => {
+  it("recomputes approx* during an update", async () => {
     const context = buildContext("api::property.property", "update", {
       documentId: "abc",
       data: { location: { latitude: 45.764043, longitude: 4.835659 } },
@@ -80,7 +80,7 @@ describe("deriveApproximateLocationMiddleware", () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
-  it("ne dérive pas de valeur partielle si latitude/longitude manquent, mais appelle next()", async () => {
+  it("does not derive a partial value if latitude/longitude are missing, but calls next()", async () => {
     const context = buildContext("api::property.property", "create", {
       data: { location: { latitude: 48.86 } },
     });
@@ -92,7 +92,7 @@ describe("deriveApproximateLocationMiddleware", () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
-  it("ne touche pas aux données et appelle next() si data.location est absent", async () => {
+  it("does not touch the data and calls next() if data.location is absent", async () => {
     const context = buildContext("api::property.property", "create", { data: {} });
     const next = vi.fn().mockResolvedValue(undefined);
 
@@ -102,7 +102,7 @@ describe("deriveApproximateLocationMiddleware", () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
-  it("ignore les content-types autres que api::property.property", async () => {
+  it("ignores content types other than api::property.property", async () => {
     const context = buildContext("api::availability.availability", "create", {
       data: { location: { latitude: 48.856614, longitude: 2.352222 } },
     });
@@ -114,7 +114,7 @@ describe("deriveApproximateLocationMiddleware", () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
-  it("ignore les actions autres que create/update (ex. findMany)", async () => {
+  it("ignores actions other than create/update (e.g. findMany)", async () => {
     const context = buildContext("api::property.property", "findMany", {
       filters: { slug: "test" },
     });

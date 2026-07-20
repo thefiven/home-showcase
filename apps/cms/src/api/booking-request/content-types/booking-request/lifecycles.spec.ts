@@ -13,7 +13,7 @@ function buildStrapi(existingStatus: string | null) {
 }
 
 describe("stampStatusChangeOnUpdate", () => {
-  it("stamp statusChangedAt quand le statut change", async () => {
+  it("stamps statusChangedAt when the status changes", async () => {
     const { db, findOne } = buildStrapi("pending");
     const event = { params: { where: { id: 1 }, data: { bookingStatus: "accepted" } } };
 
@@ -23,7 +23,7 @@ describe("stampStatusChangeOnUpdate", () => {
     expect(event.params.data.statusChangedAt).toBeInstanceOf(Date);
   });
 
-  it("ne stamp rien si le statut ne change pas", async () => {
+  it("stamps nothing if the status does not change", async () => {
     const { db } = buildStrapi("pending");
     const event = { params: { where: { id: 1 }, data: { bookingStatus: "pending" } } };
 
@@ -32,7 +32,7 @@ describe("stampStatusChangeOnUpdate", () => {
     expect(event.params.data).not.toHaveProperty("statusChangedAt");
   });
 
-  it("ne stamp rien si la mise à jour ne touche pas le statut", async () => {
+  it("stamps nothing if the update does not touch the status", async () => {
     const { db, findOne } = buildStrapi("pending");
     const event = { params: { where: { id: 1 }, data: { guestName: "Alex" } } };
 
@@ -44,7 +44,7 @@ describe("stampStatusChangeOnUpdate", () => {
 });
 
 describe("notifyOwnerOnCreate", () => {
-  it("déclenche la notification email pour la demande créée", async () => {
+  it("triggers the email notification for the created request", async () => {
     const send = vi.fn(() => Promise.resolve());
     const findOne = vi.fn(() => Promise.resolve({ property: { name: "Villa des Pins" } }));
     const strapi = {
@@ -101,7 +101,7 @@ describe("reconcileAvailabilityForBooking", () => {
     return { strapi, findOneBooking, findFirst, create, update, delete: del };
   }
 
-  it("ignore les updates qui ne touchent pas bookingStatus", async () => {
+  it("ignores updates that do not touch bookingStatus", async () => {
     const { strapi, findOneBooking } = buildStrapi();
     const event = { result: { documentId: "booking-1" }, params: { data: { message: "hi" } } };
 
@@ -110,7 +110,7 @@ describe("reconcileAvailabilityForBooking", () => {
     expect(findOneBooking).not.toHaveBeenCalled();
   });
 
-  it("crée une Availability quand la demande passe à accepted", async () => {
+  it("creates an Availability when the request moves to accepted", async () => {
     const { strapi, create, findFirst } = buildStrapi();
     const event = {
       result: { documentId: "booking-1" },
@@ -133,7 +133,7 @@ describe("reconcileAvailabilityForBooking", () => {
     });
   });
 
-  it("met à jour l'Availability existante plutôt que d'en recréer une", async () => {
+  it("updates the existing Availability rather than recreating one", async () => {
     const { strapi, create, update } = buildStrapi({
       existingAvailability: { documentId: "availability-1" },
     });
@@ -151,7 +151,7 @@ describe("reconcileAvailabilityForBooking", () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  it("supprime l'Availability quand la demande repasse à refused", async () => {
+  it("deletes the Availability when the request moves back to refused", async () => {
     const {
       strapi,
       delete: del,
@@ -171,7 +171,7 @@ describe("reconcileAvailabilityForBooking", () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  it("ne fait rien si la demande repasse à pending sans Availability existante", async () => {
+  it("does nothing if the request moves back to pending without an existing Availability", async () => {
     const {
       strapi,
       delete: del,
@@ -192,7 +192,7 @@ describe("reconcileAvailabilityForBooking", () => {
     expect(update).not.toHaveBeenCalled();
   });
 
-  it("logue et avale les erreurs du Document Service", async () => {
+  it("logs and swallows Document Service errors", async () => {
     const { strapi, findFirst } = buildStrapi();
     findFirst.mockRejectedValueOnce(new Error("db down"));
     const event = {

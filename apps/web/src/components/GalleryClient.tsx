@@ -169,9 +169,9 @@ function Lightbox({
 }
 
 /**
- * Aperçu grille (héro 2×2 + petites tuiles) et lightbox. Reçoit uniquement
- * des URLs déjà résolues côté serveur par `PropertyGallery` — ne doit jamais
- * appeler `mediaUrl` lui-même (voir commentaire de `PropertyGallery.tsx`).
+ * Grid preview (2x2 hero + small tiles) and lightbox. Only receives URLs
+ * already resolved server-side by `PropertyGallery` — must never call
+ * `mediaUrl` itself (see the comment in `PropertyGallery.tsx`).
  */
 export function GalleryClient({
   cover,

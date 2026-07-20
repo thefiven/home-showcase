@@ -1,6 +1,6 @@
 import type { StrapiMedia } from "./strapi/types";
 
-/** Nombre de petites tuiles affichées dans l'aperçu, en plus de la tuile héro. */
+/** Number of small tiles shown in the preview, in addition to the hero tile. */
 export const PREVIEW_TILE_COUNT = 4;
 
 export interface GalleryPreview {
@@ -10,10 +10,10 @@ export interface GalleryPreview {
 }
 
 /**
- * Découpe la liste de photos en aperçu grille (1 héro + N petites tuiles) et
- * calcule le nombre de photos non visibles dans cet aperçu (pour l'overlay
- * "Voir toutes les photos"). Ne fait aucune hypothèse sur l'ordre : la
- * première photo sert toujours de héro, comme dans l'ancien `PropertyGallery`.
+ * Splits the photo list into a grid preview (1 hero + N small tiles) and
+ * computes the number of photos not shown in this preview (for the
+ * "View all photos" overlay). Makes no assumption about ordering: the
+ * first photo always serves as the hero, as in the old `PropertyGallery`.
  */
 export function buildGalleryPreview(photos?: StrapiMedia[] | null): GalleryPreview {
   if (!photos || photos.length === 0) {
@@ -27,13 +27,13 @@ export function buildGalleryPreview(photos?: StrapiMedia[] | null): GalleryPrevi
   return { cover, tiles, hiddenCount };
 }
 
-/** Index suivant, cyclique (revient à 0 après la dernière photo). */
+/** Next index, cyclic (wraps to 0 after the last photo). */
 export function nextPhotoIndex(current: number, total: number): number {
   if (total <= 0) return 0;
   return (current + 1) % total;
 }
 
-/** Index précédent, cyclique (revient à la dernière photo avant la première). */
+/** Previous index, cyclic (wraps to the last photo before the first). */
 export function prevPhotoIndex(current: number, total: number): number {
   if (total <= 0) return 0;
   return (current - 1 + total) % total;

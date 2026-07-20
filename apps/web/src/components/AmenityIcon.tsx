@@ -37,12 +37,12 @@ interface AmenityIconProps {
 
 const ICON_CLASS = "size-4 shrink-0 text-gorse";
 
-// Liste blanche d'icônes (imports nommés, tree-shakeable) plutôt que
-// lucide-react/dynamic : DynamicIcon force le bundler à analyser les ~2000
-// imports dynamiques de la librairie dès que ce composant est atteignable
-// par une route, ce qui rendait la compilation dev de /property
-// pathologique (issue #60). Le champ `icon` en CMS reste du texte libre ;
-// un nom hors liste retombe simplement sur Check.
+// Icon allowlist (named, tree-shakeable imports) rather than
+// lucide-react/dynamic: DynamicIcon forces the bundler to analyze the ~2000
+// dynamic imports of the library as soon as this component is reachable
+// from a route, which made the dev compile of /property
+// pathological (issue #60). The `icon` field in the CMS remains free text;
+// a name outside the list simply falls back to Check.
 const ICONS_BY_NAME: Record<string, LucideIcon> = {
   wifi: Wifi,
   "parking-circle": ParkingCircle,

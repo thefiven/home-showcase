@@ -1,8 +1,8 @@
 /**
- * Coordonnées exactes du logement -> zone approximative pour affichage public.
+ * Property's exact coordinates -> approximate zone for public display.
  *
- * Arrondir à 2 décimales ramène la précision à ~1 km (jamais la position
- * exacte), conformément à la confidentialité de l'adresse actée en #51.
+ * Rounding to 2 decimals brings the precision down to ~1 km (never the
+ * exact position), in line with the address privacy decided in #51.
  */
 const APPROXIMATION_PRECISION = 2;
 export const APPROXIMATE_RADIUS_METERS = 900;
@@ -28,7 +28,7 @@ export function approximateLocation(latitude: number, longitude: number): Approx
 
 const EARTH_CIRCUMFERENCE_METERS = 40075017;
 
-/** Convertit un rayon en mètres en rayon en pixels pour un cercle MapLibre à une latitude/zoom donnés. */
+/** Converts a radius in meters to a radius in pixels for a MapLibre circle at a given latitude/zoom. */
 export function metersToPixelsAtZoom(radiusMeters: number, latitude: number, zoom: number): number {
   const metersPerPixel =
     (EARTH_CIRCUMFERENCE_METERS * Math.cos((latitude * Math.PI) / 180)) / 2 ** (zoom + 8);

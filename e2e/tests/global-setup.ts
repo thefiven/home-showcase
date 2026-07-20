@@ -27,7 +27,7 @@ async function registerAdminIfNeeded(): Promise<void> {
     }),
   });
   if (!registerRes.ok) {
-    throw new Error(`Échec de la création de l'admin e2e : ${await registerRes.text()}`);
+    throw new Error(`Failed to create e2e admin: ${await registerRes.text()}`);
   }
 }
 
@@ -39,7 +39,7 @@ export async function adminLogin(): Promise<string> {
     body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD }),
   });
   if (!res.ok) {
-    throw new Error(`Échec de la connexion admin e2e : ${await res.text()}`);
+    throw new Error(`Failed to log in e2e admin: ${await res.text()}`);
   }
   const { data } = (await res.json()) as { data: { token: string } };
   return data.token;
@@ -78,7 +78,7 @@ async function ensureProperty(token: string): Promise<PropertyDocument> {
     },
   );
   if (!createRes.ok) {
-    throw new Error(`Échec de la création du logement e2e : ${await createRes.text()}`);
+    throw new Error(`Failed to create e2e property: ${await createRes.text()}`);
   }
   const created = (await createRes.json()) as { data: PropertyDocument };
 
@@ -87,7 +87,7 @@ async function ensureProperty(token: string): Promise<PropertyDocument> {
     { method: "POST", headers: { Authorization: `Bearer ${token}` } },
   );
   if (!publishRes.ok) {
-    throw new Error(`Échec de la publication du logement e2e : ${await publishRes.text()}`);
+    throw new Error(`Failed to publish e2e property: ${await publishRes.text()}`);
   }
 
   return { documentId: created.data.documentId, slug: created.data.slug };

@@ -1,17 +1,17 @@
 ---
-description: Met en place l'outillage de dev (CI, lint, hooks, env) avant les features
+description: Sets up dev tooling (CI, lint, hooks, env) before features
 ---
 
-Lis SPEC.md et CLAUDE.md pour le stack. N'explore pas le reste du repo.
+Read SPEC.md and CLAUDE.md for the stack. Don't explore the rest of the repo.
 
-Mets en place :
+Set up:
 
-1. Linter + formatter adaptés au stack, config versionnée.
-2. Pre-commit hooks (lint + format + tests rapides) via husky/lefthook ou équivalent.
-3. GitHub Actions : CI lint + tests + build sur chaque PR.
-4. .env.example documentant les variables d'env. Vérifie que .env est dans .gitignore.
-5. Dependabot pour les mises à jour de sécurité.
-6. Branch protection sur main : PR obligatoire, CI verte requise.
-7. Structure de dossiers conforme à SPEC.md.
+1. Linter + formatter suited to the stack, config versioned.
+2. Pre-commit hooks (lint + format + fast tests) via husky/lefthook or equivalent.
+3. GitHub Actions: CI lint + tests + build on every PR.
+4. .env.example documenting the env variables. Verify .env is in .gitignore.
+5. Dependabot for security updates.
+6. Branch protection on main: PR required, green CI required.
+7. Folder structure matching SPEC.md.
 
-Plan avant exécution. Commits gitmoji.
+Plan before executing. Gitmoji commits.

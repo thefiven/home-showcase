@@ -60,7 +60,7 @@ export async function createBookingRequest(
     }),
   });
   if (!res.ok) {
-    throw new Error(`Échec de la création de la demande de réservation : ${await res.text()}`);
+    throw new Error(`Failed to create the booking request: ${await res.text()}`);
   }
   const { data } = (await res.json()) as { data: CreatedBookingRequest };
   return data;
@@ -93,7 +93,7 @@ export async function createAvailability(
     },
   );
   if (!res.ok) {
-    throw new Error(`Échec de la création de l'availability e2e : ${await res.text()}`);
+    throw new Error(`Failed to create e2e availability: ${await res.text()}`);
   }
   const { data } = (await res.json()) as { data: { documentId: string } };
   return data;
@@ -103,7 +103,7 @@ export async function getPropertyDocumentId(slug: string): Promise<string> {
   const res = await fetch(`${STRAPI_URL}/api/properties?filters[slug][$eq]=${slug}&locale=fr`);
   const { data } = (await res.json()) as { data: Array<{ documentId: string }> };
   if (data.length === 0) {
-    throw new Error(`Logement e2e "${slug}" introuvable — le global-setup a-t-il tourné ?`);
+    throw new Error(`e2e property "${slug}" not found — did global-setup run?`);
   }
   return data[0].documentId;
 }

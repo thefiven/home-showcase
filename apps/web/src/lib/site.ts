@@ -13,9 +13,9 @@ function stripTrailingSlash(url: string): string {
 }
 
 /**
- * URL publique absolue du site, utilisée pour `metadataBase`, le sitemap,
- * robots.txt et les URLs canoniques. Repli `localhost:3000` en dev quand
- * `NEXT_PUBLIC_SITE_URL` n'est pas défini (jamais en production).
+ * Absolute public site URL, used for `metadataBase`, the sitemap,
+ * robots.txt, and canonical URLs. Falls back to `localhost:3000` in dev
+ * when `NEXT_PUBLIC_SITE_URL` is not set (never in production).
  */
 export function resolveSiteUrl(env: SiteEnv = currentEnv()): string {
   const url = env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -23,11 +23,11 @@ export function resolveSiteUrl(env: SiteEnv = currentEnv()): string {
 }
 
 /**
- * Construit `alternates.canonical`/`alternates.languages` pour une page,
- * étant donné sa `locale` courante et son chemin sans préfixe de locale
- * (ex. `""` pour l'accueil, `"/properties"`, `"/properties/mon-logement"`).
- * Les slugs de logement ne sont pas localisés côté Strapi (même chemin pour
- * toutes les locales), donc une correspondance directe locale → chemin suffit.
+ * Builds `alternates.canonical`/`alternates.languages` for a page, given
+ * its current `locale` and its path without the locale prefix
+ * (e.g. `""` for the homepage, `"/properties"`, `"/properties/my-property"`).
+ * Property slugs are not localized on the Strapi side (same path for all
+ * locales), so a direct locale → path mapping is enough.
  */
 export function localizedAlternates(
   locale: Locale,

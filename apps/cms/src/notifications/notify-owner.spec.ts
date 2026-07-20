@@ -45,7 +45,7 @@ describe("notifyOwnerOfBookingRequest", () => {
     process.env.ADMIN_URL = originalAdminUrl;
   });
 
-  it("envoie l'email à la propriétaire quand OWNER_NOTIFICATION_EMAIL est configuré", async () => {
+  it("sends the email to the owner when OWNER_NOTIFICATION_EMAIL is configured", async () => {
     const send = vi.fn(() => Promise.resolve());
     const { strapi } = buildStrapi({ send });
 
@@ -59,7 +59,7 @@ describe("notifyOwnerOfBookingRequest", () => {
     );
   });
 
-  it("logue l'erreur et ne throw pas si l'envoi échoue", async () => {
+  it("logs the error and does not throw if sending fails", async () => {
     const send = vi.fn(() => Promise.reject(new Error("SMTP connection refused")));
     const { strapi, log } = buildStrapi({ send });
 
@@ -67,7 +67,7 @@ describe("notifyOwnerOfBookingRequest", () => {
     expect(log.error).toHaveBeenCalledWith(expect.stringContaining("SMTP connection refused"));
   });
 
-  it("ne fait rien et logue un warning si OWNER_NOTIFICATION_EMAIL est absent", async () => {
+  it("does nothing and logs a warning if OWNER_NOTIFICATION_EMAIL is absent", async () => {
     delete process.env.OWNER_NOTIFICATION_EMAIL;
     const send = vi.fn(() => Promise.resolve());
     const { strapi, log } = buildStrapi({ send });

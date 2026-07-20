@@ -3,14 +3,14 @@ import { pathnameHasLocale } from "./proxy";
 
 describe("pathnameHasLocale", () => {
   it.each(["/fr", "/en", "/fr/properties", "/en/properties/loft-du-vieux-port"])(
-    "reconnaît un chemin déjà préfixé par une locale supportée : %s",
+    "recognizes a path already prefixed by a supported locale: %s",
     (pathname) => {
       expect(pathnameHasLocale(pathname)).toBe(true);
     },
   );
 
   it.each(["/", "/properties", "/fr-CA/properties", "/frx", "/de/properties"])(
-    "rejette un chemin sans préfixe de locale valide : %s",
+    "rejects a path without a valid locale prefix: %s",
     (pathname) => {
       expect(pathnameHasLocale(pathname)).toBe(false);
     },

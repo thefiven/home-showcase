@@ -2,10 +2,10 @@ import { resolvePublicBaseUrl } from "@/lib/strapi/client";
 import type { Property } from "@/lib/strapi/types";
 
 /**
- * URL absolue d'un média Strapi pour consommation externe (JSON-LD, lu par
- * les crawlers) : contrairement à `mediaUrl` (utilisé pour `next/image`), on
- * préfixe avec l'URL publique, pas l'URL interne Docker — un crawler ne peut
- * pas résoudre `http://cms:1337`.
+ * Absolute URL for a Strapi media asset for external consumption
+ * (JSON-LD, read by crawlers): unlike `mediaUrl` (used for `next/image`),
+ * we prefix with the public URL, not the internal Docker URL — a crawler
+ * cannot resolve `http://cms:1337`.
  */
 function publicMediaUrl(path: string): string {
   if (/^https?:\/\//.test(path)) return path;
@@ -13,10 +13,10 @@ function publicMediaUrl(path: string): string {
 }
 
 /**
- * Construit le JSON-LD `schema.org/LodgingBusiness` d'un logement pour la
- * page détail (#84), à partir des données déjà chargées côté serveur (aucun
- * fetch supplémentaire). `geo` est omis quand la position approximative
- * n'est pas renseignée côté Strapi plutôt que d'émettre des coordonnées à 0.
+ * Builds the `schema.org/LodgingBusiness` JSON-LD for a property's detail
+ * page (#84), from data already loaded server-side (no extra fetch).
+ * `geo` is omitted when the approximate position isn't set in Strapi,
+ * rather than emitting coordinates at 0.
  */
 export function buildLodgingJsonLd(property: Property, url: string): Record<string, unknown> {
   const jsonLd: Record<string, unknown> = {

@@ -26,8 +26,8 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
   const { locale: rawLocale, slug } = await params;
   const locale = resolveLocale(rawLocale);
-  // Même URL/options que l'appel de PropertyPage : dédupliqué par la request
-  // memoization fetch de Next.js (pas de round-trip Strapi supplémentaire).
+  // Same URL/options as the PropertyPage call: deduplicated by Next.js's
+  // fetch request memoization (no extra round-trip to Strapi).
   const property = await getPropertyBySlug(slug, locale);
 
   if (!property) return {};
@@ -49,8 +49,8 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
   }
 
   const dictionary = getDictionary(locale);
-  // Dépend du documentId renvoyé par getPropertyBySlug ci-dessus : séquentiel
-  // par nécessité, pas parallélisable via Promise.all.
+  // Depends on the documentId returned by getPropertyBySlug above: sequential
+  // by necessity, not parallelizable via Promise.all.
   const availabilities = await getAvailabilitiesForProperty(property.documentId);
   const jsonLd = buildLodgingJsonLd(
     property,

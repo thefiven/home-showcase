@@ -2,14 +2,12 @@ import { expect, test } from "@playwright/test";
 import { PROPERTY_SLUG } from "./config";
 import { calendarDayButtonName, futureDateRange } from "./helpers";
 
-test("un visiteur peut soumettre une demande de réservation depuis la fiche logement", async ({
-  page,
-}) => {
+test("a visitor can submit a booking request from the property page", async ({ page }) => {
   await page.goto(`/en/properties/${PROPERTY_SLUG}`);
 
-  // Écart volontairement court (10 jours + 3 nuits) : le calendrier n'affiche
-  // que le mois courant et le suivant sans navigation, la plage doit donc y
-  // tenir quel que soit le jour du mois au moment du run.
+  // Deliberately short span (10 days + 3 nights): the calendar only shows
+  // the current month and the next one without navigation, so the range
+  // must fit regardless of the day of month at run time.
   const { start, end } = futureDateRange(10, 3);
   await page
     .getByRole("button", { name: calendarDayButtonName(new Date(`${start}T00:00:00Z`), "en") })
@@ -27,7 +25,7 @@ test("un visiteur peut soumettre une demande de réservation depuis la fiche log
   ).toBeVisible();
 });
 
-test("le nom et l'email sont requis avant l'envoi (validation native du formulaire)", async ({
+test("the name and email are required before submitting (native form validation)", async ({
   page,
 }) => {
   await page.goto(`/en/properties/${PROPERTY_SLUG}`);
@@ -42,8 +40,8 @@ test("le nom et l'email sont requis avant l'envoi (validation native du formulai
 
   await page.getByRole("button", { name: "Send request" }).click();
 
-  // Champs vides + `required` : le navigateur bloque la soumission avant
-  // qu'elle n'atteigne la Server Action, donc pas de round-trip serveur ici.
+  // Empty fields + `required`: the browser blocks submission before it
+  // reaches the Server Action, so there's no server round-trip here.
   await expect(page.locator("#guestName")).toHaveJSProperty("validity.valid", false);
   await expect(
     page.getByText("Your request has been sent. The owner will get back to you shortly."),

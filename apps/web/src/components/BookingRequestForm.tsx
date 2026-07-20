@@ -24,9 +24,9 @@ const INPUT =
 const ERROR = "text-[13px] text-error";
 
 /**
- * Formulaire de demande de réservation (issue #9). Soumission via Server
- * Action : la validation autoritaire et la création se font côté serveur
- * (`actions.ts`), donc pas de client Strapi appelé depuis le navigateur.
+ * Booking request form (issue #9). Submitted via Server Action: the
+ * authoritative validation and creation happen server-side (`actions.ts`),
+ * so no Strapi client is called from the browser.
  */
 export function BookingRequestForm({
   propertyDocumentId,
@@ -42,11 +42,11 @@ export function BookingRequestForm({
   const rangeComplete = Boolean(range.start && range.end);
   const successRef = useRef<HTMLParagraphElement>(null);
 
-  // Le succès remplace tout le formulaire par une seule ligne : la page
-  // rétrécit fortement à l'endroit où l'utilisateur vient de cliquer
-  // "Envoyer" (en bas du formulaire), donc son scroll se retrouve après le
-  // message de confirmation, désormais bien plus haut. On le ramène dans le
-  // viewport plutôt que de compter sur l'utilisateur pour remonter.
+  // Success replaces the whole form with a single line: the page shrinks
+  // sharply right where the user just clicked "Send" (at the bottom of
+  // the form), so their scroll position ends up past the confirmation
+  // message, now much higher up. We bring it back into the viewport
+  // rather than relying on the user to scroll back up.
   useEffect(() => {
     if (state.status === "success") {
       successRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });

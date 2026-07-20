@@ -35,7 +35,7 @@ describe("buildLodgingJsonLd", () => {
     process.env = { ...originalEnv };
   });
 
-  it("construit un LodgingBusiness avec tous les champs disponibles", () => {
+  it("builds a LodgingBusiness with all available fields", () => {
     const jsonLd = buildLodgingJsonLd(PROPERTY, CANONICAL_URL);
 
     expect(jsonLd).toMatchObject({
@@ -56,7 +56,7 @@ describe("buildLodgingJsonLd", () => {
     });
   });
 
-  it("préfixe les images relatives avec l'URL publique Strapi (pas l'URL interne) et laisse les URLs absolues inchangées", () => {
+  it("prefixes relative images with the public Strapi URL (not the internal one) and leaves absolute URLs unchanged", () => {
     const jsonLd = buildLodgingJsonLd(PROPERTY, CANONICAL_URL);
 
     expect(jsonLd.image).toEqual([
@@ -65,7 +65,7 @@ describe("buildLodgingJsonLd", () => {
     ]);
   });
 
-  it("omet geo quand la position approximative n'est pas renseignée", () => {
+  it("omits geo when the approximate position is not set", () => {
     const property: Property = {
       ...PROPERTY,
       location: { city: "Marseille", country: "France" },
@@ -81,7 +81,7 @@ describe("buildLodgingJsonLd", () => {
     });
   });
 
-  it("omet les champs optionnels absents (photos, pricing, location, occupancy)", () => {
+  it("omits absent optional fields (photos, pricing, location, occupancy)", () => {
     const property: Property = {
       id: 1,
       documentId: "abc123",

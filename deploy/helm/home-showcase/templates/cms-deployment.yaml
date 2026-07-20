@@ -26,8 +26,8 @@ spec:
               value: "0.0.0.0"
             - name: PORT
               value: {{ .Values.cms.port | quote }}
-            # Topologie du réseau k8s, pas une valeur du Secret : le Service
-            # postgres est résolu par son nom DNS dans le cluster.
+            # k8s network topology, not a value from the Secret: the
+            # postgres Service is resolved by its DNS name in the cluster.
             - name: DATABASE_CLIENT
               value: postgres
             - name: DATABASE_HOST

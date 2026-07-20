@@ -1,7 +1,7 @@
-# Valeurs par défaut du chart home-showcase.
-# Aucune valeur sensible ici : les secrets (mots de passe, clés Strapi...) vivent
-# dans un Secret Kubernetes créé à part par l'opérateur (voir deploy/README.md)
-# et référencé via `existingSecret` ci-dessous.
+# Default values for the home-showcase chart.
+# No sensitive values here: secrets (passwords, Strapi keys...) live in a
+# separate Kubernetes Secret created by the operator (see deploy/README.md)
+# and referenced via `existingSecret` below.
 
 existingSecret: home-showcase-secrets
 
@@ -11,7 +11,7 @@ postgres:
     tag: "16-bookworm"
   storage: 5Gi
   storageClassName: ""
-  # Doit correspondre à POSTGRES_DB/USER dans le Secret référencé.
+  # Must match POSTGRES_DB/USER in the referenced Secret.
   database: strapi
   user: strapi
 

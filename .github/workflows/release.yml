@@ -41,9 +41,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # NEXT_PUBLIC_* est inliné au build par Next.js (cf. docker/web.Dockerfile,
-          # deploy/README.md) : ignoré par cms, sans effet tant que les variables
-          # de dépôt ne sont pas renseignées (repli sur les valeurs d'exemple).
+          # NEXT_PUBLIC_* is inlined at build time by Next.js (see docker/web.Dockerfile,
+          # deploy/README.md): ignored by cms, no effect as long as the repository
+          # variables aren't set (falls back to the example values).
           build-args: |
             NEXT_PUBLIC_STRAPI_URL=${{ vars.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337' }}
             NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000' }}
@@ -55,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Résout le tag d'image (sans le préfixe "v" du tag git)
+      - name: Resolve the image tag (without the "v" prefix from the git tag)
         id: image-tag
         run: echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
@@ -63,8 +63,8 @@ jobs:
         with:
           generate_release_notes: false
           body: |
-            Voir [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) pour le détail de cette version.
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for the details of this release.
 
-            Images publiées :
+            Published images:
             - `ghcr.io/${{ github.repository }}-cms:${{ steps.image-tag.outputs.value }}`
             - `ghcr.io/${{ github.repository }}-web:${{ steps.image-tag.outputs.value }}`

@@ -23,10 +23,10 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: "1337"
-      # Fixés ici (pas dans docker/.env) : c'est la topologie du réseau Docker
-      # (service "postgres") qui l'impose, pas une valeur que l'utilisateur
-      # doit pouvoir surcharger. Ces deux clés prennent le pas sur toute
-      # valeur du même nom présente dans env_file ci-dessus.
+      # Set here (not in docker/.env): this is imposed by the Docker network
+      # topology (the "postgres" service), not a value the user should be
+      # able to override. These two keys take precedence over any value of
+      # the same name present in env_file above.
       DATABASE_CLIENT: postgres
       DATABASE_HOST: postgres
     depends_on:

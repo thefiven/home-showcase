@@ -1,10 +1,10 @@
 ---
-description: Lit SPEC.md et crée toutes les issues GitHub
+description: Reads SPEC.md and creates all GitHub issues
 ---
 
-Lis SPEC.md uniquement. N'explore pas le repo.
+Read SPEC.md only. Don't explore the repo.
 
-1. Identifie toutes les features/tâches décrites, dans un ordre logique de dépendance (setup/scaffolding d'abord, puis features cœur, puis features secondaires).
-2. Pour chaque feature, crée une issue GitHub : titre clair, description, critères d'acceptation. Numérote dans l'ordre de priorité.
-3. Affiche la liste complète (numéro + titre) pour validation.
-4. Aucune implémentation à cette étape.
+1. Identify all the features/tasks described, in a logical dependency order (setup/scaffolding first, then core features, then secondary features).
+2. For each feature, create a GitHub issue: clear title, description, acceptance criteria. Number them in priority order.
+3. Display the full list (number + title) for approval.
+4. No implementation at this stage.

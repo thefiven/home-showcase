@@ -3,7 +3,7 @@ import { locales } from "@/i18n/config";
 import { getAllSlugs } from "@/lib/strapi/client";
 import { resolveSiteUrl } from "@/lib/site";
 
-/** Chemins statiques (sans préfixe de locale) inclus dans le sitemap. */
+/** Static paths (without locale prefix) included in the sitemap. */
 const STATIC_PATHS = ["", "/properties"];
 
 function languageAlternates(siteUrl: string, path: string): Record<string, string> {

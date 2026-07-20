@@ -1,10 +1,11 @@
 import type { Locale } from "@/i18n/config";
 
 /**
- * Premier jour de la semaine (1 = lundi ... 7 = dimanche) pour `locale`, avec
- * repli sur lundi. Selon la version du moteur JS, `Intl.Locale` expose cette
- * information via la méthode `getWeekInfo()` ou via la propriété `weekInfo`
- * (ancienne forme, encore utilisée par le Node de cet environnement).
+ * First day of the week (1 = Monday ... 7 = Sunday) for `locale`, falling
+ * back to Monday. Depending on the JS engine version, `Intl.Locale`
+ * exposes this information via the `getWeekInfo()` method or via the
+ * `weekInfo` property (older form, still used by the Node runtime in
+ * this environment).
  */
 export function firstWeekday(locale: Locale): number {
   const withWeekInfo = new Intl.Locale(locale) as Intl.Locale & {
@@ -15,7 +16,7 @@ export function firstWeekday(locale: Locale): number {
   return weekInfo?.firstDay ?? 1;
 }
 
-/** Grille d'un mois : semaines complètes (jours hors mois = `null`) alignées sur `startOfWeek`. */
+/** Grid for a month: complete weeks (out-of-month days = `null`) aligned on `startOfWeek`. */
 export function buildMonthWeeks(monthStart: Date, startOfWeek: number): (Date | null)[][] {
   const year = monthStart.getUTCFullYear();
   const month = monthStart.getUTCMonth();
@@ -26,7 +27,7 @@ export function buildMonthWeeks(monthStart: Date, startOfWeek: number): (Date | 
     days.push(new Date(Date.UTC(year, month, day)));
   }
 
-  const isoWeekday = (date: Date) => ((date.getUTCDay() + 6) % 7) + 1; // 1 = lundi ... 7 = dimanche
+  const isoWeekday = (date: Date) => ((date.getUTCDay() + 6) % 7) + 1; // 1 = Monday ... 7 = Sunday
   const leadingBlanks = (isoWeekday(days[0]!) - startOfWeek + 7) % 7;
   const padded: (Date | null)[] = [...Array(leadingBlanks).fill(null), ...days];
   while (padded.length % 7 !== 0) padded.push(null);

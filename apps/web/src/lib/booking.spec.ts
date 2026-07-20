@@ -11,11 +11,11 @@ const VALID_INPUT = {
 };
 
 describe("validateBookingRequest", () => {
-  it("accepte un cas nominal sans erreurs", () => {
+  it("accepts a valid input without errors", () => {
     expect(validateBookingRequest(VALID_INPUT, [], NOW)).toEqual({});
   });
 
-  it("signale les champs obligatoires manquants", () => {
+  it("flags missing required fields", () => {
     const errors = validateBookingRequest(
       { startDate: "", endDate: "", guestName: "", guestEmail: "" },
       [],
@@ -29,29 +29,29 @@ describe("validateBookingRequest", () => {
     });
   });
 
-  it("rejette une date de fin antérieure à la date de début", () => {
+  it("rejects an end date before the start date", () => {
     const input = { ...VALID_INPUT, startDate: "2026-08-05", endDate: "2026-08-01" };
     expect(validateBookingRequest(input, [], NOW)).toEqual({ dates: "invalidRange" });
   });
 
-  it("rejette une date de début dans le passé", () => {
+  it("rejects a start date in the past", () => {
     const input = { ...VALID_INPUT, startDate: "2026-01-01", endDate: "2026-01-05" };
     expect(validateBookingRequest(input, [], NOW)).toEqual({ dates: "pastDate" });
   });
 
-  it("accepte une date de début égale à aujourd'hui", () => {
+  it("accepts a start date equal to today", () => {
     const input = { ...VALID_INPUT, startDate: "2026-07-17", endDate: "2026-07-20" };
     expect(validateBookingRequest(input, [], NOW)).toEqual({});
   });
 
-  it("rejette un chevauchement avec une plage bloquée", () => {
+  it("rejects an overlap with a blocked range", () => {
     const blockedRanges = [{ startDate: "2026-08-03", endDate: "2026-08-10" }];
     expect(validateBookingRequest(VALID_INPUT, blockedRanges, NOW)).toEqual({
       dates: "unavailable",
     });
   });
 
-  it("accepte des dates adjacentes à une plage bloquée sans la chevaucher", () => {
+  it("accepts dates adjacent to a blocked range without overlapping it", () => {
     const blockedRanges = [{ startDate: "2026-08-06", endDate: "2026-08-10" }];
     expect(validateBookingRequest(VALID_INPUT, blockedRanges, NOW)).toEqual({});
   });

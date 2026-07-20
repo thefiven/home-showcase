@@ -11,7 +11,7 @@ import { cellState, isPastDate, type DateRange } from "@/lib/dateRange";
 const DAY_CELL =
   "flex aspect-square min-w-[34px] items-center justify-center rounded-flat font-mono text-[13px]";
 const MIN_OFFSET = 0;
-const MAX_OFFSET = 11; // Le mois affiché le plus tardif reste le mois courant + 12.
+const MAX_OFFSET = 11; // The latest displayable month stays current month + 12.
 const NAV_BUTTON =
   "flex h-8 w-8 items-center justify-center rounded-flat border border-border-strong font-mono disabled:cursor-not-allowed disabled:opacity-40";
 
@@ -133,12 +133,12 @@ function MonthGrid({
 }
 
 /**
- * Calendrier de disponibilité (2 mois affichés) navigable mois par mois,
- * borné entre le mois courant et courant+12 (issue #53). Les disponibilités
- * sont toutes récupérées côté serveur en amont (pas de fenêtre côté API) :
- * la navigation ne fait que recalculer la fenêtre affichée côté client.
- * Composant présentational : la sélection de plage (issue #69) est détenue
- * par le parent (`BookingSection`) et pilotée via `selection`/`onDateClick`.
+ * Availability calendar (2 months shown) navigable month by month,
+ * bounded between the current month and current+12 (issue #53). All
+ * availabilities are fetched server-side upfront (no windowing on the
+ * API side): navigation only recomputes the displayed window client-side.
+ * Presentational component: range selection (issue #69) is owned by the
+ * parent (`BookingSection`) and driven via `selection`/`onDateClick`.
  */
 export function AvailabilityCalendar({
   availabilities,

@@ -6,7 +6,7 @@ export type Dictionary = typeof fr;
 
 const dictionaries: Record<Locale, Dictionary> = { fr, en };
 
-/** Dictionnaire des chaînes d'habillage du site (nav, titres, états vides) pour une locale. */
+/** Dictionary of the site's chrome strings (nav, titles, empty states) for a locale. */
 export function getDictionary(locale: Locale): Dictionary {
   return dictionaries[locale];
 }

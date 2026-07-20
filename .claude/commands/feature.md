@@ -1,19 +1,19 @@
 ---
-description: Pilote une feature complète de bout en bout à partir d'une issue GitHub
+description: Drives a complete feature end-to-end from a GitHub issue
 ---
 
-Issue GitHub #$ARGUMENTS. Ne lis que les fichiers strictement nécessaires à cette issue — n'explore pas le repo entier. Si tu as besoin d'un fichier que je n'ai pas mentionné, demande-le plutôt que de chercher.
+GitHub issue #$ARGUMENTS. Only read the files strictly necessary for this issue — don't explore the whole repo. If you need a file I haven't mentioned, ask for it rather than searching.
 
-1. Résume l'issue, crée une branche dédiée. Puis /compact — le résumé de l'issue suffit pour la suite, les résultats MCP bruts n'ont plus à rester en contexte.
-2. Plan Mode natif : plan d'implémentation cohérent avec SPEC.md et CLAUDE.md. Attends ma validation.
-3. Implémente. Commits atomiques gitmoji. Pas de commentaire de progression entre les étapes — le code et les commits suffisent.
-4. Tests correspondants (unitaires + intégration si pertinent) selon CLAUDE.md.
-5. Linter + formatter. Corrige les erreurs.
-6. Suite de tests complète (anti-régression).
-7. Vérifie : pas de secret en dur, pas de log oublié, .env.example à jour si nouvelles variables.
-8. PR liée à l'issue #$ARGUMENTS : résumé des changements, checklist de ce qui a été testé.
-9. Récapitule en 3 lignes max et STOP.
+1. Summarize the issue, create a dedicated branch. Then /compact — the issue summary is enough for the rest, the raw MCP results don't need to stay in context.
+2. Native Plan Mode: implementation plan consistent with SPEC.md and CLAUDE.md. Wait for my approval.
+3. Implement. Atomic gitmoji commits. No progress commentary between steps — the code and commits are enough.
+4. Corresponding tests (unit + integration if relevant) per CLAUDE.md.
+5. Linter + formatter. Fix errors.
+6. Full test suite (regression check).
+7. Verify: no hard-coded secrets, no leftover logs, .env.example up to date if new variables were added.
+8. PR linked to issue #$ARGUMENTS: summary of changes, checklist of what was tested.
+9. Recap in 3 lines max and STOP.
 
-Ne lance pas de subagent de revue — la qualité est couverte par le linter, les tests, et ma lecture de la PR. La revue approfondie se fait dans /audit.
+Don't launch a review subagent — quality is covered by the linter, tests, and my reading of the PR. In-depth review happens in /audit.
 
-Si une étape échoue, arrête-toi et explique le blocage.
+If a step fails, stop and explain the blocker.

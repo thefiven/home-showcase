@@ -1,26 +1,26 @@
-# Déploiement k3s
+# k3s Deployment
 
-Chart Helm de déploiement de `home-showcase` (web, cms, postgres) sur un cluster
-**k3s** (homelab). Voir `SPEC.md` §3/§5 et `CLAUDE.md` pour le contexte produit/technique.
+Helm chart to deploy `home-showcase` (web, cms, postgres) on a
+**k3s** cluster (homelab). See `SPEC.md` §3/§5 and `CLAUDE.md` for product/technical context.
 
-## Prérequis
+## Prerequisites
 
-- Un cluster k3s accessible (`kubectl` configuré), avec l'ingress controller
-  Traefik embarqué (par défaut dans k3s).
-- `helm` v3 installé côté poste d'administration.
-- Les images `cms` et `web`, disponibles sur un registry accessible par le
-  cluster. Publiées automatiquement sur GHCR par `.github/workflows/release.yml`
-  à chaque tag `vX.Y.Z` poussé sur `main` :
-  `ghcr.io/thefiven/home-showcase-cms:<version>` et `-web:<version>` (+ `latest`) —
-  ce sont les valeurs par défaut de `values.yaml`.
-  - `web` nécessite `NEXT_PUBLIC_STRAPI_URL` et `NEXT_PUBLIC_SITE_URL` comme
-    **build-args** (inlinées au build par Next.js, non reconfigurables au
-    runtime). En CI, définies via les variables de dépôt GitHub
+- An accessible k3s cluster (`kubectl` configured), with the built-in
+  Traefik ingress controller (default in k3s).
+- `helm` v3 installed on the admin workstation.
+- The `cms` and `web` images, available on a registry accessible by the
+  cluster. Automatically published to GHCR by `.github/workflows/release.yml`
+  on every `vX.Y.Z` tag pushed to `main`:
+  `ghcr.io/thefiven/home-showcase-cms:<version>` and `-web:<version>` (+ `latest`) —
+  these are the default values in `values.yaml`.
+  - `web` requires `NEXT_PUBLIC_STRAPI_URL` and `NEXT_PUBLIC_SITE_URL` as
+    **build-args** (inlined at build time by Next.js, not reconfigurable at
+    runtime). In CI, set via the GitHub repository variables
     `NEXT_PUBLIC_STRAPI_URL`/`NEXT_PUBLIC_SITE_URL` (Settings → Secrets and
-    variables → Actions → Variables) — à renseigner avec les vraies URLs
-    publiques une fois le cluster en place ; sans ça, le workflow retombe sur
-    des valeurs `localhost` inutilisables en prod.
-  - Pour un build manuel (sans le workflow) :
+    variables → Actions → Variables) — fill these in with the real public
+    URLs once the cluster is in place; otherwise, the workflow falls back to
+    `localhost` values that are unusable in production.
+  - For a manual build (without the workflow):
     ```
     docker build -f docker/web.Dockerfile --target production \
       --build-arg NEXT_PUBLIC_STRAPI_URL=https://cms.example.com \
@@ -30,23 +30,23 @@ Chart Helm de déploiement de `home-showcase` (web, cms, postgres) sur un cluste
       -t <registry>/home-showcase-cms:<tag> .
     ```
 
-## 1. Créer le Secret
+## 1. Create the Secret
 
-Aucun secret n'est présent dans le chart : il consomme un `Secret` Kubernetes créé
-à part, avec les mêmes clés que `docker/.env.example` (`POSTGRES_DB`,
+No secret is present in the chart: it consumes a Kubernetes `Secret` created
+separately, with the same keys as `docker/.env.example` (`POSTGRES_DB`,
 `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DATABASE_PORT`, `DATABASE_NAME`,
 `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `DATABASE_SSL`, `APP_KEYS`,
 `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `TRANSFER_TOKEN_SALT`, `JWT_SECRET`,
-`ENCRYPTION_KEY` — à régénérer pour la prod, ex. `openssl rand -base64 32`).
+`ENCRYPTION_KEY` — regenerate these for production, e.g. `openssl rand -base64 32`).
 
 ```bash
 kubectl create secret generic home-showcase-secrets \
   --from-env-file=./secrets.env
 ```
 
-(`secrets.env` : fichier local non versionné, au format `.env`, jamais commité.)
+(`secrets.env`: local, unversioned file, in `.env` format, never committed.)
 
-## 2. Installer le chart
+## 2. Install the chart
 
 ```bash
 helm install home-showcase deploy/helm/home-showcase \
@@ -57,18 +57,18 @@ helm install home-showcase deploy/helm/home-showcase \
   --set ingress.host=home-showcase.example.com
 ```
 
-Toutes les valeurs paramétrables sont documentées dans
+All configurable values are documented in
 `deploy/helm/home-showcase/values.yaml`.
 
-## Vérifier / mettre à jour
+## Check / update
 
 ```bash
 helm lint deploy/helm/home-showcase
-helm template deploy/helm/home-showcase   # rendu local, sans toucher au cluster
+helm template deploy/helm/home-showcase   # local rendering, no cluster changes
 helm upgrade home-showcase deploy/helm/home-showcase
 ```
 
-## Hors périmètre de ce chart
+## Out of scope for this chart
 
-- Rotation ou gestion avancée des secrets (ex. Sealed Secrets, Vault) — le chart
-  se contente de référencer un Secret existant.
+- Secret rotation or advanced secret management (e.g. Sealed Secrets, Vault) — the
+  chart just references an existing Secret.

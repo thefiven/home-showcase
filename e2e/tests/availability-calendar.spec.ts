@@ -8,9 +8,7 @@ test.beforeAll(async () => {
   propertyDocumentId = await getPropertyDocumentId(PROPERTY_SLUG);
 });
 
-test("une date bloquée par la synchronisation de disponibilité s'affiche comme indisponible", async ({
-  page,
-}) => {
+test("a date blocked by the availability sync is shown as unavailable", async ({ page }) => {
   const { start } = futureDateRange(15, 0);
   await createAvailability(propertyDocumentId, start, start);
 
@@ -27,13 +25,13 @@ test("une date bloquée par la synchronisation de disponibilité s'affiche comme
   ).not.toBeVisible();
 });
 
-test("le serveur refuse une demande de réservation qui chevauche une plage bloquée", async () => {
+test("the server rejects a booking request that overlaps a blocked range", async () => {
   const { start: blockStart } = futureDateRange(100, 0);
   const blockEndDate = new Date(`${blockStart}T00:00:00Z`);
   blockEndDate.setUTCDate(blockEndDate.getUTCDate() + 2);
   await createAvailability(propertyDocumentId, blockStart, formatDate(blockEndDate));
 
-  // Chevauche partiellement la plage bloquée (jour du milieu -> lendemain du blocage).
+  // Partially overlaps the blocked range (middle day -> day after the block).
   const overlappingStart = new Date(`${blockStart}T00:00:00Z`);
   overlappingStart.setUTCDate(overlappingStart.getUTCDate() + 1);
   const overlappingEnd = new Date(overlappingStart);

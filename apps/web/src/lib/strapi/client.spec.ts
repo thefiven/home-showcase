@@ -36,62 +36,62 @@ const PROPERTY: Property = {
 };
 
 describe("resolveServerBaseUrl", () => {
-  it("privilégie STRAPI_INTERNAL_URL (résolu par le conteneur web pour le SSR)", () => {
+  it("prioritizes STRAPI_INTERNAL_URL (resolved by the web container for SSR)", () => {
     expect(resolveServerBaseUrl(ENV)).toBe("http://cms:1337");
   });
 
-  it("retombe sur NEXT_PUBLIC_STRAPI_URL si STRAPI_INTERNAL_URL est absent", () => {
+  it("falls back to NEXT_PUBLIC_STRAPI_URL if STRAPI_INTERNAL_URL is absent", () => {
     expect(resolveServerBaseUrl({ NEXT_PUBLIC_STRAPI_URL: "http://localhost:1337" })).toBe(
       "http://localhost:1337",
     );
   });
 
-  it("retire le slash final", () => {
+  it("strips the trailing slash", () => {
     expect(resolveServerBaseUrl({ STRAPI_INTERNAL_URL: "http://cms:1337/" })).toBe(
       "http://cms:1337",
     );
   });
 
-  it("lève une erreur si aucune URL n'est configurée", () => {
+  it("throws an error if no URL is configured", () => {
     expect(() => resolveServerBaseUrl({})).toThrow();
   });
 });
 
 describe("resolvePublicBaseUrl", () => {
-  it("utilise toujours NEXT_PUBLIC_STRAPI_URL, jamais l'URL interne", () => {
+  it("always uses NEXT_PUBLIC_STRAPI_URL, never the internal URL", () => {
     expect(resolvePublicBaseUrl(ENV)).toBe("http://localhost:1337");
   });
 
-  it("lève une erreur si NEXT_PUBLIC_STRAPI_URL est absent", () => {
+  it("throws an error if NEXT_PUBLIC_STRAPI_URL is absent", () => {
     expect(() => resolvePublicBaseUrl({ STRAPI_INTERNAL_URL: "http://cms:1337" })).toThrow();
   });
 });
 
 describe("mediaUrl", () => {
-  it("préfixe un chemin relatif avec l'URL serveur (l'optimiseur next/image fetch depuis le conteneur web, pas depuis le navigateur)", () => {
+  it("prefixes a relative path with the server URL (the next/image optimizer fetches from the web container, not from the browser)", () => {
     expect(mediaUrl("/uploads/photo.jpg", ENV)).toBe("http://cms:1337/uploads/photo.jpg");
   });
 
-  it("retombe sur l'URL publique si STRAPI_INTERNAL_URL est absent", () => {
+  it("falls back to the public URL if STRAPI_INTERNAL_URL is absent", () => {
     expect(
       mediaUrl("/uploads/photo.jpg", { NEXT_PUBLIC_STRAPI_URL: "http://localhost:1337" }),
     ).toBe("http://localhost:1337/uploads/photo.jpg");
   });
 
-  it("laisse une URL déjà absolue inchangée", () => {
+  it("leaves an already-absolute URL unchanged", () => {
     expect(mediaUrl("https://cdn.example.com/photo.jpg", ENV)).toBe(
       "https://cdn.example.com/photo.jpg",
     );
   });
 
-  it("retourne null si le chemin est absent", () => {
+  it("returns null if the path is absent", () => {
     expect(mediaUrl(null, ENV)).toBeNull();
     expect(mediaUrl(undefined, ENV)).toBeNull();
   });
 });
 
 describe("buildPropertiesListUrl", () => {
-  it("cible l'URL serveur et populate photos/location/pricing/amenities", () => {
+  it("targets the server URL and populates photos/location/pricing/amenities", () => {
     const url = new URL(buildPropertiesListUrl("fr", ENV));
     expect(url.origin).toBe("http://cms:1337");
     expect(url.pathname).toBe("/api/properties");
@@ -104,7 +104,7 @@ describe("buildPropertiesListUrl", () => {
 });
 
 describe("buildPropertyBySlugUrl", () => {
-  it("filtre sur le slug et demande le populate complet", () => {
+  it("filters on the slug and requests the full populate", () => {
     const url = new URL(buildPropertyBySlugUrl("loft-du-vieux-port", "en", ENV));
     expect(url.searchParams.get("filters[slug][$eq]")).toBe("loft-du-vieux-port");
     expect(url.searchParams.get("locale")).toBe("en");
@@ -113,7 +113,7 @@ describe("buildPropertyBySlugUrl", () => {
 });
 
 describe("buildSlugsUrl", () => {
-  it("ne demande que le champ slug, en locale par défaut", () => {
+  it("only requests the slug field, in the default locale", () => {
     const url = new URL(buildSlugsUrl(ENV));
     expect(url.searchParams.get("fields[0]")).toBe("slug");
     expect(url.searchParams.get("locale")).toBe("fr");
@@ -121,7 +121,7 @@ describe("buildSlugsUrl", () => {
 });
 
 describe("buildAvailabilitiesForPropertyUrl", () => {
-  it("filtre sur le documentId du logement et trie par date de début", () => {
+  it("filters on the property's documentId and sorts by start date", () => {
     const url = new URL(buildAvailabilitiesForPropertyUrl("abc123", ENV));
     expect(url.pathname).toBe("/api/availabilities");
     expect(url.searchParams.get("filters[property][documentId][$eq]")).toBe("abc123");
@@ -129,7 +129,7 @@ describe("buildAvailabilitiesForPropertyUrl", () => {
   });
 });
 
-describe("appels réseau (fetch mocké)", () => {
+describe("network calls (mocked fetch)", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
@@ -143,7 +143,7 @@ describe("appels réseau (fetch mocké)", () => {
     vi.unstubAllGlobals();
   });
 
-  it("getProperties retourne les logements de la réponse Strapi", async () => {
+  it("getProperties returns the properties from the Strapi response", async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => collectionResponse([PROPERTY]),
@@ -152,19 +152,19 @@ describe("appels réseau (fetch mocké)", () => {
     await expect(getProperties()).resolves.toEqual([PROPERTY]);
   });
 
-  it("getProperties retourne [] si Strapi répond en erreur (ne fait pas planter la page)", async () => {
+  it("getProperties returns [] if Strapi responds with an error (does not crash the page)", async () => {
     vi.mocked(fetch).mockResolvedValue({ ok: false, status: 500 } as Response);
 
     await expect(getProperties()).resolves.toEqual([]);
   });
 
-  it("getProperties retourne [] si fetch rejette (Strapi injoignable)", async () => {
+  it("getProperties returns [] if fetch rejects (Strapi unreachable)", async () => {
     vi.mocked(fetch).mockRejectedValue(new Error("network down"));
 
     await expect(getProperties()).resolves.toEqual([]);
   });
 
-  it("getPropertyBySlug retourne le premier résultat", async () => {
+  it("getPropertyBySlug returns the first result", async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => collectionResponse([PROPERTY]),
@@ -173,7 +173,7 @@ describe("appels réseau (fetch mocké)", () => {
     await expect(getPropertyBySlug("loft-du-vieux-port")).resolves.toEqual(PROPERTY);
   });
 
-  it("getPropertyBySlug retourne null si aucun logement ne correspond", async () => {
+  it("getPropertyBySlug returns null if no property matches", async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => collectionResponse([]),
@@ -182,7 +182,7 @@ describe("appels réseau (fetch mocké)", () => {
     await expect(getPropertyBySlug("inconnu")).resolves.toBeNull();
   });
 
-  it("getAllSlugs retourne la liste des slugs", async () => {
+  it("getAllSlugs returns the list of slugs", async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () =>
@@ -192,13 +192,13 @@ describe("appels réseau (fetch mocké)", () => {
     await expect(getAllSlugs()).resolves.toEqual(["loft-du-vieux-port", "cabane-du-lac"]);
   });
 
-  it("getAllSlugs retourne [] si Strapi est injoignable (generateStaticParams ne doit pas planter le build)", async () => {
+  it("getAllSlugs returns [] if Strapi is unreachable (generateStaticParams must not crash the build)", async () => {
     vi.mocked(fetch).mockRejectedValue(new Error("network down"));
 
     await expect(getAllSlugs()).resolves.toEqual([]);
   });
 
-  it("getProperties replie sur la locale par défaut si la locale demandée n'a aucune entrée traduite", async () => {
+  it("getProperties falls back to the default locale if the requested locale has no translated entry", async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce({ ok: true, json: async () => collectionResponse([]) } as Response)
       .mockResolvedValueOnce({
@@ -214,7 +214,7 @@ describe("appels réseau (fetch mocké)", () => {
     expect(new URL(secondCallUrl as string).searchParams.get("locale")).toBe("fr");
   });
 
-  it("getProperties ne replie pas si la locale demandée est déjà la locale par défaut", async () => {
+  it("getProperties does not fall back if the requested locale is already the default locale", async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => collectionResponse([]),
@@ -224,7 +224,7 @@ describe("appels réseau (fetch mocké)", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  it("getPropertyBySlug replie sur la locale par défaut si le logement n'est pas traduit", async () => {
+  it("getPropertyBySlug falls back to the default locale if the property is not translated", async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce({ ok: true, json: async () => collectionResponse([]) } as Response)
       .mockResolvedValueOnce({
@@ -236,7 +236,7 @@ describe("appels réseau (fetch mocké)", () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
-  it("getPropertyBySlug retourne null si absent même après repli", async () => {
+  it("getPropertyBySlug returns null if absent even after falling back", async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => collectionResponse([]),
@@ -246,7 +246,7 @@ describe("appels réseau (fetch mocké)", () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
-  it("getAvailabilitiesForProperty retourne les plages bloquées du logement", async () => {
+  it("getAvailabilitiesForProperty returns the property's blocked ranges", async () => {
     const availability: Availability = {
       id: 1,
       documentId: "avail-1",
@@ -262,7 +262,7 @@ describe("appels réseau (fetch mocké)", () => {
     await expect(getAvailabilitiesForProperty("abc123")).resolves.toEqual([availability]);
   });
 
-  it("getAvailabilitiesForProperty retourne [] si Strapi est injoignable (la fiche ne doit pas planter)", async () => {
+  it("getAvailabilitiesForProperty returns [] if Strapi is unreachable (the page must not crash)", async () => {
     vi.mocked(fetch).mockRejectedValue(new Error("network down"));
 
     await expect(getAvailabilitiesForProperty("abc123")).resolves.toEqual([]);
@@ -276,7 +276,7 @@ describe("appels réseau (fetch mocké)", () => {
     guestEmail: "alex@example.com",
   };
 
-  it("createBookingRequest poste le payload en POST JSON vers /api/booking-requests", async () => {
+  it("createBookingRequest posts the payload as JSON to /api/booking-requests", async () => {
     vi.mocked(fetch).mockResolvedValue({ ok: true, json: async () => ({}) } as Response);
 
     await createBookingRequest(BOOKING_PAYLOAD);
@@ -291,7 +291,7 @@ describe("appels réseau (fetch mocké)", () => {
     );
   });
 
-  it("createBookingRequest lève une erreur avec le message Strapi si la demande est rejetée", async () => {
+  it("createBookingRequest throws an error with the Strapi message if the request is rejected", async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: false,
       status: 400,
@@ -305,7 +305,7 @@ describe("appels réseau (fetch mocké)", () => {
     );
   });
 
-  it("createBookingRequest lève une erreur générique si Strapi ne renvoie pas de message", async () => {
+  it("createBookingRequest throws a generic error if Strapi doesn't return a message", async () => {
     vi.mocked(fetch).mockResolvedValue({
       ok: false,
       status: 500,
@@ -315,7 +315,7 @@ describe("appels réseau (fetch mocké)", () => {
     } as Response);
 
     await expect(createBookingRequest(BOOKING_PAYLOAD)).rejects.toThrow(
-      "Requête Strapi échouée (500)",
+      "Strapi request failed (500)",
     );
   });
 });

@@ -1,70 +1,68 @@
 # Ar Mor
 
-Vitrine web multi-logements type Airbnb (dépôt `home-showcase`). Voir `SPEC.md` (cadrage produit) et `CLAUDE.md` (conventions du projet).
+Airbnb-style multi-property showcase website (`home-showcase` repo). See `SPEC.md` (product scoping) and `CLAUDE.md` (project conventions).
 
-## Développement avec Docker
+## Development with Docker
 
-Démarre Postgres, Strapi (`apps/cms`) et Next.js (`apps/web`) en une seule commande.
+Starts Postgres, Strapi (`apps/cms`), and Next.js (`apps/web`) with a single command.
 
 ```sh
 cp docker/.env.example docker/.env
-# éditer docker/.env : renseigner de vraies valeurs pour les secrets Strapi
+# edit docker/.env: fill in real values for the Strapi secrets
 # (APP_KEYS, API_TOKEN_SALT, ADMIN_JWT_SECRET, TRANSFER_TOKEN_SALT, JWT_SECRET,
-# ENCRYPTION_KEY — voir les commentaires du fichier), ex. via `openssl rand -base64 32`
+# ENCRYPTION_KEY — see the file's comments), e.g. via `openssl rand -base64 32`
 
-pnpm docker:up    # démarre les 3 services (build à la première exécution)
-pnpm docker:down  # arrête les services (les données Postgres sont conservées dans le volume)
+pnpm docker:up    # starts the 3 services (builds on first run)
+pnpm docker:down  # stops the services (Postgres data is preserved in the volume)
 ```
 
-- Next.js : http://localhost:3000
-- Strapi (admin) : http://localhost:1337/admin
+- Next.js: http://localhost:3000
+- Strapi (admin): http://localhost:1337/admin
 
-`apps/web` et `apps/cms` sont montés dans leurs conteneurs respectifs : les
-modifications de code sont prises en compte à chaud (hot-reload Next.js /
-Strapi), sans reconstruire l'image. Un rebuild (`pnpm docker:up`, qui relance
-toujours `--build`) n'est nécessaire qu'après un changement de dépendances
-(`package.json`) ou de Dockerfile.
+`apps/web` and `apps/cms` are mounted into their respective containers: code
+changes are picked up live (Next.js / Strapi hot-reload), without rebuilding
+the image. A rebuild (`pnpm docker:up`, which always reruns `--build`) is
+only needed after a dependency change (`package.json`) or a Dockerfile change.
 
-Voir `docker/docker-compose.yml` pour le détail des services.
+See `docker/docker-compose.yml` for service details.
 
-## Outillage de dev
+## Dev tooling
 
 ```sh
 pnpm lint          # ESLint (apps/web + apps/cms)
-pnpm format        # Prettier --write sur tout le repo
-pnpm format:check  # Prettier --check (utilisé en pre-commit et en CI)
+pnpm format        # Prettier --write across the repo
+pnpm format:check  # Prettier --check (used in pre-commit and CI)
 pnpm test          # Vitest (apps/web + apps/cms)
-pnpm build         # build de production des deux apps
+pnpm build         # production build of both apps
 ```
 
-`pnpm install` active automatiquement un hook **pre-commit** (via
-[Lefthook](https://lefthook.dev)) qui lance `format:check` + `lint` + `test`
-avant chaque commit. La CI GitHub Actions (`.github/workflows/ci.yml`)
-relance les mêmes étapes + le build sur chaque pull request vers `main`.
+`pnpm install` automatically enables a **pre-commit** hook (via
+[Lefthook](https://lefthook.dev)) that runs `format:check` + `lint` + `test`
+before each commit. GitHub Actions CI (`.github/workflows/ci.yml`) reruns
+the same steps + the build on every pull request targeting `main`.
 
-## Tests E2E
+## E2E tests
 
-Les parcours critiques (demande de réservation, accept/refuse depuis
-l'admin) sont couverts par Playwright (`e2e/`), sur une stack Strapi/Next.js
-dédiée avec base SQLite jetable (voir `e2e/.env.example` pour les variables
-disponibles) :
+Critical flows (booking request, accept/refuse from the admin) are covered
+by Playwright (`e2e/`), on a dedicated Strapi/Next.js stack with a disposable
+SQLite database (see `e2e/.env.example` for the available variables):
 
 ```sh
-pnpm --filter e2e exec playwright install --with-deps chromium  # une fois
+pnpm --filter e2e exec playwright install --with-deps chromium  # once
 pnpm --filter e2e test:e2e:orchestrated
 ```
 
-`e2e/run.sh` démarre Strapi et Next.js, attend qu'ils soient prêts, lance
-Playwright (qui crée son propre admin + logement de test via le
-global-setup), puis arrête les deux serveurs. Pas de dépendance à Postgres
-ni à Docker pour ce lane. La CI (job `e2e`) exécute le même script.
+`e2e/run.sh` starts Strapi and Next.js, waits for them to be ready, runs
+Playwright (which creates its own admin + test property via global-setup),
+then stops both servers. No dependency on Postgres or Docker for this lane.
+CI (the `e2e` job) runs the same script.
 
-### Branch protection sur `main`
+### Branch protection on `main`
 
-Le repo est public, ce qui permet la branch protection sans plan payant.
-Configurée sur `main` :
+The repo is public, which allows branch protection without a paid plan.
+Configured on `main`:
 
-- Pull request obligatoire avant merge (0 approbation requise — projet solo).
-- Statut CI (`ci`) requis et à jour avant merge.
-- Pas de push direct sur `main`, y compris pour les admins.
-- Pas de force-push, pas de suppression de la branche.
+- Pull request required before merging (0 approvals required — solo project).
+- CI status (`ci`) required and up to date before merging.
+- No direct pushes to `main`, including for admins.
+- No force-push, no branch deletion.

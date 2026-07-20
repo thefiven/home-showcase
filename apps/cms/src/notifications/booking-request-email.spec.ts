@@ -11,7 +11,7 @@ const baseBooking: BookingRequestEmailData = {
 };
 
 describe("buildBookingRequestEmail", () => {
-  it("inclut le logement, les dates et le contact du demandeur", () => {
+  it("includes the property, the dates and the requester's contact info", () => {
     const email = buildBookingRequestEmail(baseBooking, {
       adminUrl: "http://localhost:1337/admin",
     });
@@ -24,7 +24,7 @@ describe("buildBookingRequestEmail", () => {
     expect(email.text).toContain("alex@example.com");
   });
 
-  it("construit le lien admin à partir de adminUrl et du documentId", () => {
+  it("builds the admin link from adminUrl and the documentId", () => {
     const email = buildBookingRequestEmail(baseBooking, {
       adminUrl: "http://localhost:1337/admin/",
     });
@@ -35,7 +35,7 @@ describe("buildBookingRequestEmail", () => {
     expect(email.html).toContain("abc123");
   });
 
-  it("omet les champs optionnels absents (téléphone, voyageurs, message)", () => {
+  it("omits absent optional fields (phone, guests, message)", () => {
     const email = buildBookingRequestEmail(baseBooking, {
       adminUrl: "http://localhost:1337/admin",
     });
@@ -45,7 +45,7 @@ describe("buildBookingRequestEmail", () => {
     expect(email.text).not.toContain("Message");
   });
 
-  it("inclut les champs optionnels quand fournis", () => {
+  it("includes the optional fields when provided", () => {
     const email = buildBookingRequestEmail(
       { ...baseBooking, guestPhone: "0600000000", numberOfGuests: 4, message: "Arrivée tardive" },
       { adminUrl: "http://localhost:1337/admin" },
@@ -56,7 +56,7 @@ describe("buildBookingRequestEmail", () => {
     expect(email.text).toContain("Arrivée tardive");
   });
 
-  it("échappe le HTML injecté dans les champs saisis par le visiteur (issue #41)", () => {
+  it("escapes HTML injected in visitor-entered fields (issue #41)", () => {
     const email = buildBookingRequestEmail(
       {
         ...baseBooking,
@@ -74,7 +74,7 @@ describe("buildBookingRequestEmail", () => {
     expect(email.html).toContain("&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
     expect(email.html).toContain("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;");
 
-    // La version texte n'est pas du HTML : pas d'échappement nécessaire.
+    // The text version is not HTML: no escaping needed.
     expect(email.text).toContain('<img src=x onerror="alert(1)">');
   });
 });
