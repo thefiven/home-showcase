@@ -12,7 +12,7 @@ const VALID_INPUT = {
 };
 
 describe("validateBookingRequestInput", () => {
-  it("accepte un cas nominal", () => {
+  it("accepts a valid input", () => {
     expect(validateBookingRequestInput(VALID_INPUT, [], NOW)).toBeNull();
   });
 
@@ -20,39 +20,39 @@ describe("validateBookingRequestInput", () => {
     ["startDate", { ...VALID_INPUT, startDate: undefined }],
     ["endDate", { ...VALID_INPUT, endDate: undefined }],
     ["property", { ...VALID_INPUT, property: undefined }],
-    ["guestName vide", { ...VALID_INPUT, guestName: "" }],
-    ["guestName absent", { ...VALID_INPUT, guestName: undefined }],
-    ["guestEmail vide", { ...VALID_INPUT, guestEmail: "" }],
-  ])("rejette un champ obligatoire manquant : %s", (_label, input) => {
+    ["empty guestName", { ...VALID_INPUT, guestName: "" }],
+    ["missing guestName", { ...VALID_INPUT, guestName: undefined }],
+    ["empty guestEmail", { ...VALID_INPUT, guestEmail: "" }],
+  ])("rejects a missing required field: %s", (_label, input) => {
     expect(validateBookingRequestInput(input, [], NOW)).toBe("MISSING_FIELDS");
   });
 
-  it("rejette une date de fin antérieure à la date de début", () => {
+  it("rejects an end date before the start date", () => {
     const input = { ...VALID_INPUT, startDate: "2026-08-05", endDate: "2026-08-01" };
     expect(validateBookingRequestInput(input, [], NOW)).toBe("INVALID_DATE_RANGE");
   });
 
-  it("rejette une date invalide", () => {
+  it("rejects an invalid date", () => {
     const input = { ...VALID_INPUT, startDate: "not-a-date" };
     expect(validateBookingRequestInput(input, [], NOW)).toBe("INVALID_DATE_RANGE");
   });
 
-  it("rejette une date de début dans le passé", () => {
+  it("rejects a start date in the past", () => {
     const input = { ...VALID_INPUT, startDate: "2026-01-01", endDate: "2026-01-05" };
     expect(validateBookingRequestInput(input, [], NOW)).toBe("DATE_IN_PAST");
   });
 
-  it("accepte une date de début égale à aujourd'hui", () => {
+  it("accepts a start date equal to today", () => {
     const input = { ...VALID_INPUT, startDate: "2026-07-17", endDate: "2026-07-20" };
     expect(validateBookingRequestInput(input, [], NOW)).toBeNull();
   });
 
-  it("rejette un chevauchement avec une plage bloquée", () => {
+  it("rejects an overlap with a blocked range", () => {
     const blockedRanges = [{ startDate: "2026-08-03", endDate: "2026-08-10" }];
     expect(validateBookingRequestInput(VALID_INPUT, blockedRanges, NOW)).toBe("DATE_UNAVAILABLE");
   });
 
-  it("accepte des dates adjacentes à une plage bloquée sans la chevaucher", () => {
+  it("accepts dates adjacent to a blocked range without overlapping it", () => {
     const blockedRanges = [{ startDate: "2026-08-06", endDate: "2026-08-10" }];
     expect(validateBookingRequestInput(VALID_INPUT, blockedRanges, NOW)).toBeNull();
   });

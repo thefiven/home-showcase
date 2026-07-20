@@ -19,11 +19,11 @@ export interface BookingFormErrors {
 }
 
 /**
- * Validation côté web : feedback instantané pour le visiteur avant soumission.
- * Ce n'est PAS l'autorité — Strapi revalide tout côté serveur (le create est
- * un endpoint public, appelable en dehors du formulaire). Retourne des codes
- * d'erreur par champ plutôt que des messages, pour rester localisable par
- * l'appelant (dictionnaire i18n).
+ * Web-side validation: instant feedback for the visitor before submission.
+ * This is NOT the authority — Strapi revalidates everything server-side
+ * (the create endpoint is public, callable outside the form). Returns
+ * per-field error codes rather than messages, to stay localizable by the
+ * caller (i18n dictionary).
  */
 export function validateBookingRequest(
   input: BookingFormInput,

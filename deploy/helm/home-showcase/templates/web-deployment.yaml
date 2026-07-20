@@ -24,10 +24,10 @@ spec:
           env:
             - name: PORT
               value: {{ .Values.web.port | quote }}
-            # NEXT_PUBLIC_STRAPI_URL est inliné au build par Next.js (voir
-            # docker/web.Dockerfile) : elle doit être fournie en build-arg lors
-            # de la construction de l'image, pas ici. Seule l'URL interne côté
-            # serveur (SSR) est configurable au runtime.
+            # NEXT_PUBLIC_STRAPI_URL is inlined at build time by Next.js
+            # (see docker/web.Dockerfile): it must be provided as a build-arg
+            # when building the image, not here. Only the server-side (SSR)
+            # internal URL is configurable at runtime.
             - name: STRAPI_INTERNAL_URL
               value: "http://{{ include "home-showcase.fullname" . }}-cms:{{ .Values.cms.port }}"
           readinessProbe:

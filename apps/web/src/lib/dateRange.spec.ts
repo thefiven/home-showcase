@@ -11,50 +11,50 @@ import {
 const EMPTY: DateRange = { start: null, end: null };
 
 describe("applyDateClick", () => {
-  it("pose la date de début quand la plage est vide", () => {
+  it("sets the start date when the range is empty", () => {
     expect(applyDateClick(EMPTY, "2026-08-10")).toEqual({ start: "2026-08-10", end: null });
   });
 
-  it("pose la date de fin quand un début est déjà posé", () => {
+  it("sets the end date when a start is already set", () => {
     const range = { start: "2026-08-10", end: null };
     expect(applyDateClick(range, "2026-08-15")).toEqual({ start: "2026-08-10", end: "2026-08-15" });
   });
 
-  it("produit une plage d'un seul jour si on clique deux fois la même date", () => {
+  it("produces a single-day range when clicking the same date twice", () => {
     const range = { start: "2026-08-10", end: null };
     expect(applyDateClick(range, "2026-08-10")).toEqual({ start: "2026-08-10", end: "2026-08-10" });
   });
 
-  it("redémarre la sélection si le clic est avant le début", () => {
+  it("restarts the selection if the click is before the start", () => {
     const range = { start: "2026-08-10", end: null };
     expect(applyDateClick(range, "2026-08-05")).toEqual({ start: "2026-08-05", end: null });
   });
 
-  it("redémarre la sélection si la plage était déjà complète", () => {
+  it("restarts the selection if the range was already complete", () => {
     const range = { start: "2026-08-10", end: "2026-08-15" };
     expect(applyDateClick(range, "2026-08-20")).toEqual({ start: "2026-08-20", end: null });
   });
 });
 
 describe("rangeContainsBlocked", () => {
-  it("détecte une date bloquée strictement à l'intérieur de la plage", () => {
+  it("detects a blocked date strictly inside the range", () => {
     const blocked = new Set(["2026-08-12"]);
     expect(rangeContainsBlocked("2026-08-10", "2026-08-15", blocked)).toBe(true);
   });
 
-  it("détecte une date bloquée sur une borne (bornes inclusives)", () => {
+  it("detects a blocked date on a bound (inclusive bounds)", () => {
     const blocked = new Set(["2026-08-10"]);
     expect(rangeContainsBlocked("2026-08-10", "2026-08-15", blocked)).toBe(true);
   });
 
-  it("retourne faux quand aucune date de la plage n'est bloquée", () => {
+  it("returns false when no date in the range is blocked", () => {
     const blocked = new Set(["2026-09-01"]);
     expect(rangeContainsBlocked("2026-08-10", "2026-08-15", blocked)).toBe(false);
   });
 });
 
 describe("selectDate", () => {
-  it("se comporte comme applyDateClick sans date bloquée", () => {
+  it("behaves like applyDateClick without a blocked date", () => {
     const range = { start: "2026-08-10", end: null };
     expect(selectDate(range, "2026-08-15", new Set())).toEqual({
       start: "2026-08-10",
@@ -62,7 +62,7 @@ describe("selectDate", () => {
     });
   });
 
-  it("redémarre sur la date cliquée si la plage traverse une date bloquée", () => {
+  it("restarts on the clicked date if the range crosses a blocked date", () => {
     const range = { start: "2026-08-10", end: null };
     const blocked = new Set(["2026-08-12"]);
     expect(selectDate(range, "2026-08-15", blocked)).toEqual({ start: "2026-08-15", end: null });
@@ -70,16 +70,16 @@ describe("selectDate", () => {
 });
 
 describe("cellState", () => {
-  it("retourne none sans sélection", () => {
+  it("returns none without a selection", () => {
     expect(cellState("2026-08-10", EMPTY)).toBe("none");
   });
 
-  it("retourne start quand seul le début est posé", () => {
+  it("returns start when only the start is set", () => {
     expect(cellState("2026-08-10", { start: "2026-08-10", end: null })).toBe("start");
     expect(cellState("2026-08-11", { start: "2026-08-10", end: null })).toBe("none");
   });
 
-  it("retourne start/end/between sur une plage complète", () => {
+  it("returns start/end/between on a complete range", () => {
     const range = { start: "2026-08-10", end: "2026-08-13" };
     expect(cellState("2026-08-10", range)).toBe("start");
     expect(cellState("2026-08-11", range)).toBe("between");
@@ -88,22 +88,22 @@ describe("cellState", () => {
     expect(cellState("2026-08-14", range)).toBe("none");
   });
 
-  it("retourne start sur une plage d'un seul jour", () => {
+  it("returns start on a single-day range", () => {
     const range = { start: "2026-08-10", end: "2026-08-10" };
     expect(cellState("2026-08-10", range)).toBe("start");
   });
 });
 
 describe("isPastDate", () => {
-  it("détecte une date strictement antérieure", () => {
+  it("detects a strictly earlier date", () => {
     expect(isPastDate("2026-08-01", "2026-08-02")).toBe(true);
   });
 
-  it("ne considère pas aujourd'hui comme passé", () => {
+  it("does not consider today as past", () => {
     expect(isPastDate("2026-08-02", "2026-08-02")).toBe(false);
   });
 
-  it("ne considère pas une date future comme passée", () => {
+  it("does not consider a future date as past", () => {
     expect(isPastDate("2026-08-03", "2026-08-02")).toBe(false);
   });
 });

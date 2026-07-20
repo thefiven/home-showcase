@@ -6,7 +6,7 @@ const CURRENCY_SYMBOLS: Record<PropertyPricing["currency"], string> = {
   GBP: "£",
 };
 
-/** Formate un montant sans décimales avec le symbole de la devise (ex. `145€`). */
+/** Formats an amount with no decimals and the currency symbol (e.g. `145€`). */
 export function formatAmount(amount: number, currency: PropertyPricing["currency"]): string {
   return `${amount.toFixed(0)}${CURRENCY_SYMBOLS[currency]}`;
 }

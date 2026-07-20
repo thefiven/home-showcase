@@ -2,17 +2,17 @@ import { describe, expect, it } from "vitest";
 import { localizedAlternates, resolveSiteUrl } from "./site";
 
 describe("resolveSiteUrl", () => {
-  it("retombe sur localhost:3000 si NEXT_PUBLIC_SITE_URL est absent", () => {
+  it("falls back to localhost:3000 if NEXT_PUBLIC_SITE_URL is absent", () => {
     expect(resolveSiteUrl({})).toBe("http://localhost:3000");
   });
 
-  it("utilise NEXT_PUBLIC_SITE_URL quand elle est définie", () => {
+  it("uses NEXT_PUBLIC_SITE_URL when it is defined", () => {
     expect(resolveSiteUrl({ NEXT_PUBLIC_SITE_URL: "https://exemple.com" })).toBe(
       "https://exemple.com",
     );
   });
 
-  it("retire le slash final", () => {
+  it("strips the trailing slash", () => {
     expect(resolveSiteUrl({ NEXT_PUBLIC_SITE_URL: "https://exemple.com/" })).toBe(
       "https://exemple.com",
     );
@@ -22,7 +22,7 @@ describe("resolveSiteUrl", () => {
 describe("localizedAlternates", () => {
   const ENV = { NEXT_PUBLIC_SITE_URL: "https://exemple.com" };
 
-  it("construit le canonical pour la locale courante et les alternates pour toutes les locales", () => {
+  it("builds the canonical for the current locale and the alternates for every locale", () => {
     expect(localizedAlternates("fr", "/properties/loft", ENV)).toEqual({
       canonical: "https://exemple.com/fr/properties/loft",
       languages: {
@@ -32,7 +32,7 @@ describe("localizedAlternates", () => {
     });
   });
 
-  it("gère le chemin racine (accueil)", () => {
+  it("handles the root path (home)", () => {
     expect(localizedAlternates("en", "", ENV)).toEqual({
       canonical: "https://exemple.com/en",
       languages: {

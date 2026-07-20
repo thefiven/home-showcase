@@ -24,11 +24,11 @@ const fontMono = Space_Mono({
 });
 
 /**
- * 404 racine : rendue sans layout parent (le seul layout du site vit sous
- * `[locale]`), donc auto-suffisante — html/body/polices propres, comme
- * `[locale]/layout.tsx`. Couvre les URLs qui ne matchent aucun segment de
- * locale ; la locale n'étant pas connue ici, on retombe sur `defaultLocale`
- * (même choix que `[locale]/not-found.tsx`).
+ * Root 404: rendered without a parent layout (the site's only layout
+ * lives under `[locale]`), so it's self-sufficient — its own html/body/
+ * fonts, like `[locale]/layout.tsx`. Covers URLs that don't match any
+ * locale segment; since the locale isn't known here, we fall back to
+ * `defaultLocale` (same choice as `[locale]/not-found.tsx`).
  */
 export default function NotFound() {
   const dictionary = getDictionary(defaultLocale);

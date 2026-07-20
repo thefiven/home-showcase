@@ -5,10 +5,10 @@ function toUtcDay(date: Date): number {
 }
 
 /**
- * Vrai si `date` tombe dans une des plages bloquées (bornes inclusives : une
- * plage `startDate` = `endDate` bloque bien ce jour). Les plages qui se
- * chevauchent n'ont pas besoin d'être fusionnées au préalable : chacune est
- * testée indépendamment.
+ * True if `date` falls within one of the blocked ranges (inclusive
+ * bounds: a range where `startDate` = `endDate` does block that day).
+ * Overlapping ranges don't need to be merged beforehand: each is tested
+ * independently.
  */
 export function isDateBlocked(
   date: Date,
@@ -23,9 +23,9 @@ export function isDateBlocked(
 }
 
 /**
- * Étend les plages bloquées en un ensemble de dates ISO (`YYYY-MM-DD`) pour
- * une fenêtre d'affichage donnée (ex. mois courant + mois suivant), afin
- * d'éviter d'expanser des plages arbitrairement lointaines dans le temps.
+ * Expands the blocked ranges into a set of ISO dates (`YYYY-MM-DD`) for a
+ * given display window (e.g. current month + next month), to avoid
+ * expanding ranges arbitrarily far into the future.
  */
 export function getBlockedDatesInWindow(
   ranges: Pick<Availability, "startDate" | "endDate">[],

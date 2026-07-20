@@ -2,17 +2,17 @@ import { describe, expect, it } from "vitest";
 import { withLocale } from "./withLocale";
 
 describe("withLocale", () => {
-  it("remplace le segment de locale en préservant le reste du chemin", () => {
+  it("replaces the locale segment while preserving the rest of the path", () => {
     expect(withLocale("/fr/properties/loft-du-vieux-port", "en")).toBe(
       "/en/properties/loft-du-vieux-port",
     );
   });
 
-  it("fonctionne sur la page d'accueil localisée", () => {
+  it("works on the localized home page", () => {
     expect(withLocale("/fr", "en")).toBe("/en");
   });
 
-  it("bascule vers la même locale sans effet de bord", () => {
+  it("switches to the same locale without side effects", () => {
     expect(withLocale("/en/properties", "en")).toBe("/en/properties");
   });
 });

@@ -29,15 +29,15 @@ describe("parseIcalEvents", () => {
     expect(events[0]).toEqual({
       externalUid: "reservation-1@airbnb.com",
       startDate: new Date(2026, 7, 1),
-      // DTEND:20260805 est exclusif (RFC 5545) : converti en borne
-      // inclusive, le 4 août est le dernier jour réellement bloqué.
+      // DTEND:20260805 is exclusive (RFC 5545): converted to an inclusive
+      // bound, August 4 is the last day actually blocked.
       endDate: new Date(2026, 7, 4),
       summary: "Reserved",
     });
     expect(events[1].externalUid).toBe("reservation-2@airbnb.com");
   });
 
-  it("convertit une plage d'un seul jour (DTSTART=DTEND-1) en un unique jour bloqué", () => {
+  it("converts a single-day range (DTSTART=DTEND-1) into a single blocked day", () => {
     const oneDayBuffer = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Airbnb Inc//Hosting Calendar 0.8.8//EN

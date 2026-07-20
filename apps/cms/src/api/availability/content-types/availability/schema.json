@@ -5,7 +5,7 @@
     "singularName": "availability",
     "pluralName": "availabilities",
     "displayName": "Availability",
-    "description": "Plage de dates bloquée pour un logement, alimentée par la synchronisation iCal Airbnb."
+    "description": "Blocked date range for a property, populated by the Airbnb iCal sync."
   },
   "options": {
     "draftAndPublish": false
@@ -38,7 +38,7 @@
     },
     "externalUid": {
       "type": "string",
-      "description": "UID de l'événement iCal, utilisé pour un upsert idempotent lors de la synchronisation."
+      "description": "iCal event UID, used for an idempotent upsert during sync."
     },
     "summary": {
       "type": "string"

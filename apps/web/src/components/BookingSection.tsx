@@ -19,10 +19,9 @@ interface BookingSectionProps {
 const EMPTY_RANGE: DateRange = { start: null, end: null };
 
 /**
- * Regroupe calendrier et formulaire de réservation dans une seule carte
- * (issue #69) : la sélection de plage se fait directement sur le calendrier
- * et alimente automatiquement les champs de dates du formulaire, sans
- * ressaisie manuelle.
+ * Groups the calendar and the booking request form into a single card
+ * (issue #69): range selection happens directly on the calendar and
+ * automatically feeds the form's date fields, with no manual re-entry.
  */
 export function BookingSection({
   availabilities,

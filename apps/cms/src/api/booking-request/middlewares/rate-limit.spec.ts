@@ -4,7 +4,7 @@ import rateLimitMiddleware, { checkRateLimit } from "./rate-limit";
 describe("checkRateLimit", () => {
   const options = { max: 3, windowMs: 1000 };
 
-  it("autorise les requêtes sous le seuil", () => {
+  it("allows requests under the threshold", () => {
     const store = new Map<string, number[]>();
 
     expect(checkRateLimit(store, "1.2.3.4", 0, options)).toEqual({ allowed: true });
@@ -12,7 +12,7 @@ describe("checkRateLimit", () => {
     expect(checkRateLimit(store, "1.2.3.4", 200, options)).toEqual({ allowed: true });
   });
 
-  it("bloque au-delà du seuil, dans la fenêtre", () => {
+  it("blocks beyond the threshold, within the window", () => {
     const store = new Map<string, number[]>();
     checkRateLimit(store, "1.2.3.4", 0, options);
     checkRateLimit(store, "1.2.3.4", 100, options);
@@ -24,7 +24,7 @@ describe("checkRateLimit", () => {
     expect(result.retryAfterMs).toBe(0 + options.windowMs - 300);
   });
 
-  it("autorise de nouveau une fois la fenêtre expirée", () => {
+  it("allows again once the window has expired", () => {
     const store = new Map<string, number[]>();
     checkRateLimit(store, "1.2.3.4", 0, options);
     checkRateLimit(store, "1.2.3.4", 100, options);
@@ -35,7 +35,7 @@ describe("checkRateLimit", () => {
     expect(result.allowed).toBe(true);
   });
 
-  it("traite chaque clé (IP) indépendamment", () => {
+  it("treats each key (IP) independently", () => {
     const store = new Map<string, number[]>();
     checkRateLimit(store, "1.1.1.1", 0, options);
     checkRateLimit(store, "1.1.1.1", 100, options);
@@ -63,7 +63,7 @@ describe("rateLimitMiddleware", () => {
     };
   }
 
-  it("laisse passer une requête isolée", async () => {
+  it("lets an isolated request through", async () => {
     const strapi = buildStrapi();
     const handler = rateLimitMiddleware({}, { strapi }) as (
       ctx: unknown,
@@ -78,7 +78,7 @@ describe("rateLimitMiddleware", () => {
     expect(ctx.status).toBe(200);
   });
 
-  it("renvoie 429 avec Retry-After une fois le seuil par défaut dépassé", async () => {
+  it("returns 429 with Retry-After once the default threshold is exceeded", async () => {
     const strapi = buildStrapi();
     const handler = rateLimitMiddleware({}, { strapi }) as (
       ctx: unknown,

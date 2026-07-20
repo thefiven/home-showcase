@@ -1,100 +1,100 @@
 # CLAUDE.md
 
-Conventions du projet **home-showcase**. Voir `SPEC.md` pour le cadrage produit et les décisions détaillées.
+Conventions for the **home-showcase** project. See `SPEC.md` for product scoping and detailed decisions.
 
-## Résumé du projet
+## Project summary
 
-**Ar Mor** — vitrine web multi-logements type Airbnb (complément à Airbnb, pas un remplacement) : présentation des logements, calendrier de disponibilité synchronisé depuis Airbnb (iCal, lecture seule), demandes de réservation avec notification email à la propriétaire, back-office pour éditer le contenu sans toucher au code.
+**Ar Mor** — an Airbnb-style multi-property showcase website (a complement to Airbnb, not a replacement): property listings, availability calendar synced from Airbnb (iCal, read-only), booking requests with email notification to the owner, a back-office to edit content without touching code.
 
-Le MVP (voir `SPEC.md` §2 et §7) est implémenté : logements FR/EN, calendrier sélectionnable, formulaire de réservation, notifications email, back-office, SEO technique, Docker, Helm/k3s, CI.
+The MVP (see `SPEC.md` §2 and §7) is implemented: FR/EN properties, selectable calendar, booking request form, email notifications, back-office, technical SEO, Docker, Helm/k3s, CI.
 
-## Stack technique
+## Tech stack
 
-- **Frontend** : Next.js (TypeScript), SSR/SSG. Multilingue FR/EN dès le MVP.
-- **CMS** : Strapi, self-hosted. Sert aussi de backend pour les demandes de réservation et la disponibilité (pas de base/backend séparé côté web).
-- **Base de données** : PostgreSQL (utilisée par Strapi) — cible et environnement de référence, démarré via `docker/docker-compose.yml` (issue #2). Le SQLite dans `apps/cms` (issue #1) reste disponible comme fallback pratique pour du local hors Docker, mais n'est pas garanti à parité avec Postgres (pas de CI dessus) : toute fonctionnalité spécifique à Postgres (JSON, SQL brut...) prime sur la compatibilité SQLite.
-- **Gestionnaire de paquets** : `pnpm` (workspaces pour le monorepo).
-- **Conteneurisation** : Docker + docker-compose pour le développement local (Next.js, Strapi, Postgres) — voir `README.md` (`pnpm docker:up`).
-- **Hébergement cible** : homelab k3s (à venir) — éviter toute dépendance à un PaaS propriétaire non portable. Manifests Helm dans `deploy/helm/home-showcase/` (voir `deploy/README.md`).
-- **Notification email** : SMTP self-hosté via `@strapi/provider-email-nodemailer` (voir `SPEC.md` §5), isolé dans `apps/cms/src/notifications`. Un échec d'envoi est loggé, jamais bloquant pour la création de la demande.
-- **WhatsApp** : hors périmètre MVP, prévu en v2.
+- **Frontend**: Next.js (TypeScript), SSR/SSG. Multilingual FR/EN from the MVP.
+- **CMS**: Strapi, self-hosted. Also serves as the backend for booking requests and availability (no separate database/backend on the web side).
+- **Database**: PostgreSQL (used by Strapi) — target and reference environment, started via `docker/docker-compose.yml` (issue #2). SQLite in `apps/cms` (issue #1) remains available as a practical fallback for local dev outside Docker, but isn't guaranteed to be at parity with Postgres (no CI on it): any Postgres-specific feature (JSON, raw SQL...) takes precedence over SQLite compatibility.
+- **Package manager**: `pnpm` (workspaces for the monorepo).
+- **Containerization**: Docker + docker-compose for local development (Next.js, Strapi, Postgres) — see `README.md` (`pnpm docker:up`).
+- **Target hosting**: homelab k3s (upcoming) — avoid any dependency on a non-portable proprietary PaaS. Helm manifests in `deploy/helm/home-showcase/` (see `deploy/README.md`).
+- **Email notification**: self-hosted SMTP via `@strapi/provider-email-nodemailer` (see `SPEC.md` §5), isolated in `apps/cms/src/notifications`. A send failure is logged, never blocking for request creation.
+- **WhatsApp**: out of MVP scope, planned for v2.
 
-## Structure de dossiers
+## Folder structure
 
 ```
 home-showcase/
 ├── apps/
-│   ├── web/          # Next.js — site vitrine public (FR/EN)
-│   └── cms/          # Strapi — back-office, API, content-types, jobs cron (sync iCal), notifications
-├── docker/            # Dockerfiles et docker-compose pour le dev local
-├── deploy/            # Manifests Helm pour le déploiement k3s (deploy/helm/home-showcase/)
-├── e2e/                # Tests end-to-end Playwright
-├── SPEC.md            # Cadrage produit et décisions
-├── CLAUDE.md          # Ce fichier
+│   ├── web/          # Next.js — public showcase site (FR/EN)
+│   └── cms/          # Strapi — back-office, API, content-types, cron jobs (iCal sync), notifications
+├── docker/            # Dockerfiles and docker-compose for local dev
+├── deploy/            # Helm manifests for k3s deployment (deploy/helm/home-showcase/)
+├── e2e/                # Playwright end-to-end tests
+├── SPEC.md            # Product scoping and decisions
+├── CLAUDE.md          # This file
 └── README.md
 ```
 
-Modèle de contenu Strapi (`apps/cms`) : `Property` (position exacte jamais exposée publiquement — dérivation d'une position approximative via Document Service middleware), `Availability` (alimenté par le job cron `src/cron-tasks` + service `src/api/availability/services/ical.ts`, lecture seule côté admin), `BookingRequest` (statut `pending`/`accepted`/`refused` ; la création déclenche la notification email, le changement de statut crée/retire l'`Availability` correspondante).
+Strapi content model (`apps/cms`): `Property` (exact location never exposed publicly — an approximate position is derived via the Document Service middleware), `Availability` (populated by the `src/cron-tasks` cron job + `src/api/availability/services/ical.ts` service, read-only in the admin), `BookingRequest` (status `pending`/`accepted`/`refused`; creation triggers the email notification, a status change creates/removes the corresponding `Availability`).
 
-## Stratégie de tests
+## Testing strategy
 
-- **Vitest** pour les tests unitaires et d'intégration ciblés.
-- Prioriser la logique métier critique : calcul/fusion de disponibilité, parsing et synchronisation iCal, workflow de statut des demandes de réservation (`pending`/`accepted`/`refused`), endpoints API Strapi.
-- **Playwright** pour les tests end-to-end, dans `e2e/` (workspace pnpm dédié) : parcours critiques (disponibilité, demande de réservation, validation de formulaire, statut admin). Voir `e2e/run.sh` pour lancer la stack jetable en local/CI.
-- Ne pas tester ce qui relève du framework lui-même (rendu Next.js par défaut, admin Strapi standard) — se concentrer sur le code métier propre au projet.
-- Vitest est configuré dans `apps/web` et `apps/cms` (`pnpm run test` à la racine, `--passWithNoTests` tant qu'aucune logique métier n'existe) : c'est la fondation posée dès le monorepo (issue #1), à remplir au fil des issues qui introduisent de la vraie logique (ex. sync iCal, workflow de réservation).
+- **Vitest** for targeted unit and integration tests.
+- Prioritize critical business logic: availability computation/merging, iCal parsing and sync, booking request status workflow (`pending`/`accepted`/`refused`), Strapi API endpoints.
+- **Playwright** for end-to-end tests, in `e2e/` (dedicated pnpm workspace): critical flows (availability, booking request, form validation, admin status). See `e2e/run.sh` to run the disposable stack locally/in CI.
+- Don't test what belongs to the framework itself (default Next.js rendering, standard Strapi admin) — focus on business code specific to this project.
+- Vitest is configured in `apps/web` and `apps/cms` (`pnpm run test` at the root, `--passWithNoTests` as long as no business logic exists yet): this is the foundation laid from the monorepo's start (issue #1), to be filled in as issues introduce real logic (e.g. iCal sync, booking workflow).
 
 ## Design System
 
-Respecter les tokens de DESIGN.md pour tout travail UI.
+Follow the DESIGN.md tokens for any UI work.
 
-- Utiliser les tokens de couleur exactement comme spécifiés
-- Appliquer l'échelle typographique de façon cohérente
-- Respecter les breakpoints responsive définis
-- Ne pas introduire de nouvelle couleur, police ou espacement sans raison explicite
+- Use color tokens exactly as specified
+- Apply the typographic scale consistently
+- Respect the defined responsive breakpoints
+- Don't introduce a new color, font, or spacing value without an explicit reason
 
-## Workflow Git
+## Git Workflow
 
-Projet solo mais avec un historique propre et une PR systématique avant merge sur `main`.
+Solo project, but with a clean history and a systematic PR before merging into `main`.
 
 ### Branches
 
-- `main` : toujours déployable, protégée (on n'y commit jamais directement).
-- Une branche par feature/correctif, préfixée par type : `feat/...`, `fix/...`, `chore/...`, `refactor/...`, `docs/...`, `test/...`.
-  - Exemples : `feat/booking-request-form`, `fix/ical-sync-timezone`.
+- `main`: always deployable, protected (never commit directly to it).
+- One branch per feature/fix, prefixed by type: `feat/...`, `fix/...`, `chore/...`, `refactor/...`, `docs/...`, `test/...`.
+  - Examples: `feat/booking-request-form`, `fix/ical-sync-timezone`.
 
-### Commits — convention gitmoji
+### Commits — gitmoji convention
 
-Chaque commit commence par un gitmoji correspondant à sa nature. Convention déjà initiée sur ce repo (`🎉` pour le commit initial). Emojis à utiliser :
+Every commit starts with a gitmoji matching its nature. Convention already established in this repo (`🎉` for the initial commit). Emojis to use:
 
-| Emoji | Usage                                                        |
-| ----- | ------------------------------------------------------------ |
-| 🎉    | Commit initial / lancement du projet                         |
-| ✨    | Nouvelle fonctionnalité                                      |
-| 🐛    | Correction de bug                                            |
-| ♻️    | Refactoring (sans changement de comportement)                |
-| 💄    | Style / UI / CSS                                             |
-| ✅    | Ajout ou correction de tests                                 |
-| 📝    | Documentation                                                |
-| 🔧    | Configuration (outils, env, CI)                              |
-| ⚡️    | Amélioration de performance                                  |
-| 📦    | Dépendances / build                                          |
-| 👷    | CI/CD                                                        |
-| 🚧    | Travail en cours, commit intermédiaire (à éviter sur `main`) |
-| ⏪    | Revert                                                       |
-| 🔒    | Sécurité                                                     |
-| 🌐    | Internationalisation (FR/EN)                                 |
+| Emoji | Usage                                                   |
+| ----- | ------------------------------------------------------- |
+| 🎉    | Initial commit / project kickoff                        |
+| ✨    | New feature                                             |
+| 🐛    | Bug fix                                                 |
+| ♻️    | Refactoring (no behavior change)                        |
+| 💄    | Style / UI / CSS                                        |
+| ✅    | Adding or fixing tests                                  |
+| 📝    | Documentation                                           |
+| 🔧    | Configuration (tooling, env, CI)                        |
+| ⚡️    | Performance improvement                                 |
+| 📦    | Dependencies / build                                    |
+| 👷    | CI/CD                                                   |
+| 🚧    | Work in progress, intermediate commit (avoid on `main`) |
+| ⏪    | Revert                                                  |
+| 🔒    | Security                                                |
+| 🌐    | Internationalization (FR/EN)                            |
 
-Format : `<gitmoji> <résumé court à l'impératif>` (ex. `✨ Ajoute le formulaire de demande de réservation`).
+Format: `<gitmoji> <short imperative summary>` (e.g. `✨ Add the booking request form`).
 
-### Pull Requests — via MCP GitHub
+### Pull Requests — via GitHub MCP
 
-Le workflow de PR passe par les outils MCP GitHub (`mcp__github__*`), pas par des commandes `gh` manuelles, lorsque Claude Code intervient :
+The PR workflow goes through the GitHub MCP tools (`mcp__github__*`), not manual `gh` commands, when Claude Code is involved:
 
-1. Créer la branche (`mcp__github__create_branch`) depuis `main`.
-2. Committer les changements sur la branche (commits gitmoji comme ci-dessus).
-3. Ouvrir la PR (`mcp__github__create_pull_request`) avec un résumé clair du changement et, si pertinent, un plan de test.
-4. Pour une revue avec commentaires sur des lignes précises : `pull_request_review_write` (create) → `add_comment_to_pending_review` → `pull_request_review_write` (submit_pending).
-5. Merge (`mcp__github__merge_pull_request`) uniquement après validation explicite de l'utilisateur — ne jamais merger automatiquement sans confirmation.
+1. Create the branch (`mcp__github__create_branch`) from `main`.
+2. Commit the changes on the branch (gitmoji commits as above).
+3. Open the PR (`mcp__github__create_pull_request`) with a clear summary of the change and, if relevant, a test plan.
+4. For a review with comments on specific lines: `pull_request_review_write` (create) → `add_comment_to_pending_review` → `pull_request_review_write` (submit_pending).
+5. Merge (`mcp__github__merge_pull_request`) only after explicit user confirmation — never merge automatically without confirmation.
 
-Pas de force-push sur `main`, pas de rebase interactif automatisé.
+No force-push to `main`, no automated interactive rebase.

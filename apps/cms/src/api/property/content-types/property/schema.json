@@ -5,7 +5,7 @@
     "singularName": "property",
     "pluralName": "properties",
     "displayName": "Property",
-    "description": "Un logement présenté sur la vitrine (fiche type Airbnb)."
+    "description": "A property showcased on the site (Airbnb-style listing)."
   },
   "options": {
     "draftAndPublish": true

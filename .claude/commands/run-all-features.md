@@ -1,22 +1,22 @@
 ---
-description: Enchaîne les features des issues GitHub ouvertes, dans l'ordre numérique, avec pause entre chaque
+description: Chains through open GitHub issues' features, in numeric order, with a pause between each
 ---
 
-Liste les issues GitHub ouvertes triées par numéro croissant. Affiche la liste avant de commencer.
+List open GitHub issues sorted by ascending number. Display the list before starting.
 
-Pour chaque issue, dans l'ordre. Ne lis que les fichiers nécessaires à l'issue en cours — n'explore pas le repo entier :
+For each issue, in order. Only read the files needed for the current issue — don't explore the whole repo:
 
-1. Résume l'issue, crée une branche dédiée. Puis /compact pour flush les résultats MCP.
-2. Plan Mode natif : plan cohérent avec SPEC.md et CLAUDE.md. Attends ma validation.
-3. Implémente. Commits atomiques gitmoji. Pas de commentaire de progression superflu.
-4. Tests correspondants.
-5. Linter + formatter, corrige les erreurs.
-6. Suite de tests complète (anti-régression).
-7. Vérifie : pas de secret en dur, pas de log oublié, .env.example à jour.
-8. PR liée à l'issue : résumé + checklist.
-9. Récapitule en 3 lignes max et STOP — attends ma confirmation explicite avant l'issue suivante.
-10. Sur ma confirmation : /clear avant d'attaquer l'issue suivante. SPEC.md et CLAUDE.md seront relus automatiquement.
+1. Summarize the issue, create a dedicated branch. Then /compact to flush the raw MCP results.
+2. Native Plan Mode: plan consistent with SPEC.md and CLAUDE.md. Wait for my approval.
+3. Implement. Atomic gitmoji commits. No unnecessary progress commentary.
+4. Corresponding tests.
+5. Linter + formatter, fix errors.
+6. Full test suite (regression check).
+7. Verify: no hard-coded secrets, no leftover logs, .env.example up to date.
+8. PR linked to the issue: summary + checklist.
+9. Recap in 3 lines max and STOP — wait for my explicit confirmation before the next issue.
+10. On my confirmation: /clear before starting the next issue. SPEC.md and CLAUDE.md will be reread automatically.
 
-Ne lance pas de subagent de revue — la revue approfondie est dans /audit.
+Don't launch a review subagent — in-depth review is in /audit.
 
-Si une étape échoue, arrête-toi immédiatement et explique le blocage.
+If a step fails, stop immediately and explain the blocker.

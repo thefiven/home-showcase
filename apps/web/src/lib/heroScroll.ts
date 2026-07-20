@@ -7,9 +7,9 @@ export interface HeroScrollStyle {
 }
 
 /**
- * Calcule l'opacité et le décalage vertical du contenu du hero pendant le
- * scroll : entièrement visible en haut de page, estompé et légèrement
- * remonté avant que le hero ne quitte le viewport (`FADE_FRACTION` < 1).
+ * Computes the opacity and vertical offset of the hero content during
+ * scroll: fully visible at the top of the page, faded and slightly
+ * shifted up before the hero leaves the viewport (`FADE_FRACTION` < 1).
  */
 export function heroScrollStyle(
   scrollY: number,

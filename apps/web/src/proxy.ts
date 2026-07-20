@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { defaultLocale, isLocale } from "@/i18n/config";
 
 /**
- * Le premier segment doit être un code de locale exact (`/fr`, `/en/...`) pour
- * être laissé passer : ceci garantit que `[locale]` ne reçoit jamais une valeur
- * hors de `locales` (cf. `apps/web/src/app/[locale]/layout.tsx`).
+ * The first segment must be an exact locale code (`/fr`, `/en/...`) to be
+ * let through: this guarantees `[locale]` never receives a value outside
+ * of `locales` (see `apps/web/src/app/[locale]/layout.tsx`).
  */
 export function pathnameHasLocale(pathname: string): boolean {
   const [, firstSegment] = pathname.split("/");
@@ -25,7 +25,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Toutes les routes sauf assets Next.js, fichiers statiques et favicon.
+    // All routes except Next.js assets, static files, and favicon.
     "/((?!_next|api|favicon.ico|.*\\..*).*)",
   ],
 };

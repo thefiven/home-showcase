@@ -3,9 +3,9 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { defaultLocale } from "@/i18n/config";
 
 /**
- * `not-found.tsx` ne reçoit pas les `params` de la route : la locale n'est pas
- * connue avec certitude (ex. segment après le préfixe de locale sans correspondance),
- * donc on retombe sur `defaultLocale` plutôt que de planter.
+ * `not-found.tsx` does not receive the route's `params`: the locale is
+ * not known with certainty (e.g. a segment after the locale prefix with
+ * no match), so we fall back to `defaultLocale` rather than crashing.
  */
 export default function NotFound() {
   const dictionary = getDictionary(defaultLocale);

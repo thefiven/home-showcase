@@ -7,18 +7,18 @@ function photo(id: number): StrapiMedia {
 }
 
 describe("buildGalleryPreview", () => {
-  it("retourne un aperçu vide sans photo", () => {
+  it("returns an empty preview without a photo", () => {
     expect(buildGalleryPreview(null)).toEqual({ cover: null, tiles: [], hiddenCount: 0 });
     expect(buildGalleryPreview(undefined)).toEqual({ cover: null, tiles: [], hiddenCount: 0 });
     expect(buildGalleryPreview([])).toEqual({ cover: null, tiles: [], hiddenCount: 0 });
   });
 
-  it("n'a pas de tuile ni de photo cachée avec une seule photo", () => {
+  it("has no tile or hidden photo with a single photo", () => {
     const photos = [photo(1)];
     expect(buildGalleryPreview(photos)).toEqual({ cover: photo(1), tiles: [], hiddenCount: 0 });
   });
 
-  it("place toutes les photos restantes en tuiles quand il y en a 5 ou moins", () => {
+  it("places all remaining photos as tiles when there are 5 or fewer", () => {
     const photos = [photo(1), photo(2), photo(3), photo(4), photo(5)];
     const preview = buildGalleryPreview(photos);
     expect(preview.cover).toEqual(photo(1));
@@ -26,7 +26,7 @@ describe("buildGalleryPreview", () => {
     expect(preview.hiddenCount).toBe(0);
   });
 
-  it("calcule le nombre de photos cachées au-delà de la grille d'aperçu", () => {
+  it("computes the number of hidden photos beyond the preview grid", () => {
     const photos = Array.from({ length: 8 }, (_, index) => photo(index + 1));
     const preview = buildGalleryPreview(photos);
     expect(preview.cover).toEqual(photo(1));
@@ -36,39 +36,39 @@ describe("buildGalleryPreview", () => {
 });
 
 describe("nextPhotoIndex", () => {
-  it("avance d'un index", () => {
+  it("advances by one index", () => {
     expect(nextPhotoIndex(0, 3)).toBe(1);
     expect(nextPhotoIndex(1, 3)).toBe(2);
   });
 
-  it("boucle sur le début après la dernière photo", () => {
+  it("loops back to the start after the last photo", () => {
     expect(nextPhotoIndex(2, 3)).toBe(0);
   });
 
-  it("reste sur place quand il n'y a qu'une seule photo", () => {
+  it("stays put when there is only one photo", () => {
     expect(nextPhotoIndex(0, 1)).toBe(0);
   });
 
-  it("retourne 0 quand il n'y a aucune photo", () => {
+  it("returns 0 when there is no photo", () => {
     expect(nextPhotoIndex(0, 0)).toBe(0);
   });
 });
 
 describe("prevPhotoIndex", () => {
-  it("recule d'un index", () => {
+  it("goes back by one index", () => {
     expect(prevPhotoIndex(2, 3)).toBe(1);
     expect(prevPhotoIndex(1, 3)).toBe(0);
   });
 
-  it("boucle sur la fin avant la première photo", () => {
+  it("loops back to the end before the first photo", () => {
     expect(prevPhotoIndex(0, 3)).toBe(2);
   });
 
-  it("reste sur place quand il n'y a qu'une seule photo", () => {
+  it("stays put when there is only one photo", () => {
     expect(prevPhotoIndex(0, 1)).toBe(0);
   });
 
-  it("retourne 0 quand il n'y a aucune photo", () => {
+  it("returns 0 when there is no photo", () => {
     expect(prevPhotoIndex(0, 0)).toBe(0);
   });
 });

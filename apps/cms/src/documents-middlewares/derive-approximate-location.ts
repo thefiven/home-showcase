@@ -21,11 +21,11 @@ function roundTo(value: number, precision: number): number {
 }
 
 /**
- * Dérive approxLatitude/approxLongitude (~1km de précision) depuis les
- * coordonnées exactes, pour que la position exacte (issue #56) ne transite
- * jamais par l'API publique jusqu'à la carte — approxLatitude/Longitude sont
- * la seule source de vérité publique, toujours recalculées et jamais
- * acceptées telles quelles depuis la saisie admin.
+ * Derives approxLatitude/approxLongitude (~1km precision) from the exact
+ * coordinates, so that the exact position (issue #56) never travels
+ * through the public API up to the map — approxLatitude/Longitude are
+ * the only public source of truth, always recomputed and never accepted
+ * as-is from admin input.
  */
 export function deriveApproximateLocation(data: PropertyData): void {
   const location = data.location;
@@ -37,11 +37,12 @@ export function deriveApproximateLocation(data: PropertyData): void {
 }
 
 /**
- * Les lifecycles de content-type (beforeCreate/beforeUpdate) ne reçoivent
- * pas la donnée du composant `location` sous une forme exploitable quand
- * l'écriture passe par entityService/Document Service (cf. issue #63) — la
- * dérivation doit donc vivre au niveau du Document Service middleware, seule
- * couche où `params.data.location` est bien l'objet composant soumis.
+ * Content-type lifecycles (beforeCreate/beforeUpdate) don't receive the
+ * `location` component data in a usable form when the write goes through
+ * entityService/Document Service (see issue #63) — the derivation must
+ * therefore live at the Document Service middleware level, the only
+ * layer where `params.data.location` is reliably the submitted component
+ * object.
  */
 export const deriveApproximateLocationMiddleware: Modules.Documents.Middleware.Middleware = async (
   context,

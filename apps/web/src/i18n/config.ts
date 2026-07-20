@@ -1,9 +1,9 @@
-/** Locales supportées par le site, alignées sur les locales Strapi (`apps/cms/src/bootstrap.ts`). */
+/** Locales supported by the site, aligned with the Strapi locales (`apps/cms/src/bootstrap.ts`). */
 export const locales = ["fr", "en"] as const;
 
 export type Locale = (typeof locales)[number];
 
-/** Locale de référence : même valeur que `DEFAULT_LOCALE_CODE` côté Strapi. */
+/** Reference locale: same value as `DEFAULT_LOCALE_CODE` on the Strapi side. */
 export const defaultLocale: Locale = "fr";
 
 export function isLocale(value: string): value is Locale {
@@ -11,10 +11,11 @@ export function isLocale(value: string): value is Locale {
 }
 
 /**
- * Route un segment de locale brut (typé `string` par Next.js — n'importe quelle
- * valeur peut apparaître dans l'URL) vers une `Locale` connue, avec repli sur
- * `defaultLocale`. Le middleware garantit déjà ce repli en amont ; ceci couvre
- * aussi les cas où une route est atteinte sans passer par le middleware.
+ * Routes a raw locale segment (typed `string` by Next.js — any value can
+ * appear in the URL) to a known `Locale`, falling back to `defaultLocale`.
+ * The middleware already guarantees this fallback upstream; this also
+ * covers cases where a route is reached without going through the
+ * middleware.
  */
 export function resolveLocale(value: string): Locale {
   return isLocale(value) ? value : defaultLocale;

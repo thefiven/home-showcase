@@ -6,10 +6,10 @@ import type {
   StrapiCollectionResponse,
 } from "./types";
 
-/** Locale de repli utilisée quand une traduction demandée n'existe pas encore côté Strapi. */
+/** Fallback locale used when a requested translation does not yet exist in Strapi. */
 export const DEFAULT_LOCALE = defaultLocale;
 
-/** Durée de revalidation ISR (secondes) : SSG rafraîchi périodiquement. */
+/** ISR revalidation duration (seconds): SSG refreshed periodically. */
 export const REVALIDATE_SECONDS = 60;
 
 interface StrapiEnv {
@@ -26,41 +26,39 @@ function stripTrailingSlash(url: string): string {
 }
 
 /**
- * URL de base utilisée pour les appels serveur (SSR/ISR) : priorité à
- * `STRAPI_INTERNAL_URL` (résolue par le conteneur `web` sur le réseau Docker,
- * ex. `http://cms:1337`), avec repli sur `NEXT_PUBLIC_STRAPI_URL`.
+ * Base URL used for server-side calls (SSR/ISR): prioritizes
+ * `STRAPI_INTERNAL_URL` (resolved by the `web` container on the Docker
+ * network, e.g. `http://cms:1337`), falling back to `NEXT_PUBLIC_STRAPI_URL`.
  */
 export function resolveServerBaseUrl(env: StrapiEnv = currentEnv()): string {
   const url = env.STRAPI_INTERNAL_URL || env.NEXT_PUBLIC_STRAPI_URL;
   if (!url) {
-    throw new Error(
-      "STRAPI_INTERNAL_URL ou NEXT_PUBLIC_STRAPI_URL doit être défini pour joindre Strapi.",
-    );
+    throw new Error("STRAPI_INTERNAL_URL or NEXT_PUBLIC_STRAPI_URL must be set to reach Strapi.");
   }
   return stripTrailingSlash(url);
 }
 
 /**
- * URL de base résolvable par le navigateur, utilisée pour préfixer les
- * chemins de médias renvoyés par Strapi (relatifs à son propre hôte).
+ * Base URL resolvable by the browser, used to prefix media paths
+ * returned by Strapi (relative to its own host).
  */
 export function resolvePublicBaseUrl(env: StrapiEnv = currentEnv()): string {
   const url = env.NEXT_PUBLIC_STRAPI_URL;
   if (!url) {
-    throw new Error("NEXT_PUBLIC_STRAPI_URL doit être défini pour construire les URLs de médias.");
+    throw new Error("NEXT_PUBLIC_STRAPI_URL must be set to build media URLs.");
   }
   return stripTrailingSlash(url);
 }
 
 /**
- * Préfixe une URL de média Strapi (relative) pour l'utiliser comme `src` de
- * `next/image`. Utilise l'URL serveur (`resolveServerBaseUrl`), pas l'URL
- * publique : même pour une page rendue côté serveur, c'est l'optimiseur
- * d'images de Next qui va chercher le fichier source, et il tourne dans le
- * process serveur (conteneur `web` en Docker) — une URL uniquement
- * résolvable par le navigateur (`localhost:1337`) y échoue (`fetch failed`,
- * `cms` n'étant pas `localhost` vu depuis ce conteneur). Idempotent sur les
- * URLs déjà absolues.
+ * Prefixes a (relative) Strapi media URL for use as the `src` of
+ * `next/image`. Uses the server URL (`resolveServerBaseUrl`), not the
+ * public one: even for a page rendered server-side, it's Next's image
+ * optimizer that fetches the source file, and it runs in the server
+ * process (the `web` container in Docker) — a URL only resolvable by the
+ * browser (`localhost:1337`) fails there (`fetch failed`, since `cms` is
+ * not `localhost` as seen from this container). Idempotent on URLs that
+ * are already absolute.
  */
 export function mediaUrl(
   path: string | undefined | null,
@@ -71,7 +69,7 @@ export function mediaUrl(
   return `${resolveServerBaseUrl(env)}${path}`;
 }
 
-/** `GET /api/properties` — liste, avec populate des relations/composants nécessaires à l'affichage. */
+/** `GET /api/properties` — list, populating relations/components needed for display. */
 export function buildPropertiesListUrl(
   locale: string = DEFAULT_LOCALE,
   env: StrapiEnv = currentEnv(),
@@ -85,7 +83,7 @@ export function buildPropertiesListUrl(
   return `${resolveServerBaseUrl(env)}/api/properties?${params.toString()}`;
 }
 
-/** `GET /api/properties?filters[slug][$eq]=...` — détail par slug (non localisé, partagé entre langues). */
+/** `GET /api/properties?filters[slug][$eq]=...` — detail by slug (not localized, shared across languages). */
 export function buildPropertyBySlugUrl(
   slug: string,
   locale: string = DEFAULT_LOCALE,
@@ -98,7 +96,7 @@ export function buildPropertyBySlugUrl(
   return `${resolveServerBaseUrl(env)}/api/properties?${params.toString()}`;
 }
 
-/** URL minimale (slug seul) pour `generateStaticParams`. */
+/** Minimal URL (slug only) for `generateStaticParams`. */
 export function buildSlugsUrl(env: StrapiEnv = currentEnv()): string {
   const params = new URLSearchParams();
   params.set("fields[0]", "slug");
@@ -108,10 +106,10 @@ export function buildSlugsUrl(env: StrapiEnv = currentEnv()): string {
 }
 
 /**
- * `GET /api/availabilities?filters[property][documentId][$eq]=...` — plages
- * bloquées d'un logement, triées chronologiquement. Filtre sur `documentId`
- * (stable, non localisé) plutôt que sur `id` (propre à chaque variante de
- * langue en Strapi v5).
+ * `GET /api/availabilities?filters[property][documentId][$eq]=...` —
+ * blocked date ranges for a property, sorted chronologically. Filters on
+ * `documentId` (stable, not localized) rather than `id` (specific to each
+ * language variant in Strapi v5).
  */
 export function buildAvailabilitiesForPropertyUrl(
   propertyDocumentId: string,
@@ -127,15 +125,15 @@ export function buildAvailabilitiesForPropertyUrl(
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, { next: { revalidate: REVALIDATE_SECONDS } });
   if (!response.ok) {
-    throw new Error(`Requête Strapi échouée (${response.status}) : ${url}`);
+    throw new Error(`Strapi request failed (${response.status}): ${url}`);
   }
   return (await response.json()) as T;
 }
 
 /**
- * Logements publiés pour la page liste. Si `locale` n'a aucune entrée traduite,
- * replie sur `DEFAULT_LOCALE` plutôt que d'afficher une liste vide (SPEC.md §2 :
- * fallback de traduction). Retourne `[]` si Strapi est injoignable.
+ * Published properties for the list page. If `locale` has no translated
+ * entry, falls back to `DEFAULT_LOCALE` rather than showing an empty list
+ * (SPEC.md §2: translation fallback). Returns `[]` if Strapi is unreachable.
  */
 export async function getProperties(locale: string = DEFAULT_LOCALE): Promise<Property[]> {
   try {
@@ -150,15 +148,15 @@ export async function getProperties(locale: string = DEFAULT_LOCALE): Promise<Pr
     );
     return fallback.data;
   } catch (error) {
-    console.error("[strapi] getProperties a échoué :", error);
+    console.error("[strapi] getProperties failed:", error);
     return [];
   }
 }
 
 /**
- * Logement par slug pour la page détail. Si aucune traduction n'existe pour
- * `locale`, replie sur `DEFAULT_LOCALE` (fallback de traduction, SPEC.md §2).
- * Retourne `null` si absent même en repli, ou si Strapi est injoignable.
+ * Property by slug for the detail page. If no translation exists for
+ * `locale`, falls back to `DEFAULT_LOCALE` (translation fallback, SPEC.md §2).
+ * Returns `null` if absent even with fallback, or if Strapi is unreachable.
  */
 export async function getPropertyBySlug(
   slug: string,
@@ -177,16 +175,15 @@ export async function getPropertyBySlug(
     );
     return fallback.data[0] ?? null;
   } catch (error) {
-    console.error(`[strapi] getPropertyBySlug("${slug}") a échoué :`, error);
+    console.error(`[strapi] getPropertyBySlug("${slug}") failed:`, error);
     return null;
   }
 }
 
 /**
- * Plages bloquées d'un logement pour le calendrier de disponibilité. Requête
- * live (pas de données codées en dur) revalidée toutes les `REVALIDATE_SECONDS`,
- * pour refléter une nouvelle synchronisation iCal sans redéploiement.
- * Retourne `[]` si Strapi est injoignable.
+ * Blocked date ranges for a property's availability calendar. Live query
+ * (no hardcoded data) revalidated every `REVALIDATE_SECONDS`, to reflect a
+ * new iCal sync without redeploying. Returns `[]` if Strapi is unreachable.
  */
 export async function getAvailabilitiesForProperty(
   propertyDocumentId: string,
@@ -197,25 +194,22 @@ export async function getAvailabilitiesForProperty(
     );
     return json.data;
   } catch (error) {
-    console.error(
-      `[strapi] getAvailabilitiesForProperty("${propertyDocumentId}") a échoué :`,
-      error,
-    );
+    console.error(`[strapi] getAvailabilitiesForProperty("${propertyDocumentId}") failed:`, error);
     return [];
   }
 }
 
-/** `POST /api/booking-requests` — soumission d'une demande de réservation. */
+/** `POST /api/booking-requests` — submits a booking request. */
 export function buildBookingRequestCreateUrl(env: StrapiEnv = currentEnv()): string {
   return `${resolveServerBaseUrl(env)}/api/booking-requests`;
 }
 
 /**
- * Soumet une demande de réservation (visiteur non authentifié). Strapi force
- * `bookingStatus: "pending"` côté serveur quoi que contienne `payload` (issue #9) :
- * ceci n'est jamais un moyen d'auto-accepter une demande. Lève une erreur
- * portant le message renvoyé par Strapi si la demande est rejetée (ex. dates
- * indisponibles), pour affichage au visiteur.
+ * Submits a booking request (unauthenticated visitor). Strapi forces
+ * `bookingStatus: "pending"` server-side no matter what `payload` contains
+ * (issue #9): this is never a way to self-accept a request. Throws an
+ * error carrying the message returned by Strapi if the request is rejected
+ * (e.g. unavailable dates), for display to the visitor.
  */
 export async function createBookingRequest(
   payload: BookingRequestPayload,
@@ -231,17 +225,17 @@ export async function createBookingRequest(
     const body = (await response.json().catch(() => null)) as {
       error?: { message?: string };
     } | null;
-    throw new Error(body?.error?.message || `Requête Strapi échouée (${response.status})`);
+    throw new Error(body?.error?.message || `Strapi request failed (${response.status})`);
   }
 }
 
-/** Slugs publiés, pour `generateStaticParams`. Retourne `[]` si Strapi est injoignable. */
+/** Published slugs, for `generateStaticParams`. Returns `[]` if Strapi is unreachable. */
 export async function getAllSlugs(): Promise<string[]> {
   try {
     const json = await fetchJson<StrapiCollectionResponse<Pick<Property, "slug">>>(buildSlugsUrl());
     return json.data.map((property) => property.slug);
   } catch (error) {
-    console.error("[strapi] getAllSlugs a échoué :", error);
+    console.error("[strapi] getAllSlugs failed:", error);
     return [];
   }
 }

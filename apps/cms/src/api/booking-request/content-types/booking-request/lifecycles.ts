@@ -66,8 +66,8 @@ export async function notifyOwnerOnCreate(
 
 /**
  * Keeps the Property's Availability calendar in sync with the booking's
- * final status (SPEC.md §4: "à terme, la mise à jour de la disponibilité
- * affichée"): an `accepted` booking blocks its dates, and un-accepting it
+ * final status (SPEC.md §4: "eventually, updating the displayed
+ * availability"): an `accepted` booking blocks its dates, and un-accepting it
  * (back to `pending`/`refused`) frees them again. Idempotent on the booking's
  * current state rather than on the transition, so re-running it (e.g. a
  * retried request) is harmless. The linked Availability is tagged

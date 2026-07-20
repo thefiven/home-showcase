@@ -5,7 +5,7 @@
     "singularName": "booking-request",
     "pluralName": "booking-requests",
     "displayName": "Booking Request",
-    "description": "Demande de réservation soumise par un visiteur, à valider par la propriétaire."
+    "description": "Booking request submitted by a visitor, to be validated by the owner."
   },
   "options": {
     "draftAndPublish": false

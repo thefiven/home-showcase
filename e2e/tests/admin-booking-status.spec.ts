@@ -19,14 +19,14 @@ async function setBookingStatus(
   await expect(page.getByText(/saved document/i)).toBeVisible();
 }
 
-test.describe("accept/refuse une demande de réservation depuis l'admin", () => {
+test.describe("accept/refuse a booking request from the admin", () => {
   let propertyDocumentId: string;
 
   test.beforeAll(async () => {
     propertyDocumentId = await getPropertyDocumentId(PROPERTY_SLUG);
   });
 
-  test("la propriétaire peut accepter une demande", async ({ page }) => {
+  test("the owner can accept a request", async ({ page }) => {
     const { documentId } = await createBookingRequest(propertyDocumentId, {
       guestEmail: "accept-flow@example.com",
     });
@@ -38,10 +38,10 @@ test.describe("accept/refuse une demande de réservation depuis l'admin", () => 
     ).toBeVisible();
   });
 
-  test("la propriétaire peut refuser une demande", async ({ page }) => {
-    // Plage distincte du test "accepter" ci-dessus : accepter une demande y
-    // bloque désormais ses dates (issue #79), la réutilisation de la plage
-    // par défaut ferait rejeter cette création comme chevauchante.
+  test("the owner can refuse a request", async ({ page }) => {
+    // Range distinct from the "accept" test above: accepting a request
+    // there now blocks its dates (issue #79), so reusing the default
+    // range would cause this creation to be rejected as overlapping.
     const { start, end } = futureDateRange(80, 4);
     const { documentId } = await createBookingRequest(propertyDocumentId, {
       startDate: start,

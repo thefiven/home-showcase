@@ -44,7 +44,7 @@ function isVEvent(component: CalendarComponent): component is VEvent {
  * delete them all. Requiring the "BEGIN:VCALENDAR" marker lets us tell a
  * genuinely empty calendar (no bookings) apart from an unreadable one, and
  * throw for the latter so the caller logs it as a sync error instead of
- * wiping availability (issue #7: "erreurs de sync... loguées sans crasher").
+ * wiping availability (issue #7: "sync errors... logged without crashing").
  * Events without a UID or without valid start/end dates are still skipped
  * individually rather than aborting the whole parse.
  */
@@ -65,13 +65,13 @@ export function parseIcalEvents(icalString: string): ParsedEvent[] {
     let endDate = new Date(component.end);
     if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) continue;
 
-    // RFC 5545 : DTEND d'un événement journée entière (VALUE=DATE) est
-    // exclusif — il désigne le lendemain du dernier jour occupé, pas ce
-    // jour-là. Le reste du système (isDateBlocked, overlaps, saisie
-    // manuelle) traite startDate/endDate en bornes inclusives : sans cette
-    // conversion, le jour de turnover (départ + nouvelle arrivée le même
-    // jour) serait bloqué à tort. Décalage en jour civil local (pas en
-    // millisecondes) pour rester correct autour des changements d'heure.
+    // RFC 5545: DTEND of an all-day event (VALUE=DATE) is exclusive — it
+    // designates the day after the last occupied day, not that day itself.
+    // The rest of the system (isDateBlocked, overlaps, manual entry)
+    // treats startDate/endDate as inclusive bounds: without this
+    // conversion, the turnover day (checkout + new check-in the same day)
+    // would be wrongly blocked. Shifted by local calendar day (not
+    // milliseconds) to stay correct around DST changes.
     if (component.datetype === "date") {
       endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate() - 1);
     }

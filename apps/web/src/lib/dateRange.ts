@@ -3,7 +3,7 @@ export interface DateRange {
   end: string | null;
 }
 
-/** Vrai si un jour de `[start, end]` (bornes incluses) est dans `blocked`. */
+/** True if any day of `[start, end]` (bounds included) is in `blocked`. */
 export function rangeContainsBlocked(start: string, end: string, blocked: Set<string>): boolean {
   const cursor = new Date(`${start}T00:00:00Z`);
   const last = new Date(`${end}T00:00:00Z`).getTime();
@@ -16,10 +16,10 @@ export function rangeContainsBlocked(start: string, end: string, blocked: Set<st
 }
 
 /**
- * Machine à états du clic sur une case du calendrier : pas de début, ou plage
- * déjà complète → redémarre sur `iso`. Un début posé et un clic sur une date
- * antérieure redémarre aussi (plutôt que de rejeter silencieusement). Un clic
- * sur la même date que le début produit une plage d'un seul jour.
+ * State machine for clicking a calendar cell: no start, or an already
+ * complete range → restarts on `iso`. A start already set and a click on
+ * an earlier date also restarts (rather than silently rejecting). A click
+ * on the same date as the start produces a single-day range.
  */
 export function applyDateClick(range: DateRange, iso: string): DateRange {
   if (!range.start || range.end) {
@@ -32,9 +32,9 @@ export function applyDateClick(range: DateRange, iso: string): DateRange {
 }
 
 /**
- * Applique le clic puis redémarre la sélection sur `iso` si la plage
- * résultante chevauche une date bloquée par la sync iCal (critère d'#69 :
- * aucune plage ne doit traverser une date indisponible).
+ * Applies the click then restarts the selection on `iso` if the
+ * resulting range overlaps a date blocked by the iCal sync (criterion
+ * from #69: no range must cross an unavailable date).
  */
 export function selectDate(range: DateRange, iso: string, blocked: Set<string>): DateRange {
   const next = applyDateClick(range, iso);
@@ -46,7 +46,7 @@ export function selectDate(range: DateRange, iso: string, blocked: Set<string>):
 
 export type CellState = "start" | "end" | "between" | "none";
 
-/** État d'affichage d'une case du calendrier vis-à-vis de la sélection courante. */
+/** Display state of a calendar cell with respect to the current selection. */
 export function cellState(iso: string, range: DateRange): CellState {
   if (!range.start) return "none";
   if (!range.end) return iso === range.start ? "start" : "none";
@@ -57,7 +57,7 @@ export function cellState(iso: string, range: DateRange): CellState {
   return "none";
 }
 
-/** Vrai si `iso` est strictement avant `todayIso` (comparaison lexicographique, format `YYYY-MM-DD`). */
+/** True if `iso` is strictly before `todayIso` (lexicographic comparison, `YYYY-MM-DD` format). */
 export function isPastDate(iso: string, todayIso: string): boolean {
   return iso < todayIso;
 }

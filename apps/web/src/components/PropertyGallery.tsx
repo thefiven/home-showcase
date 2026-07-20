@@ -13,11 +13,11 @@ function resolvePhoto(photo: StrapiMedia, alt: string): ResolvedPhoto {
 }
 
 /**
- * Résout les URLs de médias côté serveur (`mediaUrl` dépend de
- * `STRAPI_INTERNAL_URL`, une variable serveur uniquement) avant de les
- * transmettre en données déjà prêtes à `GalleryClient` : ce dernier ne doit
- * jamais rappeler `mediaUrl` lui-même, sous peine d'échouer une fois exécuté
- * dans le navigateur (cf. issue #68).
+ * Resolves media URLs server-side (`mediaUrl` depends on
+ * `STRAPI_INTERNAL_URL`, a server-only variable) before passing them as
+ * ready-to-use data to `GalleryClient`: the latter must never call
+ * `mediaUrl` itself, or it would fail once running in the browser
+ * (see issue #68).
  */
 export function PropertyGallery({
   photos,

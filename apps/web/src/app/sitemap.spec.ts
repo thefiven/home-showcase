@@ -23,7 +23,7 @@ describe("sitemap", () => {
     vi.unstubAllGlobals();
   });
 
-  it("liste les pages statiques et les logements pour chaque locale", async () => {
+  it("lists static pages and properties for each locale", async () => {
     const entries = await sitemap();
     const urls = entries.map((entry) => entry.url);
 
@@ -40,7 +40,7 @@ describe("sitemap", () => {
     expect(entries).toHaveLength(6);
   });
 
-  it("fournit les alternates hreflang pour chaque entrée", async () => {
+  it("provides hreflang alternates for each entry", async () => {
     const entries = await sitemap();
     const home = entries.find((entry) => entry.url === "https://exemple.com/fr");
 

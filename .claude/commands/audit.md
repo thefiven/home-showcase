@@ -1,13 +1,13 @@
 ---
-description: Audit qualité, sécurité et dette technique du projet
+description: Project quality, security, and technical debt audit
 ---
 
-Audit du projet. Priorise les fichiers modifiés depuis le dernier audit (git log) plutôt que de relire tout le repo.
+Project audit. Prioritize files changed since the last audit (git log) rather than rereading the whole repo.
 
-1. Sécurité : /security-review. Dépendances vulnérables (npm audit ou équivalent), secrets exposés, validation des inputs.
-2. Qualité : code dupliqué, fonctions trop complexes, TODO/FIXME laissés.
-3. Tests : couverture, chemins critiques non testés.
-4. Dette technique : écarts avec SPEC.md/CLAUDE.md.
-5. Performance : requêtes N+1, bundles lourds, assets non optimisés.
+1. Security: /security-review. Vulnerable dependencies (npm audit or equivalent), exposed secrets, input validation.
+2. Quality: duplicated code, overly complex functions, leftover TODO/FIXME.
+3. Tests: coverage, untested critical paths.
+4. Technical debt: gaps vs. SPEC.md/CLAUDE.md.
+5. Performance: N+1 queries, heavy bundles, unoptimized assets.
 
-Résultats par ordre de criticité, en liste concise. Propose une issue GitHub par point important. Ne corrige rien sans mon accord.
+Results ordered by severity, in a concise list. Propose one GitHub issue per significant point. Don't fix anything without my agreement.

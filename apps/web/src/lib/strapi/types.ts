@@ -1,5 +1,5 @@
-// Types calqués sur les schémas Strapi (apps/cms/src/api, apps/cms/src/components).
-// Strapi v5 : réponses "flatten" (pas de wrapper `attributes` comme en v4).
+// Types mirroring the Strapi schemas (apps/cms/src/api, apps/cms/src/components).
+// Strapi v5: "flattened" responses (no `attributes` wrapper like in v4).
 
 import type { BlocksContent } from "@strapi/blocks-react-renderer";
 
@@ -20,10 +20,10 @@ export interface StrapiMedia {
 }
 
 /**
- * Composant `shared.location`. addressLine/postalCode/latitude/longitude sont
- * `private` côté Strapi (issue #56) : jamais présents dans les réponses API.
- * approxLatitude/approxLongitude (~1km de précision) sont la seule source
- * publique de position, dérivée côté CMS (lifecycle Property).
+ * `shared.location` component. addressLine/postalCode/latitude/longitude
+ * are `private` in Strapi (issue #56): never present in API responses.
+ * approxLatitude/approxLongitude (~1km precision) are the only public
+ * source of position, derived on the CMS side (Property lifecycle).
  */
 export interface PropertyLocation {
   city: string;
@@ -33,14 +33,14 @@ export interface PropertyLocation {
   proximityNote?: string | null;
 }
 
-/** Composant `property.pricing`. */
+/** `property.pricing` component. */
 export interface PropertyPricing {
   basePricePerNight: number;
   cleaningFee?: number | null;
   currency: "EUR" | "USD" | "GBP";
 }
 
-/** Composant `shared.amenity`. */
+/** `shared.amenity` component. */
 export interface PropertyAmenity {
   id: number;
   label: string;
@@ -48,8 +48,8 @@ export interface PropertyAmenity {
 }
 
 /**
- * Content-type `Property` (apps/cms/src/api/property).
- * `icalUrl` est `private` côté Strapi : jamais présent dans les réponses API.
+ * `Property` content-type (apps/cms/src/api/property).
+ * `icalUrl` is `private` in Strapi: never present in API responses.
  */
 export interface Property {
   id: number;
@@ -67,9 +67,9 @@ export interface Property {
 }
 
 /**
- * Content-type `Availability` (apps/cms/src/api/availability), alimenté par
- * la synchronisation iCal (`source: "airbnb"`) ou saisi manuellement. Non
- * localisé côté Strapi : les dates ne dépendent pas de la langue.
+ * `Availability` content-type (apps/cms/src/api/availability), populated
+ * by the iCal sync (`source: "airbnb"`) or entered manually. Not
+ * localized in Strapi: dates don't depend on the language.
  */
 export interface Availability {
   id: number;
@@ -82,9 +82,9 @@ export interface Availability {
 }
 
 /**
- * Corps envoyé à `POST /api/booking-requests` (issue #9). `property` est le
- * `documentId` du logement. Pas de `bookingStatus` : toujours forcé à
- * `pending` côté Strapi (le contrôleur l'ignore si fourni).
+ * Body sent to `POST /api/booking-requests` (issue #9). `property` is
+ * the property's `documentId`. No `bookingStatus`: always forced to
+ * `pending` server-side by Strapi (the controller ignores it if provided).
  */
 export interface BookingRequestPayload {
   property: string;

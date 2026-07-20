@@ -1,72 +1,72 @@
 # SPEC — home-showcase
 
-> Document de cadrage. Résume les décisions produit/techniques prises avant le démarrage du code.
-> Les conventions dérivées de ces décisions (stack, structure de dossiers, workflow Git, gitmoji, tests) sont dans `CLAUDE.md`.
+> Scoping document. Summarizes the product/technical decisions made before development started.
+> Conventions derived from these decisions (stack, folder structure, Git workflow, gitmoji, tests) are in `CLAUDE.md`.
 
-## 1. Contexte & besoin
+## 1. Context & need
 
-Vitrine web pour un ou plusieurs logements de type Airbnb, pensée comme **complément** à Airbnb (pas un remplacement) :
+A showcase website for one or more Airbnb-style properties, designed as a **complement** to Airbnb (not a replacement):
 
-- Objectif principal : donner un support à partager sur les réseaux sociaux pour attirer de nouvelles réservations.
-- Le site présente les informations des logements (photos, description, tarifs, équipements, localisation) comme le ferait une fiche Airbnb.
-- Les visiteurs peuvent consulter la disponibilité et soumettre une **demande de réservation**, que la propriétaire accepte ou refuse manuellement.
-- La propriétaire n'est pas technique : toute modification de contenu (textes, photos, tarifs) doit se faire sans toucher au code.
+- Main goal: provide a shareable asset for social media to attract new bookings.
+- The site presents property information (photos, description, rates, amenities, location) the way an Airbnb listing would.
+- Visitors can check availability and submit a **booking request**, which the owner accepts or declines manually.
+- The owner is not technical: any content change (text, photos, rates) must be doable without touching code.
 
-Pas de contrainte de délai : projet développé au rythme normal, sans deadline externe.
+No deadline constraint: the project is developed at a normal pace, with no external deadline.
 
-## 2. Périmètre fonctionnel
+## 2. Functional scope
 
-### Inclus au MVP
+### Included in the MVP
 
-- Présentation de **plusieurs logements**, chacun avec sa propre fiche (photos, description FR/EN, tarifs, équipements, localisation).
-- **Site multilingue FR/EN** dès le MVP (audience Airbnb internationale).
-- **Calendrier de disponibilité** par logement, avec demande de réservation depuis ce calendrier.
-- **Synchronisation de la disponibilité avec Airbnb** via l'export iCal de chaque annonce (import périodique, lecture seule — on ne pousse rien vers Airbnb).
-- **Back-office** permettant à la propriétaire d'éditer tout le contenu sans intervention développeur.
-- **Workflow de demande de réservation** : le visiteur soumet une demande (dates, coordonnées, message) → la propriétaire est notifiée → elle accepte ou refuse depuis le back-office.
-- **Notification par email** à chaque nouvelle demande de réservation.
+- Presentation of **multiple properties**, each with its own listing (photos, FR/EN description, rates, amenities, location).
+- **Multilingual FR/EN site** from the MVP (international Airbnb audience).
+- **Availability calendar** per property, with booking requests submittable from this calendar.
+- **Availability sync with Airbnb** via each listing's iCal export (periodic import, read-only — nothing is pushed back to Airbnb).
+- **Back-office** letting the owner edit all content without developer involvement.
+- **Booking request workflow**: the visitor submits a request (dates, contact info, message) → the owner is notified → they accept or decline from the back-office.
+- **Email notification** for every new booking request.
 
-### Hors périmètre MVP (évolutions futures)
+### Out of MVP scope (future evolutions)
 
-- Notification **WhatsApp** (Twilio ou WhatsApp Business API) — v2.
-- Paiement en ligne / acompte.
-- Export/écriture vers le calendrier Airbnb (le flux reste unidirectionnel : Airbnb → home-showcase).
+- **WhatsApp** notification (Twilio or WhatsApp Business API) — v2.
+- Online payment / deposit.
+- Export/write back to the Airbnb calendar (the flow stays one-directional: Airbnb → home-showcase).
 
-## 3. Décisions techniques
+## 3. Technical decisions
 
-| Sujet                               | Décision                                                                                                                                                                                                                                                                                    |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Frontend                            | Next.js (TypeScript), rendu SSR/SSG pour le SEO                                                                                                                                                                                                                                             |
-| CMS                                 | Strapi, self-hosted (plutôt qu'un SaaS type Sanity, pour rester cohérent avec la cible d'hébergement)                                                                                                                                                                                       |
-| Base de données                     | PostgreSQL (utilisée par Strapi) — cible et environnement de référence, démarré via `docker/docker-compose.yml` (issue #2). `apps/cms` peut aussi tourner sur SQLite en local hors Docker (issue #1, fallback pratique sans lancer les conteneurs, mais non garanti à parité avec Postgres) |
-| Conteneurisation                    | Docker dès le départ : `docker/docker-compose.yml` (Postgres + Strapi + Next.js) et Dockerfiles multi-stage (`dev`/`production`) par app — voir README.md                                                                                                                                   |
-| Hébergement cible                   | Homelab **k3s** (Kubernetes), pas encore en place — le repo doit rester "portable" (pas de dépendance à un PaaS propriétaire) ; manifests Helm dans `deploy/helm/home-showcase/`                                                                                                            |
-| Structure de repo                   | Monorepo : `apps/web` (Next.js) + `apps/cms` (Strapi), gestion via workspaces `pnpm`                                                                                                                                                                                                        |
-| Demandes de réservation & sync iCal | Gérées **dans Strapi** : content-type `booking-request` (statut pending/accepted/refused) + content-type `availability` alimenté par un job cron Strapi qui importe les iCal Airbnb. Next.js consomme l'API Strapi (pas de base de données ni de backend séparé côté web)                   |
-| Notification email                  | SMTP self-hosté via `@strapi/provider-email-nodemailer`, plutôt que Resend — cohérent avec la logique homelab (voir §5)                                                                                                                                                                     |
-| Notification WhatsApp               | Hors périmètre MVP, prévu en v2                                                                                                                                                                                                                                                             |
-| Stratégie de tests                  | Tests unitaires + intégration ciblés (Vitest) sur la logique métier critique (calcul de disponibilité, workflow de réservation, parsing iCal) et sur les endpoints API. Tests end-to-end (Playwright) dans `e2e/` sur les parcours critiques (disponibilité, demande de réservation)        |
-| Workflow Git                        | Solo mais rigoureux : branches par feature, commits gitmoji, PR systématique sur GitHub avant merge sur `main` (via l'intégration MCP GitHub), voir `CLAUDE.md`                                                                                                                             |
+| Topic                        | Decision                                                                                                                                                                                                                                                                            |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend                     | Next.js (TypeScript), SSR/SSG rendering for SEO                                                                                                                                                                                                                                     |
+| CMS                          | Strapi, self-hosted (rather than a SaaS like Sanity, to stay consistent with the target hosting)                                                                                                                                                                                    |
+| Database                     | PostgreSQL (used by Strapi) — target and reference environment, started via `docker/docker-compose.yml` (issue #2). `apps/cms` can also run on SQLite locally outside Docker (issue #1, practical fallback without starting containers, but not guaranteed at parity with Postgres) |
+| Containerization             | Docker from the start: `docker/docker-compose.yml` (Postgres + Strapi + Next.js) and multi-stage Dockerfiles (`dev`/`production`) per app — see README.md                                                                                                                           |
+| Target hosting               | Homelab **k3s** (Kubernetes), not yet in place — the repo must stay "portable" (no dependency on a proprietary PaaS); Helm manifests in `deploy/helm/home-showcase/`                                                                                                                |
+| Repo structure               | Monorepo: `apps/web` (Next.js) + `apps/cms` (Strapi), managed via `pnpm` workspaces                                                                                                                                                                                                 |
+| Booking requests & iCal sync | Handled **in Strapi**: `booking-request` content-type (status pending/accepted/refused) + `availability` content-type populated by a Strapi cron job that imports Airbnb iCal feeds. Next.js consumes the Strapi API (no separate database or backend on the web side)              |
+| Email notification           | Self-hosted SMTP via `@strapi/provider-email-nodemailer`, rather than Resend — consistent with the homelab approach (see §5)                                                                                                                                                        |
+| WhatsApp notification        | Out of MVP scope, planned for v2                                                                                                                                                                                                                                                    |
+| Testing strategy             | Targeted unit + integration tests (Vitest) on critical business logic (availability computation, booking workflow, iCal parsing) and API endpoints. End-to-end tests (Playwright) in `e2e/` on critical flows (availability, booking request)                                       |
+| Git workflow                 | Solo but rigorous: branch per feature, gitmoji commits, systematic PR on GitHub before merging into `main` (via GitHub MCP integration), see `CLAUDE.md`                                                                                                                            |
 
-## 4. Modèle de contenu (Strapi) — vue d'ensemble
+## 4. Content model (Strapi) — overview
 
-- **Property** : nom, slug, description FR/EN, photos, adresse/localisation, tarifs, équipements, URL iCal Airbnb.
-- **Availability** : plages bloquées par `Property`, alimentées automatiquement par le job de sync iCal (lecture seule côté admin, pas d'édition manuelle des blocs importés).
-- **BookingRequest** : `Property` liée, dates demandées, nom/email/téléphone/nombre de voyageurs du demandeur, message, statut (`pending` / `accepted` / `refused`), horodatage. La création déclenche l'email de notification à la propriétaire ; le passage à `accepted`/`refused` crée ou retire l'`Availability` correspondante (`apps/cms/src/documents-middlewares`).
+- **Property**: name, slug, FR/EN description, photos, address/location, rates, amenities, Airbnb iCal URL.
+- **Availability**: blocked ranges per `Property`, populated automatically by the iCal sync job (read-only in the admin, no manual editing of imported blocks).
+- **BookingRequest**: linked `Property`, requested dates, requester name/email/phone/number of guests, message, status (`pending` / `accepted` / `refused`), timestamp. Creation triggers the owner's notification email; transitioning to `accepted`/`refused` creates or removes the corresponding `Availability` (`apps/cms/src/documents-middlewares`).
 
-Ce modèle a été implémenté tel quel pour le MVP (voir `CLAUDE.md` pour la structure de dossiers à jour).
+This model has been implemented as described for the MVP (see `CLAUDE.md` for the current folder structure).
 
-## 5. Points tranchés en cours d'implémentation
+## 5. Decisions settled during implementation
 
-- **Fournisseur d'email transactionnel** : SMTP self-hosté via `@strapi/provider-email-nodemailer` (config `apps/cms/config/plugins.ts`, variables `SMTP_*`/`EMAIL_FROM`/`EMAIL_REPLY_TO`), plutôt que Resend — cohérent avec la cible homelab. L'échec d'envoi est loggé mais ne bloque jamais la création de la demande de réservation.
-- **Sync iCal** : job cron Strapi (`apps/cms/src/cron-tasks`, service `apps/cms/src/api/availability/services/ical.ts`) qui importe l'export iCal Airbnb par `Property` et alimente `Availability`. `DTEND` traité comme exclusif (le jour de checkout redevient réservable).
-- **Confidentialité de la localisation** : l'adresse précise n'est jamais exposée publiquement ; le web ne reçoit qu'une position approximative dérivée côté CMS (Document Service middleware sur `Property`).
+- **Transactional email provider**: self-hosted SMTP via `@strapi/provider-email-nodemailer` (config `apps/cms/config/plugins.ts`, variables `SMTP_*`/`EMAIL_FROM`/`EMAIL_REPLY_TO`), rather than Resend — consistent with the homelab target. A send failure is logged but never blocks creation of the booking request.
+- **iCal sync**: Strapi cron job (`apps/cms/src/cron-tasks`, service `apps/cms/src/api/availability/services/ical.ts`) that imports the Airbnb iCal export per `Property` and populates `Availability`. `DTEND` treated as exclusive (the checkout day becomes bookable again).
+- **Location privacy**: the precise address is never exposed publicly; the web only receives an approximate position derived on the CMS side (Document Service middleware on `Property`).
 
-## 6. Points ouverts / à trancher plus tard
+## 6. Open points / to be decided later
 
-- **Détails de l'intégration WhatsApp** (v2) : choix du provider, coût, opt-in de la propriétaire.
-- **Paiement en ligne / acompte** (v2).
+- **WhatsApp integration details** (v2): provider choice, cost, owner opt-in.
+- **Online payment / deposit** (v2).
 
-## 7. État du MVP
+## 7. MVP status
 
-Le MVP tel que décrit ci-dessus (§2 « Inclus au MVP ») est implémenté et couvert par des tests unitaires (Vitest) et end-to-end (Playwright, `e2e/`) : logements multi-fiches FR/EN, calendrier de disponibilité sélectionnable synchronisé depuis Airbnb, formulaire de demande de réservation avec notification email, back-office Strapi (accept/refuse), SEO technique (sitemap, robots.txt, JSON-LD, canoniques/hreflang), Docker pour le dev local, chart Helm pour le déploiement k3s, CI GitHub Actions (lint/test/build/e2e/audit de dépendances). Reste en dehors du périmètre MVP : WhatsApp et paiement en ligne (v2, voir §6).
+The MVP as described above (§2 "Included in the MVP") is implemented and covered by unit tests (Vitest) and end-to-end tests (Playwright, `e2e/`): multi-listing FR/EN properties, selectable availability calendar synced from Airbnb, booking request form with email notification, Strapi back-office (accept/refuse), technical SEO (sitemap, robots.txt, JSON-LD, canonical/hreflang), Docker for local dev, Helm chart for k3s deployment, GitHub Actions CI (lint/test/build/e2e/dependency audit). Still out of MVP scope: WhatsApp and online payment (v2, see §6).
