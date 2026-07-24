@@ -41,7 +41,8 @@
       "description": "iCal event UID, used for an idempotent upsert during sync."
     },
     "summary": {
-      "type": "string"
+      "type": "string",
+      "private": true
     }
   }
 }

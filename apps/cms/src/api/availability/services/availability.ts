@@ -5,6 +5,7 @@
 import { factories } from "@strapi/strapi";
 import type { Core } from "@strapi/strapi";
 import { parseIcalEvents, reconcile } from "./ical";
+import { assertSafeIcalUrl } from "./ical-url-guard";
 
 type PropertyRecord = {
   documentId: string;
@@ -40,7 +41,8 @@ export default factories.createCoreService(
       }
 
       try {
-        const response = await fetch(property.icalUrl);
+        await assertSafeIcalUrl(property.icalUrl);
+        const response = await fetch(property.icalUrl, { redirect: "error" });
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
