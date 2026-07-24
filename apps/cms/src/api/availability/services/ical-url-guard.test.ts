@@ -13,9 +13,7 @@ describe("assertSafeIcalUrl", () => {
   });
 
   it("rejects a non-https URL", async () => {
-    await expect(assertSafeIcalUrl("http://example.com/cal.ics")).rejects.toThrow(
-      "must use https",
-    );
+    await expect(assertSafeIcalUrl("http://example.com/cal.ics")).rejects.toThrow("must use https");
   });
 
   it("rejects a hostname resolving to a private IPv4 address", async () => {
@@ -41,8 +39,6 @@ describe("assertSafeIcalUrl", () => {
 
   it("accepts an https URL resolving only to public addresses", async () => {
     lookupMock.mockResolvedValueOnce([{ address: "203.0.113.10", family: 4 }]);
-    await expect(
-      assertSafeIcalUrl("https://calendar.airbnb.com/cal.ics"),
-    ).resolves.toBeUndefined();
+    await expect(assertSafeIcalUrl("https://calendar.airbnb.com/cal.ics")).resolves.toBeUndefined();
   });
 });

@@ -1,4 +1,8 @@
-import { assertSafeIcalUrl, UnsafeIcalUrlError } from "../../../availability/services/ical-url-guard";
+import { errors } from "@strapi/utils";
+import {
+  assertSafeIcalUrl,
+  UnsafeIcalUrlError,
+} from "../../../availability/services/ical-url-guard";
 
 interface WriteEvent {
   params: {
@@ -21,7 +25,10 @@ async function validateIcalUrl(event: WriteEvent): Promise<void> {
     await assertSafeIcalUrl(icalUrl);
   } catch (error) {
     if (error instanceof UnsafeIcalUrlError) {
-      throw new Error(`Invalid icalUrl: ${error.message}`);
+      // ValidationError surfaces as a clean HTTP 400 with this message in
+      // the admin UI, instead of a generic 500 (Strapi only auto-converts
+      // its own database errors, not arbitrary lifecycle throws).
+      throw new errors.ValidationError(`Invalid icalUrl: ${error.message}`);
     }
     throw error;
   }
